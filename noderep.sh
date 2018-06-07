@@ -34,16 +34,16 @@ loadrep()
     /bin/echo -e `/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
 }
 
-# IMGoN mount info structure
+# IMGoN mount info structure v2
 imgonrep()
 {
-    for IMGONMP in `COLUMNS=300 /bin/lsblk | /bin/grep -v snap | /bin/grep "loop" | /usr/bin/awk '{print $NF}'`
-        do
-            /bin/echo -e `/bin/hostname`"\t\c"
-            /bin/mount | /bin/grep $IMGONMP | /usr/bin/awk -F " on " '{printf $1}' | /usr/bin/tr "\n" "\t"
-            /bin/echo -e $IMGONMP"\t\c"
-            /bin/echo -e `/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
-        done
+  for LOOPIMG in `COLUMNS=300 losetup -a | grep -v snap | awk -F "[()]" '{print $2}'`
+      do
+          /bin/echo -e `/bin/hostname`"\t\c"
+          /bin/echo -e $LOOPIMG"\t\c"
+          /bin/mount | /bin/grep $LOOPIMG | /usr/bin/awk -F " " '{printf $3}'
+          /bin/echo -e "\t"`/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
+      done
 }
 
 # Unique finish tag to ensure report integrity
