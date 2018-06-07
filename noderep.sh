@@ -40,9 +40,9 @@ imgonrep()
     for IMGONMP in `COLUMNS=300 /bin/lsblk | /bin/grep -v snap | /bin/grep "loop" | /usr/bin/awk '{print $NF}'`
         do
             /bin/echo -e `/bin/hostname`"\t\c"
-            /bin/mount | /bin/grep $IMGONMP | /usr/bin/awk -F " on " '{printf $1}'
+            /bin/mount | /bin/grep $IMGONMP | /usr/bin/awk -F " on " '{printf $1}' | /usr/bin/tr "\n" "\t"
             /bin/echo -e $IMGONMP"\t\c"
-            /bin/echo -e "\t"`/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
+            /bin/echo -e `/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
         done
 }
 
