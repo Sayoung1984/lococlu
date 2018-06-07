@@ -1,0 +1,15 @@
+#
+# This file built automatically by setup on Mon Apr 23 15:26:39 2018 CST.
+# Do not attempt to modify by hand.
+#
+# Generated from inclusion of config/duty/uaaa/conf/ssh_config
+
+GSSAPIAuthentication yes
+GSSAPIDelegateCredentials yes
+
+# Generated from inclusion of config/global/conf/ssh_config.linux
+#  Global config
+#	$Id: ssh_config.linux,v 1.1 2012/01/28 00:04:14 enichols Exp $
+
+	ForwardAgent yes
+	ForwardX11 yes

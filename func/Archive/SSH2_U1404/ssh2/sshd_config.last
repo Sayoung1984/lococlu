@@ -1,0 +1,23 @@
+#
+# This file built automatically by setup on Mon Apr 23 15:22:55 2018 CST.
+# Do not attempt to modify by hand.
+#
+# Generated from inclusion of config/duty/uaaa/conf/sshd_config
+
+UsePAM yes
+GSSAPIAuthentication yes
+GSSAPICleanupCredentials yes
+
+# Generated from output of config/global/conf/sshd_config.linux
+Protocol 2
+RhostsRSAAuthentication yes
+HostbasedAuthentication yes
+# CM-1357 (See https://jira-stnd.qualcomm.com/jira/browse/CM-1357)
+# Ubuntu16 requires PermitRootLogin set to 'yes'.
+PermitRootLogin yes
+
+X11Forwarding yes
+#Banner /etc/banner
+
+# override default of no subsystems
+Subsystem	sftp	/usr/lib/sftp-server
