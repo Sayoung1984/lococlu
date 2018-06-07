@@ -1,19 +1,14 @@
 #! /bin/bash
 COLUMNS=512
+endline="###---###---###---###---###"
 echo -e "#DBG You're been hosted by receptionist v0.1"
 echo -e "#DBG Your login UID is "$LOGNAME
 
 # Set log latency threshhold
 loglatency=3
 
-# Unique finish tag to ensure report integrity
-endline()
-{
-    /bin/echo -e "###---###---###---###---###"
-}
-
 # Secure Real Time Text Copy, check text integrity, then drop real time text to NFS at this last step
-secrttcp()
+secrttcp_old()
 {
     for REPLX in `ls /var/log/rt.*`
     do
@@ -36,6 +31,27 @@ secrttcp()
     done
 }
 
+# Secure Realtime Text Copy v2, check text integrity, then drop real time text to NFS at this last step, with endline
+# /bin/sed -i '$d' $REPLX # To cat last line, on receive side
+secrtsend()
+{
+for REPLX in `/bin/ls /var/log/rt.*`
+do
+  CheckLineL1=`/usr/bin/tac $REPLX | sed -n '1p'`
+  CheckLineL2=`/usr/bin/tac $REPLX | sed -n '2p'`
+  if [ "$CheckLineL1"  == "$endline `hostname`" -a "$CheckLineL2"  != "$endline `hostname`" ]
+  then
+    REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
+    cp $REPLX `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
+    chmod 666 `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
+  else
+    mv $REPLX.fail  #DBG
+    /bin/rm $REPLX
+  fi
+done
+}
+
+
 # Subfunction to list user images, output $ImgList if found
 listimg()
 {
@@ -47,7 +63,7 @@ listimg()
 # Subfunction to get node in lowest load, output $NodeLine family
 listnode()
 {
-    /bin/cat /receptionist/opstmp/secrt.sitrep.load.* | awk '{ print $1"\t"$2"\t"$3"\t"$4"\t"$5}' | sort -n -t$'\t' -k 2 1> /receptionist/opstmp/resource.sortload
+    /bin/cat /receptionist/opstmp/secrt.sitrep.load.* | grep -v $endline| awk '{ print $1"\t"$2"\t"$3"\t"$4"\t"$5}' | sort -n -t$'\t' -k 2 1> /receptionist/opstmp/resource.sortload
     chmod 666 /receptionist/opstmp/resource.sortload
     NodeLine=`cat /receptionist/opstmp/resource.sortload | head -n 1`
     NodeLine_Name=`echo $NodeLine | awk '{print $1}'`
@@ -74,21 +90,22 @@ selectnode()
   echo -e "\n\nSelect $FreeNode as node with lowest load.\n"
 }
 
-# Subfunction to list IMGoN mounted info, create /receptionist/opstmp/resource.imgon
-listimgon()
-{
-    cat /receptionist/opstmp/secrt.sitrep.imgon.* 1> /receptionist/opstmp/resource.imgon
-    chmod 666 /receptionist/opstmp/resource.imgon
-}
-
-# Subfunction to read /receptionist/opstmp/resource.imgon, output $ImgonLine family
+# Subfunction to make /receptionist/opstmp/resource.imgon, output $ImgonLine family
 imgoninfo()
 {
-    ImgonLine=`cat /receptionist/opstmp/secrt.sitrep.imgon.* | egrep "(\.\.|\/)$LOGNAME\.img"`
-    ImgonLine_node=`echo -e "$ImgonLine" | awk -F " " '{print $1}'`
-    ImgonLine_timestamp=`echo -e "$ImgonLine" | awk -F " " '{print $NF}'`
-    ImgonLine_latency=`expr $(date +%s) - $ImgonLine_timestamp 2>/dev/null`
-    # echo -e "#DBG_A ImgonLine =\t"$ImgonLine"\n#DBG_A ImgonLine_node =\t"$ImgonLine_node"\n#DBG_A ImgonLine_latency =\t"$ImgonLine_latency"\n"
+  cat /receptionist/opstmp/secrt.sitrep.imgon.* | grep -v $endline 1> /receptionist/opstmp/resource.imgon
+  chmod 666 /receptionist/opstmp/resource.imgon
+  ImgonLine=`cat /receptionist/opstmp/resource.imgon | egrep "(\.\.|\/)$LOGNAME\.img"`
+  ImgonLine_node=`echo -e "$ImgonLine" | awk -F " " '{print $1}'`
+  ImgonLine_timestamp=`echo -e "$ImgonLine" | awk -F " " '{print $NF}'`
+  ImgonLine_latency=`expr $(date +%s) - $ImgonLine_timestamp 2>/dev/null`
+  # echo -e "#DBG_A ImgonLine =\t"$ImgonLine"\n#DBG_A ImgonLine_node =\t"$ImgonLine_node"\n#DBG_A ImgonLine_latency =\t"$ImgonLine_latency"\n"
+}
+
+# Secure SSH redirector, the Last subfunction checking $ImgList and $LaunchNode, then patch user through
+secpatch()
+{
+
 }
 
 # Main0 User launch lock
@@ -126,17 +143,16 @@ if [ ! -f "$lockpath" ]
 fi
 
 
-# Main1, create user root workspace image if does not exist, output single line $ImgList when finished.
+# Main1, create user root workspace image if does not exist, output  $ImgList when finished.
 echo -e "Looking for your workspace image...\n"
 listimg
-#echo -e "#DBG  ImgList=$ImgList"
+echo -e "#DBG_Main1_A  ImgList=$ImgList"
 if [ ! -n "$ImgList" ]
 then
-	echo $LOGNAME > /var/log/rt.ticket.mkimg.$LOGNAME
-	endline >> /var/log/rt.ticket.mkimg.$LOGNAME
-	secrttcp
-	echo -e "#DBG Z ImgList = $ImgList"
-	echo -e "Creating image for new user, please wait \c"
+	echo -e "$LOGNAME" > /receptionist/opstmp/secrt.ticket.mkimg.$LOGNAME
+  chmod 666 /receptionist/opstmp/secrt.ticket.mkimg.$LOGNAME
+	echo -e "#DBG_Main1_B ImgList = $ImgList\n"
+	echo -e "Creating new image for you, please wait ..\c"
 	while [ ! -n "$ImgList" ]
 		do
 			echo -ne "."
@@ -210,7 +226,7 @@ echo -e "Got launchnode = "$LaunchNode"\n"
 #LaunchNode="" #DBG Interrupted debuger
 if [ ! -n "$ImgList" -o ! -n "$LaunchNode" ]
 	then
-		echo -e "#DBG Missing laucn info, current ImgList = $ImgList, LaunchNode = $LaunchNode\n"
+		echo -e "#DBG Missing laucn info, current LaunchNode = $LaunchNode, ImgList = $ImgList, IMGoM_MP = $IMGoM_MP\n"
 		echo -e "Kicking you out now... Please try connect again.\n"
 		exit
 # elif [ ! -n "$LaunchNode" ]

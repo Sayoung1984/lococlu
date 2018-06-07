@@ -1,6 +1,5 @@
 #! /bin/bash
-COLUMNS=300
-endline="###---###---###---###---###"
+
 # noderep.sh single instance lock
 pidpath=/tmp/noderep.pid
 if [ -f "$pidpath" ]
@@ -10,12 +9,16 @@ if [ -f "$pidpath" ]
 fi
 echo $$ >$pidpath
 
+COLUMNS=300
+endline="###---###---###---###---###"
+
 # Fixed parameters for CPU info
 # CPUFREQ=`cat /proc/cpuinfo | /bin/grep "model name" | /usr/bin/uniq | /bin/sed -r 's/.*@ (.*)GHz.*/\1/'` # Not compatible with AMD CPU
 # CPUFREQ=`/bin/lscpu | /bin/grep 'max' | /usr/bin/awk -F " " '{print $4}'` # Not compatible with VM
 # CPUFREQ=`/bin/lscpu | /bin/grep 'CPU MHz:' | /usr/bin/awk -F " " '{print $3}'` # Dynamic value, move to loadrep()
 # LOGICORE=`/bin/cat /proc/cpuinfo | /bin/grep siblings | /usr/bin/uniq | /usr/bin/awk -F ": " '{print $2}'`
-LOGICORE=`/usr/bin/lscpu | /bin/grep -v NUMA | /bin/grep -e "CPU(s):" | /usr/bin/awk -F " " '{print $2}'`
+# LOGICORE=`/usr/bin/lscpu | /bin/grep -v NUMA | /bin/grep -e "CPU(s):" | /usr/bin/awk -F " " '{print $2}'`
+LOGICORE=`nproc --all`
 # nproc=LOGICORE
 TPCORE=`/usr/bin/lscpu | /bin/grep -e "Thread" | /usr/bin/awk -F " " '{print $4}'`
 
@@ -33,18 +36,20 @@ loadrep()
     /bin/echo -e " 100 * $SHORTLOAD* $TPCORE / $LOGICORE "| /usr/bin/bc | /usr/bin/awk -F "." '{print $1}' | /usr/bin/tr "\n" "\t"
     #/bin/echo -e " 10 * $CPUUSE "| /usr/bin/bc | /usr/bin/awk -F "." '{print $1}' | /usr/bin/tr "\n" "\t"
     /bin/echo -e `/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
+    /bin/echo -e "$endline" `hostname`
 }
 
 # IMGoN mount info structure v2
 imgonrep()
 {
   for LOOPIMG in `COLUMNS=300 /sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}'`
-      do
-          /bin/echo -e `/bin/hostname`"\t\c"
-          /bin/echo -e $LOOPIMG"\t\c"
-          /bin/mount | /bin/grep $LOOPIMG | /usr/bin/awk -F " " '{printf $3}'
-          /bin/echo -e "\t"`/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
-      done
+  do
+    /bin/echo -e `/bin/hostname`"\t\c"
+    /bin/echo -e $LOOPIMG"\t\c"
+    /bin/mount | /bin/grep $LOOPIMG | /usr/bin/awk -F " " '{printf $3}'
+    /bin/echo -e "\t"`/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
+  done
+  /bin/echo -e "$endline" `hostname`
 }
 
 # Secure Real Time Text Copy, check text integrity, then drop real time text to NFS at this last step
@@ -72,23 +77,24 @@ secrttcp_old()
         done
 }
 
-# Secure Real Time Text Copy v2, check text integrity, then drop real time text to NFS at this last step, with endline
+# Secure Realtime Text Copy v2, check text integrity, then drop real time text to NFS at this last step, with endline
 # /bin/sed -i '$d' $REPLX # To cat last line, on receive side
-secrttcp()
+secrtsend()
 {
-for REPLX in `/bin/ls /var/log/rt.*`
-do
-  CheckLineL1=`/usr/bin/tac $REPLX | sed -n '1p'`
-  CheckLineL2=`/usr/bin/tac $REPLX | sed -n '2p'`
-  if [ "$CheckLineL1"  == "`hostname` $endline" -a "$CheckLineL2"  != "`hostname` $endline" ]
-  then
-    REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
-    cp $REPLX `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
-    chmod 666 `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
-  else
-    /bin/rm $REPLX
-  fi
-done
+  for REPLX in `/bin/ls /var/log/rt.* 2>/dev/null`
+  do
+    CheckLineL1=`/usr/bin/tac $REPLX | sed -n '1p'`
+    CheckLineL2=`/usr/bin/tac $REPLX | sed -n '2p'`
+    if [ "$CheckLineL1"  == "$endline `hostname`" -a "$CheckLineL2"  != "$endline `hostname`" ]
+    then
+      REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
+      cp $REPLX `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
+      chmod 666 `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
+    else
+      # mv $REPLX.fail  #DBG
+      /bin/rm $REPLX
+    fi
+  done
 }
 
 # Infant image maker, !!! current only for /images/vol01 !!!
@@ -107,9 +113,10 @@ mkinfantimg()
 mkuserimg()
 {
     MkImgUser=`/bin/cat /receptionist/opstmp/secrt.ticket.mkimg.* 2> /dev/null`
+    /bin/echo -e "DBG_MkImgUser_A MkImgUser=$MkImgUser" > /root/DBG_MkImgUser_A
     if [ -n "$MkImgUser" ]
     then
-    #	mv /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser /receptionist/opstmp/done.secrt.ticket.mkimg.$MkImgUser	#DBG
+#    	mv /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser /receptionist/opstmp/done.secrt.ticket.mkimg.$MkImgUser	#DBG
     	rm -f /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser
     	mv /images/vol01/diskinfant /images/vol01/$MkImgUser.img
     	MkImgUser=""
@@ -117,19 +124,32 @@ mkuserimg()
 }
 
 # General operation executor, run command in tickets as root
+geoexec_old()
+{
+  if [ -f "/receptionist/opstmp/secrt.ticket.geoexec.$(hostname)" ]
+    then
+      eval $(/bin/cat /receptionist/opstmp/secrt.ticket.geoexec.$(hostname))
+      echo $(/bin/cat /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)) > /local/mnt/workspace/CMD_LOG     #DBG show last ticket command
+      # /bin/echo -e "#DBG\t"$(/bin/cat /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)) >> /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)
+      # /bin/echo -e "#DBG\t$(hostname) got this secrt.ticket" >> /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)
+      mv /receptionist/opstmp/secrt.ticket.geoexec.$(hostname) /receptionist/opstmp/done.secrt.ticket.geoexec.$(hostname)   #DBG Save last ticket
+      # /bin/rm -f /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)
+  fi
+}
+
+# General Operation Executor v2, run command in tickets as root
 geoexec()
 {
   if [ -f "/receptionist/opstmp/secrt.ticket.geoexec.$(hostname)" ]
     then
       eval $(/bin/cat /receptionist/opstmp/secrt.ticket.geoexec.$(hostname))
       echo $(/bin/cat /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)) > /local/mnt/workspace/CMD_LOG     #DBG show last ticket command
-#      /bin/echo -e "#DBG\t"$(/bin/cat /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)) >> /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)
-#      /bin/echo -e "#DBG\t$(hostname) got this secrt.ticket" >> /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)
+      # /bin/echo -e "#DBG\t"$(/bin/cat /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)) >> /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)
+      # /bin/echo -e "#DBG\t$(hostname) got this secrt.ticket" >> /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)
       mv /receptionist/opstmp/secrt.ticket.geoexec.$(hostname) /receptionist/opstmp/done.secrt.ticket.geoexec.$(hostname)   #DBG Save last ticket
-#      /bin/rm -f /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)
+      # /bin/rm -f /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)
   fi
 }
-
 
 # Main function loop
 step=1 #Execution time interval, MUST UNDER 3600!!!
@@ -138,11 +158,10 @@ for (( i = 0; i < 3600; i=(i+step) ))
         $(
         loadrep > /var/log/rt.sitrep.load.`hostname`
         imgonrep > /var/log/rt.sitrep.imgon.`hostname`
-#        imgonrep > /root/test/dbg_imgonrep
-        /bin/echo -e `hostname` "$endline" >> /var/log/rt.sitrep.load.`hostname`
-        /bin/echo -e `hostname` "$endline" >> /var/log/rt.sitrep.imgon.`hostname`
-        secrttcp
-#        echo $endline | /usr/bin/tee -a /var/log/rt.sitrep.load.`hostname` >> /var/log/rt.sitrep.imgon.`hostname`
+        # imgonrep > /root/dbg_imgonrep
+        # /bin/echo -e "$endline" `hostname` >> /var/log/rt.sitrep.load.`hostname`
+        # /bin/echo -e "$endline" `hostname` >> /var/log/rt.sitrep.imgon.`hostname`
+        secrtsend
         mkuserimg
         mkinfantimg
         geoexec
