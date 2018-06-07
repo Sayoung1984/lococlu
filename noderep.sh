@@ -1,5 +1,6 @@
 #! /bin/bash
 COLUMNS=300
+endline="###---###---###---###---###"
 # noderep.sh single instance lock
 pidpath=/tmp/noderep.pid
 if [ -f "$pidpath" ]
@@ -37,7 +38,7 @@ loadrep()
 # IMGoN mount info structure v2
 imgonrep()
 {
-  for LOOPIMG in `COLUMNS=300 losetup -a | grep -v snap | awk -F "[()]" '{print $2}'`
+  for LOOPIMG in `COLUMNS=300 /sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}'`
       do
           /bin/echo -e `/bin/hostname`"\t\c"
           /bin/echo -e $LOOPIMG"\t\c"
@@ -46,25 +47,19 @@ imgonrep()
       done
 }
 
-# Unique finish tag to ensure report integrity
-endline()
-{
-    /bin/echo -e "---###---###---###---###---"
-}
-
 # Secure Real Time Text Copy, check text integrity, then drop real time text to NFS at this last step
-secrttcp()
+secrttcp_old()
 {
     for REPLX in `/bin/ls /var/log/rt.*`
         do
             rpcheckline=`/usr/bin/tail -n 1 $REPLX`
-            if [ "$rpcheckline"  != "---###---###---###---###---" ]
+            if [ "$rpcheckline"  != "###---###---###---###---###" ]
                 then
                     /bin/rm $REPLX
                 else
                     /bin/sed -i '$d' $REPLX
 		    rpchecklineL2=`/usr/bin/tail -n 1 $REPLX`
-		    if [ "$rpchecklineL2"  == "---###---###---###---###---" ]
+		    if [ "$rpchecklineL2"  == "###---###---###---###---###" ]
 		    	then
 			     /bin/rm $REPLX
 			else
@@ -75,6 +70,25 @@ secrttcp()
 		    fi
             fi
         done
+}
+
+# Secure Real Time Text Copy v2, check text integrity, then drop real time text to NFS at this last step, with endline
+# /bin/sed -i '$d' $REPLX # To cat last line, on receive side
+secrttcp()
+{
+for REPLX in `/bin/ls /var/log/rt.*`
+do
+  CheckLineL1=`/usr/bin/tac $REPLX | sed -n '1p'`
+  CheckLineL2=`/usr/bin/tac $REPLX | sed -n '2p'`
+  if [ "$CheckLineL1"  == "`hostname` $endline" -a "$CheckLineL2"  != "`hostname` $endline" ]
+  then
+    REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
+    cp $REPLX `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
+    chmod 666 `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
+  else
+    /bin/rm $REPLX
+  fi
+done
 }
 
 # Infant image maker, !!! current only for /images/vol01 !!!
@@ -122,10 +136,13 @@ step=1 #Execution time interval, MUST UNDER 3600!!!
 for (( i = 0; i < 3600; i=(i+step) ))
     do
         $(
-        secrttcp
         loadrep > /var/log/rt.sitrep.load.`hostname`
         imgonrep > /var/log/rt.sitrep.imgon.`hostname`
-        endline | /usr/bin/tee -a /var/log/rt.sitrep.load.`hostname` >> /var/log/rt.sitrep.imgon.`hostname`
+#        imgonrep > /root/test/dbg_imgonrep
+        /bin/echo -e `hostname` "$endline" >> /var/log/rt.sitrep.load.`hostname`
+        /bin/echo -e `hostname` "$endline" >> /var/log/rt.sitrep.imgon.`hostname`
+        secrttcp
+#        echo $endline | /usr/bin/tee -a /var/log/rt.sitrep.load.`hostname` >> /var/log/rt.sitrep.imgon.`hostname`
         mkuserimg
         mkinfantimg
         geoexec

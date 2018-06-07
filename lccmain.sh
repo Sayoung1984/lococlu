@@ -9,7 +9,7 @@ loglatency=3
 # Unique finish tag to ensure report integrity
 endline()
 {
-    /bin/echo -e "---###---###---###---###---"
+    /bin/echo -e "###---###---###---###---###"
 }
 
 # Secure Real Time Text Copy, check text integrity, then drop real time text to NFS at this last step
@@ -18,13 +18,13 @@ secrttcp()
     for REPLX in `ls /var/log/rt.*`
     do
         rpcheckline=`/usr/bin/tail -n 1 $REPLX`
-        if [ "$rpcheckline"  != "---###---###---###---###---" ]
+        if [ "$rpcheckline"  != "###---###---###---###---###" ]
         then
             rm $REPLX
         else
             /bin/sed -i '$d' $REPLX
             rpchecklineL2=`/usr/bin/tail -n 1 $REPLX`
-            if [ "$rpchecklineL2"  == "---###---###---###---###---" ]
+            if [ "$rpchecklineL2"  == "###---###---###---###---###" ]
             then
                 rm $REPLX
             else
