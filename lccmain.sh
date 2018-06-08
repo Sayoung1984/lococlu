@@ -55,22 +55,18 @@ secrtsend()
 # Subfunction to list user images, output $ImgList if found
 listimg()
 {
-    find  /images/vol* -type f 1> /receptionist/opstmp/resource.image
-    chmod 666 /receptionist/opstmp/resource.image
-    ImgList=`cat /receptionist/opstmp/resource.image | egrep "(\.\.|\/)$LOGNAME\.img$" 2>/dev/null`
-    rm -f /receptionist/opstmp/resource.image
+    ImgList=`find  /images/vol* -type f | egrep "(\.\.|\/)$LOGNAME\.img$" 2>/dev/null`
 }
 
 # Subfunction to get node in lowest load, output $NodeLine family
 listnode()
 {
-    /bin/cat /receptionist/opstmp/secrt.sitrep.load.* | grep -v $endline | awk '{ print $1"\t"$2"\t"$3"\t"$4"\t"$5}' | sort -n -t$'\t' -k 2 1> /receptionist/opstmp/resource.sortload
-    chmod 666 /receptionist/opstmp/resource.sortload
-    NodeLine=`cat /receptionist/opstmp/resource.sortload | head -n 1`
+    NodeLine=`/bin/cat /receptionist/opstmp/secrt.sitrep.load.* | grep -v $endline | sort -n -t$'\t' -k 2 | head -n 1`
     NodeLine_Name=`echo $NodeLine | awk '{print $NR}'`
     NodeLine_Load=`echo $NodeLine | awk '{print $3}'`
     NodeLine_lag=`expr $(date +%s) - $(echo -e "$NodeLine" | awk -F " " '{print $NF}') 2>/dev/null`
-    echo -e "\n#DBG_listnode NodeLine_Name = $NodeLine_Name\n#DBG_listnode NodeLine_Load = $NodeLine_Load\n#DBG_listnode NodeLine_lag = $NodeLine_lag\n#DBG_listnode Log latency = $loglatency\n\n"
+    echo -e "\n#DBG_listnode NodeLine_Name = $NodeLine_Name\n#DBG_listnode NodeLine_Load = $NodeLine_Load"
+    echo -e "#DBG_listnode NodeLine_lag = $NodeLine_lag\n#DBG_listnode Log latency = $loglatency\n\n"
 }
 
 # Subfunction to select free node, output $FreeNode
@@ -87,23 +83,24 @@ selectnode()
         echo -e ".\c"
         # echo -e "\n#DBG_selectnode NodeLine_Name = $NodeLine_Name\n#DBG_selectnode NodeLine_tstamp = $NodeLine_tstamp\n#DBG_selectnode NodeLine_lag = $NodeLine_lag\n\n"
     done
-    rm -f /receptionist/opstmp/resource.sortload
+
     FreeNode=$NodeLine_Name
-    echo -e "\n\nSelect $FreeNode as node with lowest load.\n"
+    echo -e "\n\nSelect $FreeNode as node with lowest load\n"
 }
 
 # Subfunction to make /receptionist/opstmp/resource.mount, output $ImgonLn family
 imgoninfo()
 {
-    cat /receptionist/opstmp/secrt.sitrep.imgon.* | grep -v $endline 1> /receptionist/opstmp/resource.mount
-    chmod 666 /receptionist/opstmp/resource.mount
-    ImgonLn=`cat /receptionist/opstmp/resource.mount | egrep "(\.\.|\/)$LOGNAME\.img"`
+    # cat /receptionist/opstmp/secrt.sitrep.imgon.* | grep -v $endline 1> /receptionist/opstmp/resource.mount
+    # chmod 666 /receptionist/opstmp/resource.mount
+    # ImgonLn=`cat /receptionist/opstmp/resource.mount | egrep "(\.\.|\/)$LOGNAME\.img"`
+    ImgonLn=`cat /receptionist/opstmp/secrt.sitrep.imgon.* | grep -v $endline | egrep "(\.\.|\/)$LOGNAME\.img"`
     ImgonLn_node=`echo -e "$ImgonLn" | awk -F " " '{print $NR}'`
     ImgonLn_img=`echo -e "$ImgonLn" | awk -F " " '{print $2}'`
     ImgonLn_mntp=`echo -e "$ImgonLn" | awk -F " " '{print $3}'`
     ImgonLn_lag=`expr $(date +%s) - $(echo -e "$ImgonLn" | awk -F " " '{print $NF}') 2>/dev/null`
-    rm -f /receptionist/opstmp/resource.mount
-    echo -e "#DBG_imgoninfo ImgonLn =\t$ImgonLn\n#DBG_imgoninfo ImgonLn_node =\t$ImgonLn_node"
+    # rm -f /receptionist/opstmp/resource.mount
+    echo -e "#DBG_imgoninfo ImgonLn family:\t$ImgonLn\n#DBG_imgoninfo ImgonLn_node =\t$ImgonLn_node"
     echo -e "#DBG_imgoninfo ImgonLn_img =\t$ImgonLn_img\n#DBG_imgoninfo ImgonLn_mntp =\t$ImgonLn_mntp"
     echo -e "#DBG_imgoninfo ImgonLn_lag =\t$ImgonLn_lag\n#DBG_imgoninfo Log latency =\t$loglatency\n\n"
 }
@@ -142,7 +139,6 @@ if [ ! -f "$lockpath" ]
 		echo -e "\nSpooling login session on `hostname` now...\n"
 		echo `hostname` > /receptionist/opstmp/launchlock.$LOGNAME
 		chmod 666 /receptionist/opstmp/launchlock.$LOGNAME
-		sleep 1
 	else
 		echo -e "\nYou already have a launch instance record on launch server: \c"
 		cat $lockpath
@@ -170,22 +166,35 @@ fi
 # Main1, create user root workspace image if does not exist, output  $ImgList when finished.
 echo -e "Looking for your workspace image...\n"
 listimg
-echo -e "#DBG_Main1_A  ImgList=$ImgList"
+echo -e "#DBG_Main1   First Check, ImgList=$ImgList"
 if [ ! -n "$ImgList" ]
+then
+    sleep $loglatency
+    listimg
+    echo -e "#DBG_Main1   Double check, ImgList=$ImgList"
+    if [ ! -n "$ImgList" ]
     then
-    	echo -e "$LOGNAME" > /receptionist/opstmp/secrt.ticket.mkimg.$LOGNAME
-    	chmod 666 /receptionist/opstmp/secrt.ticket.mkimg.$LOGNAME
-    	echo -e "#DBG_Main1_B ImgList = $ImgList\n"
-    	echo -e "Creating new image for you, please wait ..\c"
-    	while [ ! -n "$ImgList" ]
-    		do
-    			echo -ne "."
-    			sleep 1
-    			listimg
-    		done
-    	echo
+        sleep $loglatency
+        listimg
+        echo -e "#DBG_Main1   Treble Check, ImgList=$ImgList"
+        if [ ! -n "$ImgList" ]
+        then
+        	echo -e "$LOGNAME" > /receptionist/opstmp/secrt.ticket.mkimg.$LOGNAME
+        	chmod 666 /receptionist/opstmp/secrt.ticket.mkimg.$LOGNAME
+        	#echo -e "#DBG_Main1    Pre-Create, ImgList = $ImgList\n"
+        	echo -e "Creating new image for you, please wait ..\c"
+        	while [ ! -n "$ImgList" ]
+        		do
+        			echo -ne "."
+        			sleep 1
+        			listimg
+                    #echo -e "#DBG_Main1   Loop Check, ImgList=$ImgList"
+        		done
+        	echo
+        fi
+    fi
 fi
-echo -e "Got your image "$ImgList"\n"
+echo -e "\nGot your image "$ImgList"\n"
 
 #######################################Got $LOGNAME and $ImgList, Needs $LaunchNode and
 
@@ -193,7 +202,7 @@ echo -e "Got your image "$ImgList"\n"
 imgoninfo
 if [ ! -n "$ImgonLn_node" ]
 then
-    echo -e "Did not find your image mounted on any node \n"
+    echo -e "Did not find your image mounted on any node\n"
     selectnode
     LaunchNode=$FreeNode
     #####################################
@@ -237,7 +246,8 @@ then
 	#####################################
 else
 	LaunchNode=$ImgonLn_node
-	echo -e "Find your image mounted on "$LaunchNode
+    IMGoM_MP=$ImgonLn_mntp
+	echo -e "Found your image mounted on $ImgonLn_mntp of $LaunchNode\n"
 	#####################################
 	echo -e "#DBG Insert node load check here..."
 	echo -e "#DBG Insert node switch module here..."
