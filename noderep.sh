@@ -39,7 +39,7 @@ loadrep()
     /bin/echo -e "$endline" `hostname`
 }
 
-# IMGoN mount info structure v2 
+# IMGoN mount info structure v2
 imgonrep()
 {
   for LOOPIMG in `COLUMNS=300 /sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}'`
