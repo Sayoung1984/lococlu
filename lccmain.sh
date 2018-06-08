@@ -120,7 +120,7 @@ secpatch()
     	echo -e "#DBG Got your UID: $LOGNAME, your image: $ImgList mounted on $LaunchNode\n"
     	echo -e "Patching you through now...\n"
     	rm -f /receptionist/opstmp/launchlock.$LOGNAME
-      echo -e "#DBG_XXX   Congrats!!! You reached the last patch step!!! Drill interrupted!!!" && exit
+    	echo -e "#DBG_XXX   Congrats!!! All good !!! Drill interrupted!!!\n\nPress any key to exit" && read KEY && exit
     	/usr/bin/ssh $LOGNAME@$LaunchNode
     fi
 }
