@@ -1,7 +1,7 @@
 #! /bin/bash
 COLUMNS=512
 endline="###---###---###---###---###"
-echo -e "#DBG You're been hosted by receptionist v0.1"
+echo -e "#DBG You're been hosted by receptionist v0.1\n"
 echo -e "#DBG Your login UID is "$LOGNAME
 
 # Set log latency threshhold
@@ -35,20 +35,20 @@ secrttcp_old()
 # /bin/sed -i '$d' $REPLX # To cat last line, on receive side
 secrtsend()
 {
-for REPLX in `/bin/ls /var/log/rt.*`
-do
-  CheckLineL1=`/usr/bin/tac $REPLX | sed -n '1p'`
-  CheckLineL2=`/usr/bin/tac $REPLX | sed -n '2p'`
-  if [ "$CheckLineL1"  == "$endline `hostname`" -a "$CheckLineL2"  != "$endline `hostname`" ]
-  then
-    REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
-    cp $REPLX `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
-    chmod 666 `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
-  else
-    mv $REPLX.fail  #DBG
-    /bin/rm $REPLX
-  fi
-done
+    for REPLX in `/bin/ls /var/log/rt.*`
+    do
+      CheckLineL1=`/usr/bin/tac $REPLX | sed -n '1p'`
+      CheckLineL2=`/usr/bin/tac $REPLX | sed -n '2p'`
+      if [ "$CheckLineL1"  == "$endline `hostname`" -a "$CheckLineL2"  != "$endline `hostname`" ]
+      then
+        REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
+        cp $REPLX `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
+        chmod 666 `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
+      else
+        mv $REPLX.fail  #DBG
+        /bin/rm $REPLX
+      fi
+    done
 }
 
 
@@ -241,20 +241,4 @@ echo -e "Got launchnode = "$LaunchNode"\n"
 # Main 3, Patch USER to NODE with IMAGE mounted, with last check
 #ImgList="" #DBG Interrupted debuger
 #LaunchNode="" #DBG Interrupted debuger
-if [ ! -n "$ImgList" -o ! -n "$LaunchNode" ]
-	then
-		echo -e "#DBG Missing laucn info, current LaunchNode = $LaunchNode, ImgList = $ImgList, IMGoM_MP = $IMGoM_MP\n"
-		echo -e "Kicking you out now... Please try connect again.\n"
-		exit
-# elif [ ! -n "$LaunchNode" ]
-#	then
-#		echo -e "#DBG Missing user launch node info, current LaunchNode = $LaunchNode\n"
-#		echo -e "Kicking you out now... Please try connect again.\n"
-#		exit
-else
-	echo -e "#DBG Got your UID: $LOGNAME, your image: $ImgList mounted on $LaunchNode\n"
-	echo -e "Patching you through now...\n"
-	rm -f /receptionist/opstmp/launchlock.$LOGNAME
-  echo -e "#DBG_XXX   Congrats!!! You reached the last patch step!!! Drill interrupted!!!" && exit
-	/usr/bin/ssh $LOGNAME@$LaunchNode
-fi
+secpatch
