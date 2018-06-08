@@ -90,15 +90,16 @@ selectnode()
   echo -e "\n\nSelect $FreeNode as node with lowest load.\n"
 }
 
-# Subfunction to make /receptionist/opstmp/resource.imgon, output $ImgonLine family
+# Subfunction to make /receptionist/opstmp/resource.mount, output $ImgonLine family
 imgoninfo()
 {
-  cat /receptionist/opstmp/secrt.sitrep.imgon.* | grep -v $endline 1> /receptionist/opstmp/resource.imgon
-  chmod 666 /receptionist/opstmp/resource.imgon
-  ImgonLine=`cat /receptionist/opstmp/resource.imgon | egrep "(\.\.|\/)$LOGNAME\.img"`
+  cat /receptionist/opstmp/secrt.sitrep.imgon.* | grep -v $endline 1> /receptionist/opstmp/resource.mount
+  chmod 666 /receptionist/opstmp/resource.mount
+  ImgonLine=`cat /receptionist/opstmp/resource.mount | egrep "(\.\.|\/)$LOGNAME\.img"`
   ImgonLine_node=`echo -e "$ImgonLine" | awk -F " " '{print $1}'`
   ImgonLine_timestamp=`echo -e "$ImgonLine" | awk -F " " '{print $NF}'`
   ImgonLine_latency=`expr $(date +%s) - $ImgonLine_timestamp 2>/dev/null`
+  rm -f /receptionist/opstmp/resource.mount
   # echo -e "#DBG_A ImgonLine =\t"$ImgonLine"\n#DBG_A ImgonLine_node =\t"$ImgonLine_node"\n#DBG_A ImgonLine_latency =\t"$ImgonLine_latency"\n"
 }
 
