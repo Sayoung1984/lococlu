@@ -1,0 +1,2 @@
+if [ ! -d /local/mnt/workspace/sayoungh ] ; then mkdir /local/mnt/workspace/sayoungh ; fi && /bin/mount -o loop /images/vol01/sayoungh.img /local/mnt/workspace/sayoungh && chown 411854:200 /local/mnt/workspace/sayoungh
+# echo to /var/log/rt.ticket.geoexec.$FreeNode && endline >> /var/log/rt.ticket.geoexec.$FreeNode && secrttcp
