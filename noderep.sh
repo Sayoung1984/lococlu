@@ -33,7 +33,7 @@ loadrep()
     /bin/echo -e "scale=2; 10 * $USERCOUNT + 100 * $SHORTLOAD * $TPCORE / $LOGICORE " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
     # /bin/echo -ne $USERCOUNT "live users\t"`/bin/cat /proc/loadavg`"\t"CPU: $(/usr/bin/expr $LOGICORE / $TPCORE) cores\@
     # /bin/echo -ne `/usr/bin/lscpu | /bin/grep 'CPU MHz:' | /usr/bin/awk -F " " '{print $3}'` Mhz"\t"
-    /bin/echo -e " 100 * $SHORTLOAD* $TPCORE / $LOGICORE "| /usr/bin/bc | /usr/bin/awk -F "." '{print $1}' | /usr/bin/tr "\n" "\t"
+    /bin/echo -e " 100 * $SHORTLOAD * $TPCORE / $LOGICORE "| /usr/bin/bc | /usr/bin/awk -F "." '{print $1}' | /usr/bin/tr "\n" "\t"
     #/bin/echo -e " 10 * $CPUUSE "| /usr/bin/bc | /usr/bin/awk -F "." '{print $1}' | /usr/bin/tr "\n" "\t"
     /bin/echo -e `/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
     /bin/echo -e "$endline" `hostname`
@@ -113,10 +113,10 @@ mkinfantimg()
 mkuserimg()
 {
     MkImgUser=`/bin/cat /receptionist/opstmp/secrt.ticket.mkimg.* 2> /dev/null`
-    /bin/echo -e "DBG_MkImgUser_A MkImgUser=$MkImgUser" > /root/DBG_MkImgUser_A
+    #/bin/echo -e "DBG_MkImgUser_A MkImgUser=$MkImgUser" > /root/DBG_MkImgUser_A
     if [ -n "$MkImgUser" ]
     then
-#    	mv /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser /receptionist/opstmp/done.secrt.ticket.mkimg.$MkImgUser	#DBG
+    	#mv /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser /receptionist/opstmp/done.secrt.ticket.mkimg.$MkImgUser	#DBG
     	rm -f /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser
     	mv /images/vol01/diskinfant /images/vol01/$MkImgUser.img
     	MkImgUser=""
