@@ -105,7 +105,23 @@ imgoninfo()
 # Secure SSH redirector, the Last subfunction checking $ImgList and $LaunchNode, then patch user through
 secpatch()
 {
-
+    if [ ! -n "$ImgList" -o ! -n "$LaunchNode" ]
+    	then
+    		echo -e "#DBG Missing laucn info, current LaunchNode = $LaunchNode, ImgList = $ImgList, IMGoM_MP = $IMGoM_MP\n"
+    		echo -e "Kicking you out now... Please try connect again.\n"
+    		exit
+    # elif [ ! -n "$LaunchNode" ]
+    #	then
+    #		echo -e "#DBG Missing user launch node info, current LaunchNode = $LaunchNode\n"
+    #		echo -e "Kicking you out now... Please try connect again.\n"
+    #		exit
+    else
+    	echo -e "#DBG Got your UID: $LOGNAME, your image: $ImgList mounted on $LaunchNode\n"
+    	echo -e "Patching you through now...\n"
+    	rm -f /receptionist/opstmp/launchlock.$LOGNAME
+      echo -e "#DBG_XXX   Congrats!!! You reached the last patch step!!! Drill interrupted!!!" && exit
+    	/usr/bin/ssh $LOGNAME@$LaunchNode
+    fi
 }
 
 # Main0 User launch lock
