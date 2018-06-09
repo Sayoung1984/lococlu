@@ -18,11 +18,40 @@ endline="###---###---###---###---###"
 # CPUFREQ=`/bin/lscpu | /bin/grep 'CPU MHz:' | /usr/bin/awk -F " " '{print $3}'` # Dynamic value, move to loadrep()
 # LOGICORE=`/bin/cat /proc/cpuinfo | /bin/grep siblings | /usr/bin/uniq | /usr/bin/awk -F ": " '{print $2}'`
 # LOGICORE=`/usr/bin/lscpu | /bin/grep -v NUMA | /bin/grep -e "CPU(s):" | /usr/bin/awk -F " " '{print $2}'`
-LOGICORE=`nproc --all`
 # nproc=LOGICORE
+LOGICORE=`nproc --all`
 TPCORE=`/usr/bin/lscpu | /bin/grep -e "Thread" | /usr/bin/awk -F " " '{print $4}'`
 
-# System load info structure in "Hostname"  "PerfIndex" "SHORTLOAD" "Timestamp human" "Timestamp machine"
+# Calculate rounded CPU usage percentage (0~100) $CPULoad via /proc/stat, must be a time interval between cputick and cputock
+cputick()
+{
+  LineTick=`cat /proc/stat | grep '^cpu ' | awk '{$1=null;print $0}' | sed 's/^[ \t]*//g'`
+  SumTick=`echo $LineTick | /usr/bin/tr " " "+" | /usr/bin/bc`
+  IdleTick=`echo $LineTick | awk '{print $4}'`
+}
+
+# Do the math and output $CPULoad
+cputock()
+{
+  LineTock=`cat /proc/stat | grep '^cpu ' | awk '{$1=null;print $0}' | sed 's/^[ \t]*//g'`
+  SumTock=`echo $LineTock | /usr/bin/tr " " "+" | /usr/bin/bc`
+  IdleTock=`echo $LineTock | awk '{print $4}'`
+  # SumTock=`cat /proc/stat | grep '^cpu ' | awk '{$1=null;print $0}' | sed 's/^[ \t]*//g' | /usr/bin/tr " " "+" | /usr/bin/bc`
+  # IdleTock=`cat /proc/stat | grep '^cpu '| awk '{print $5}'`
+  DiffSum=`expr $SumTock - $SumTick`
+  DiffIdle=`expr $IdleTock - $IdleTick`
+  CPULoad=`printf %.$2f $(/bin/echo -e "scale=2; 100 * ( $DiffSum - $DiffIdle ) / $DiffSum " | /usr/bin/bc)`
+  # #DBG Debug output as below
+  # echo -e "SumTick = $SumTick"
+  # echo -e "SumTock = $SumTock"
+  # echo -e "IdleTick = $IdleTick"
+  # echo -e "IdleTock = $IdleTock"
+  # echo -e "DiffSum = $DiffSum"
+  # echo -e "DiffIdle = $DiffIdle"
+  # echo -e "CPULoad = $CPULoad %"
+}
+
+# System load info structure in "Hostname"  "PerfIndex" "CPULoad" "Timestamp human" "Timestamp machine"
 # PerfIndex = 10*liveUsers + 100*Loadavg / PhysicCores
 loadrep()
 {
@@ -33,7 +62,7 @@ loadrep()
     /bin/echo -e "scale=2; 10 * $USERCOUNT + 100 * $SHORTLOAD * $TPCORE / $LOGICORE " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
     # /bin/echo -ne $USERCOUNT "live users\t"`/bin/cat /proc/loadavg`"\t"CPU: $(/usr/bin/expr $LOGICORE / $TPCORE) cores\@
     # /bin/echo -ne `/usr/bin/lscpu | /bin/grep 'CPU MHz:' | /usr/bin/awk -F " " '{print $3}'` Mhz"\t"
-    /bin/echo -e " 100 * $SHORTLOAD * $TPCORE / $LOGICORE "| /usr/bin/bc | /usr/bin/awk -F "." '{print $1}' | /usr/bin/tr "\n" "\t"
+    /bin/echo -ne $CPULoad"\t"
     #/bin/echo -e " 10 * $CPUUSE "| /usr/bin/bc | /usr/bin/awk -F "." '{print $1}' | /usr/bin/tr "\n" "\t"
     /bin/echo -e `/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
     /bin/echo -e "$endline" `hostname`
@@ -154,18 +183,18 @@ geoexec()
 # Main function loop
 step=1 #Execution time interval, MUST UNDER 3600!!!
 for (( i = 0; i < 3600; i=(i+step) ))
-    do
-        $(
-        loadrep > /var/log/rt.sitrep.load.`hostname`
-        imgonrep > /var/log/rt.sitrep.imgon.`hostname`
-        # imgonrep > /root/dbg_imgonrep
-        # /bin/echo -e "$endline" `hostname` >> /var/log/rt.sitrep.load.`hostname`
-        # /bin/echo -e "$endline" `hostname` >> /var/log/rt.sitrep.imgon.`hostname`
-        secrtsend
-        mkuserimg
-        mkinfantimg
-        geoexec
-	)
-        sleep $step
-    done
+do
+  cputock
+  loadrep > /var/log/rt.sitrep.load.`hostname`
+  imgonrep > /var/log/rt.sitrep.imgon.`hostname`
+  # imgonrep > /root/dbg_imgonrep
+  # /bin/echo -e "$endline" `hostname` >> /var/log/rt.sitrep.load.`hostname`
+  # /bin/echo -e "$endline" `hostname` >> /var/log/rt.sitrep.imgon.`hostname`
+  secrtsend
+  mkuserimg
+  mkinfantimg
+  geoexec
+  cputick
+  sleep $step
+done
 exit 0
