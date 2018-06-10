@@ -25,7 +25,7 @@ TPCORE=`/usr/bin/lscpu | /bin/grep -e "Thread" | /usr/bin/awk -F " " '{print $4}
 # Calculate rounded CPU usage percentage (0~100) $CPULoad via /proc/stat, must be a time interval between cputick and cputock
 cputick()
 {
-  LineTick=`cat /proc/stat | grep '^cpu ' | awk '{$1=null;print $0}' | sed 's/^[ \t]*//g'`
+  LineTick=`cat /proc/stat | grep '^cpu ' | sed 's/^cpu[ \t]*//g'`
   SumTick=`echo $LineTick | /usr/bin/tr " " "+" | /usr/bin/bc`
   IdleTick=`echo $LineTick | awk '{print $4}'`
 }
@@ -33,26 +33,16 @@ cputick()
 # Do the math and output $CPULoad
 cputock()
 {
-  LineTock=`cat /proc/stat | grep '^cpu ' | awk '{$1=null;print $0}' | sed 's/^[ \t]*//g'`
+  LineTock=`cat /proc/stat | grep '^cpu ' | sed 's/^cpu[ \t]*//g'`
   SumTock=`echo $LineTock | /usr/bin/tr " " "+" | /usr/bin/bc`
   IdleTock=`echo $LineTock | awk '{print $4}'`
-  # SumTock=`cat /proc/stat | grep '^cpu ' | awk '{$1=null;print $0}' | sed 's/^[ \t]*//g' | /usr/bin/tr " " "+" | /usr/bin/bc`
-  # IdleTock=`cat /proc/stat | grep '^cpu '| awk '{print $5}'`
   DiffSum=`expr $SumTock - $SumTick`
   DiffIdle=`expr $IdleTock - $IdleTick`
   CPULoad=`printf %.$2f $(/bin/echo -e "scale=2; 100 * ( $DiffSum - $DiffIdle ) / $DiffSum " | /usr/bin/bc)`
-  # #DBG Debug output as below
-  # echo -e "SumTick = $SumTick"
-  # echo -e "SumTock = $SumTock"
-  # echo -e "IdleTick = $IdleTick"
-  # echo -e "IdleTock = $IdleTock"
-  # echo -e "DiffSum = $DiffSum"
-  # echo -e "DiffIdle = $DiffIdle"
-  # echo -e "CPULoad = $CPULoad %"
 }
 
 # System load info structure in "Hostname"  "PerfIndex" "CPULoad" "Timestamp human" "Timestamp machine"
-# PerfIndex = 10*liveUsers + 100*Loadavg / PhysicCores
+# Current perfIndex = 10*liveUsers + 100*Loadavg / PhysicCores
 loadrep()
 {
     #CPUUSE=`top -d 0.2 -bn 3 | grep "%Cpu(s)" | tail -n 1 | awk '{print 100-$8}'`
@@ -120,7 +110,7 @@ secrtsend()
       cp $REPLX `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
       chmod 666 `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
     else
-      # mv $REPLX.fail  #DBG
+      # /bin/mv $REPLX.fail  #DBG
       /bin/rm $REPLX
     fi
   done
@@ -145,38 +135,30 @@ mkuserimg()
     #/bin/echo -e "DBG_MkImgUser_A MkImgUser=$MkImgUser" > /root/DBG_MkImgUser_A
     if [ -n "$MkImgUser" ]
     then
-    	#mv /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser /receptionist/opstmp/done.secrt.ticket.mkimg.$MkImgUser	#DBG
-    	rm -f /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser
-    	mv /images/vol01/diskinfant /images/vol01/$MkImgUser.img
-    	MkImgUser=""
+    	# /bin/mv /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser /receptionist/opstmp/done.secrt.ticket.mkimg.$MkImgUser	#DBG
+    	/bin/rm -f /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser
+      /bin/mv /images/vol01/diskinfant /images/vol01/$MkImgUser.img
+      MkImgUser=""
     fi
 }
 
-# General operation executor, run command in tickets as root
-geoexec_old()
-{
-  if [ -f "/receptionist/opstmp/secrt.ticket.geoexec.$(hostname)" ]
-    then
-      eval $(/bin/cat /receptionist/opstmp/secrt.ticket.geoexec.$(hostname))
-      echo $(/bin/cat /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)) > /local/mnt/workspace/CMD_LOG     #DBG show last ticket command
-      # /bin/echo -e "#DBG\t"$(/bin/cat /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)) >> /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)
-      # /bin/echo -e "#DBG\t$(hostname) got this secrt.ticket" >> /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)
-      mv /receptionist/opstmp/secrt.ticket.geoexec.$(hostname) /receptionist/opstmp/done.secrt.ticket.geoexec.$(hostname)   #DBG Save last ticket
-      # /bin/rm -f /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)
-  fi
-}
-
-# General Operation Executor v2, run command in tickets as root
+# General Operation Executor v2, run command in tickets with checkline as root
 geoexec()
 {
-  if [ -f "/receptionist/opstmp/secrt.ticket.geoexec.$(hostname)" ]
+  HTKT=/receptionist/opstmp/secrt.ticket.geoexec.`hostname`
+  if [ -f "$HTKT" ]
     then
-      eval $(/bin/cat /receptionist/opstmp/secrt.ticket.geoexec.$(hostname))
-      echo $(/bin/cat /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)) > /local/mnt/workspace/CMD_LOG     #DBG show last ticket command
-      # /bin/echo -e "#DBG\t"$(/bin/cat /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)) >> /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)
-      # /bin/echo -e "#DBG\t$(hostname) got this secrt.ticket" >> /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)
-      mv /receptionist/opstmp/secrt.ticket.geoexec.$(hostname) /receptionist/opstmp/done.secrt.ticket.geoexec.$(hostname)   #DBG Save last ticket
-      # /bin/rm -f /receptionist/opstmp/secrt.ticket.geoexec.$(hostname)
+      exectime=`/bin/date +%Y-%m%d-%H%M-%S`
+      tickettail=`/usr/bin/tac $HTKT | sed -n '1p'`
+      tickettail2=`/usr/bin/tac $HTKT | sed -n '2p'`
+      if [ "$endline `hostname`" == "$tickettail" -a "$endline `hostname`" != "$tickettail2" ]
+      then
+        # echo -e "#DBG\n tickettail=$tickettail\n tickettail2=$tickettail2" >> $HTKT
+        /bin/mv $HTKT /var/log/ticket.$exectime.sh
+        /bin/chmod u+x /var/log/ticket.$exectime.sh
+        /var/log/ticket.$exectime.sh
+        mv /var/log/ticket.$exectime.sh /var/log/done.$exectime.sh
+      fi
   fi
 }
 
