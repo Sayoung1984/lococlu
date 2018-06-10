@@ -69,7 +69,7 @@ secrtsend()
         cp $REPLX `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
         chmod 666 `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
       else
-        mv $REPLX.fail  #DBG
+        # mv $REPLX.fail  #DBG
         /bin/rm $REPLX
       fi
     done
@@ -89,8 +89,8 @@ listnode()
     NodeLine_Name=`echo $NodeLine | awk '{print $NR}'`
     NodeLine_Load=`echo $NodeLine | awk '{print $3}'`
     NodeLine_lag=`expr $(date +%s) - $(echo -e "$NodeLine" | awk -F " " '{print $NF}') 2>/dev/null`
-    echo -e "\n#DBG_listnode NodeLine_Name = $NodeLine_Name\n#DBG_listnode NodeLine_Load = $NodeLine_Load"
-    echo -e "#DBG_listnode NodeLine_lag = $NodeLine_lag\n#DBG_listnode Log latency = $loglatency\n\n"
+    # echo -e "\n#DBG_listnode NodeLine_Name = $NodeLine_Name\n#DBG_listnode NodeLine_Load = $NodeLine_Load"
+    # echo -e "#DBG_listnode NodeLine_lag = $NodeLine_lag\n#DBG_listnode Log latency = $loglatency\n\n"
 }
 
 # Subfunction to select free node, output $FreeNode
@@ -99,15 +99,14 @@ selectnode()
     listnode
     # echo -e "\n#DBG_selectnode NodeLine_Name = $NodeLine_Name\n#DBG_selectnode NodeLine_tstamp = $NodeLine_tstamp\n#DBG_selectnode NodeLine_lag = $NodeLine_lag\n\n"
     echo -e "Refreshing node load info..\c"
-    while [ "$NodeLine_lag" -gt "$loglatency" ]
+    while [ ! -n "$NodeLine_lag" -o "$NodeLine_lag" -gt "$loglatency" ]
     do
-        rm -f /receptionist/opstmp/secrt.sitrep.load.$NodeLine_Name
+        #rm -f /receptionist/opstmp/secrt.sitrep.load.$NodeLine_Name
         sleep $loglatency
         listnode
         echo -e ".\c"
         # echo -e "\n#DBG_selectnode NodeLine_Name = $NodeLine_Name\n#DBG_selectnode NodeLine_tstamp = $NodeLine_tstamp\n#DBG_selectnode NodeLine_lag = $NodeLine_lag\n\n"
     done
-
     FreeNode=$NodeLine_Name
     echo -e "\n\nSelect $FreeNode as node with lowest load\n"
 }
@@ -130,20 +129,59 @@ imgoninfo()
 }
 
 # Subfunction to send mount ticket, mount $ImgList to $FreeNode
-# mountrequest()
-# {
-#   #cat << EOF > /var/log/rt.ticket.geoexec.$FreeNode.DBG
-#   # While got $MOUNTROOT $MOUNTUSER, mount user image in sequence
-#   MOUNTROOT=$MOUNTROOT
-#   MOUNTUSER=$LOGNAME
-#   ImgList=$ImgList
-#   MPSORT=`for IMG in $ImgList ; do echo -en $IMG | sed 's/^\/images\/vol[0-9][0-9]\///g' | sed 's/\img$/./g' | sed 's/\.\./\//g' |tac -s "/" ; echo  ; done | sort`
-#   MTSEQ=`for MP in $MPSORT ; do echo $ImgList | tr " " "\n" | grep $(echo -n $MP |tac -s "/" | sed 's/\//../g' | sed 's/\.\.$/.img/g' | sed 's/^/\//g') | tr "\n" " " ; echo -e "\t"$MOUNTROOT$MP ; done`
-#   for MT in $MTSEQ ; do mount -o loop $MT
-#   /bin/echo -e "$endline" $(hostname)
-#
-#   #EOF
-# }
+
+mountrequest()
+{
+  echo -e "Sending mount request to $FreeNode now..."
+  MOUNTUSER=$LOGNAME
+  echo -e "#DBG_mountrequest var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList"
+
+  echo -e "#! /bin/bash\nMOUNTROOT=\"$MOUNTROOT\"\nMOUNTUSER=\"$LOGNAME\"" > /receptionist/opstmp/draft.rt.ticket.geoexec.$FreeNode
+
+
+  cat >> /receptionist/opstmp/draft.rt.ticket.geoexec.$FreeNode << "MAINFUNC"
+  ImgList=`find  /images/vol* -type f | egrep "(\.\.|\/)$MOUNTUSER\.img$" 2>/dev/null`
+  MPSORT=`for IMG in $ImgList ; do echo -en $IMG | sed 's/^\/images\/vol[0-9][0-9]\///g' | sed 's/\img$/./g' | sed 's/\.\./\//g' |tac -s "/" ; echo  ; done | sort`
+  for MP in $MPSORT
+  do
+    IMG=`echo $ImgList | tr " " "\n" | grep $(echo -n $MP |tac -s "/" | sed 's/\//../g' | sed 's/\.\.$/.img/g' | sed 's/^/\//g')`
+    MTP=`echo $MOUNTROOT$MP`
+    echo IMG=$IMG MTP=$MTP >> /root/mntdbg #DBG
+          if [ ! -d $MTP ]
+          then
+            mkdir $MTP
+          fi
+          mount -o loop $IMG $MTP
+          sleep 0.2
+          chown `id -u $MOUNTUSER`:`id -g $MOUNTUSER` $MTP
+    echo -e `id -u $MOUNTUSER`:`id -g $MOUNTUSER` $MTP>>/root/mntdbg #DBG
+  done
+
+
+  # MTSEQ=`for MP in $MPSORT ; do echo $ImgList | tr " " "\n" | grep $(echo -n $MP |tac -s "/" | sed 's/\//../g' | sed 's/\.\.$/.img/g' | sed 's/^/\//g') | tr "\n" "" ; echo -e $MOUNTROOT$MP ; done`
+  #     echo MTSEQ:$MTSEQ>>/root/mntdbg #DBG
+  #     for MTL in $MTSEQ
+  #     do
+  #       echo MTL:$MTL>>/root/mntdbg ; echo -e "\n\n"#DBG
+  #       MTP=`echo -n $MOUNTROOT; echo $MTL | awk -F "/t" '{print $2}'`
+  #       echo MTP:$MTL>>/root/mntdbg #DBG
+  #       if [ ! -d $MTP ]
+  #       then
+  #         mkdir $MTP
+  #       fi
+  #       # mount -o loop `echo -n $MTL | awk -F "/t" '{print $1}'` $MTP
+  #       echo -n $MTL | awk '{print $1}'>>/root/mntdbg;echo $MTP>>/root/mntdbg #DBG
+  #           sleep 0.2
+  #       # chown `id -u $MOUNTUSER`:`id -g $MOUNTUSER` $MTP
+  #       echo -e `id -u $MOUNTUSER`:`id -g $MOUNTUSER` $MTP>>/root/mntdbg #DBG
+  #     done
+MAINFUNC
+
+  echo -e "$endline $FreeNode" >> /receptionist/opstmp/draft.rt.ticket.geoexec.$FreeNode
+  chmod 666 /receptionist/opstmp/draft.rt.ticket.geoexec.$FreeNode
+  mv /receptionist/opstmp/draft.rt.ticket.geoexec.$FreeNode /receptionist/opstmp/secrt.ticket.geoexec.$FreeNode
+  sleep $loglatency
+}
 
 # Secure SSH redirector, the Last subfunction checking $ImgList and $LaunchNode, then patch user through
 # !!!Unfinished!!! Still need the mount/unmount function, based on geoexec
@@ -151,7 +189,7 @@ secpatch()
 {
     if [ ! -n "$ImgList" -o ! -n "$LaunchNode" -o ! -n "$IMGoM_MP" ]
     	then
-    		echo -e "#DBG Missing laucn info, current info:\n LaunchNode = $LaunchNode\n ImgList = \n$ImgList\n IMGoM_MP = $IMGoM_MP\n"
+    		echo -e "#DBG Missing launch factor, current info:\n LaunchNode = $LaunchNode\n ImgList = \n$ImgList\n IMGoM_MP = $IMGoM_MP\n"
     		echo -e "Kicking you out now... Please try connect again.\n"
             rm -f /receptionist/opstmp/launchlock.$LOGNAME
     		exit
@@ -206,29 +244,29 @@ fi
 # Main1, create user root workspace image if does not exist, output  $ImgList when finished.
 echo -e "Looking for your workspace image...\n"
 listimg
-echo -e "#DBG_Main1   First Check, ImgList =\n$ImgList"
+# echo -e "#DBG_Main1   First Check, ImgList =\n$ImgList"
 if [ ! -n "$ImgList" ]
 then
     sleep $loglatency
     listimg
-    echo -e "#DBG_Main1   Double check, ImgList =\n$ImgList"
+    # echo -e "#DBG_Main1   Double check, ImgList =\n$ImgList"
     if [ ! -n "$ImgList" ]
     then
         sleep $loglatency
         listimg
-        echo -e "#DBG_Main1   Treble Check, ImgList =\n$ImgList"
+        # echo -e "#DBG_Main1   Treble Check, ImgList =\n$ImgList"
         if [ ! -n "$ImgList" ]
         then
         	echo -e "$LOGNAME" > /receptionist/opstmp/secrt.ticket.mkimg.$LOGNAME
         	chmod 666 /receptionist/opstmp/secrt.ticket.mkimg.$LOGNAME
-        	#echo -e "#DBG_Main1    Pre-Create, ImgList = \n$ImgList\n"
+        	# echo -e "#DBG_Main1    Pre-Create, ImgList = \n$ImgList\n"
         	echo -e "Creating new image for you, please wait ..\c"
         	while [ ! -n "$ImgList" ]
         		do
         			echo -ne "."
         			sleep 1
         			listimg
-                    #echo -e "#DBG_Main1   Loop Check, ImgList =\n$ImgList"
+              # echo -e "#DBG_Main1   Loop Check, ImgList =\n$ImgList"
         		done
         	echo
         fi
@@ -247,8 +285,10 @@ then
     LaunchNode=$FreeNode
     #####################################
     echo -e "#DBG_Main2_a Insert mount command here...\n\n"
+    mountrequest
     #####################################
 fi
+secpatch
 
 # Main2_b, check Image mount status, mount then LaunchNode=$MountList_node
 if [ "$loglatency" -lt "$MountList_lag" ]
@@ -272,9 +312,9 @@ fi
 	#####################################
 	echo -e "#DBG_Main2_b Insert node load check here...\n\n"
 	echo -e "#DBG_Main2_b Insert node switch module here...\n\n"
-  echo -e "#DBG_Main2_b Insert unmount command here...\n\n"
-  echo -e "#DBG_Main2_b Insert selectnode here...\n\n"
-  echo -e "#DBG_Main2_b Insert mount command here...\n\n"
+  echo -e "#DBG_Main2_b \t Insert unmount command here...\n\n"
+  echo -e "#DBG_Main2_b \t Insert selectnode here...\n\n"
+  echo -e "#DBG_Main2_b \t Insert mount command here...\n\n"
 	#####################################
 
 echo -e "Got launchnode = $LaunchNode\n ImgList =\n$ImgList"
