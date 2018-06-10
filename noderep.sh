@@ -137,7 +137,12 @@ mkuserimg()
     then
     	# /bin/mv /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser /receptionist/opstmp/done.secrt.ticket.mkimg.$MkImgUser	#DBG
     	/bin/rm -f /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser
-      /bin/mv /images/vol01/diskinfant /images/vol01/$MkImgUser.img
+      if [ ! -f /images/vol01/$MkImgUser.img ]
+      then
+        /bin/mv /images/vol01/diskinfant /images/vol01/$MkImgUser.img
+      else
+        /bin/echo -e "Got mkuserimg conflict for $MkImgUser, at `date +%Y-%m%d-%H%M-%S`" > /var/log/fail.mkuserimg
+      fi
       MkImgUser=""
     fi
 }
