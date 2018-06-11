@@ -16,7 +16,7 @@ do
       MOUNTROOT="/home/28/"
       break
       ;;
-    ap.qualcomm.com|AP.QUALCOMM.COM)
+    ap.qualcomm.com|AP.QUALCOMM.COM|qualcomm.com|QUALCOMM.COM)
       MOUNTROOT="/local/mnt/workspace/"
       break
       ;;
