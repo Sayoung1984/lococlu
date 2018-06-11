@@ -1,5 +1,6 @@
 # lococlu
-Low Coupling Cluster Based on Bash Scripts
+Low Coupling Cluster, based on Bash Scripts, designed for Raw Image over NFS structure
+
 v0.1
 First working version with limited function.
 Still need some tests to make sure everything works as expected.
