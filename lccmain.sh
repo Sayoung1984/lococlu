@@ -16,7 +16,7 @@ do
       MOUNTROOT="/home/28/"
       break
       ;;
-    ap.qualcomm.com|AP.QUALCOMM.COM)
+    ap.qualcomm.com|AP.QUALCOMM.COM|qualcomm.com|QUALCOMM.COM)
       MOUNTROOT="/local/mnt/workspace/"
       break
       ;;
@@ -83,32 +83,32 @@ listimg()
 }
 
 # Subfunction to get node in lowest load, output $NodeLine family
-listnode()
+listfree()
 {
     NodeLine=`/bin/cat /receptionist/opstmp/secrt.sitrep.load.* 2>/dev/null | grep -v $endline | sort -n -t$'\t' -k 2 | head -n 1`
     NodeLine_Name=`echo $NodeLine | awk '{print $NR}'`
-    NodeLine_Load=`echo $NodeLine | awk '{print $3}'`
+    # NodeLine_Load=`echo $NodeLine | awk '{print $3}'`
     NodeLine_lag=`expr $(date +%s) - $(echo -e "$NodeLine" | awk -F " " '{print $NF}') 2>/dev/null`
-    # echo -e "\n#DBG_listnode NodeLine_Name = $NodeLine_Name\n#DBG_listnode NodeLine_Load = $NodeLine_Load"
-    # echo -e "#DBG_listnode NodeLine_lag = $NodeLine_lag\n#DBG_listnode Log latency = $loglatency\n\n"
+    # echo -e "\n#DBG_listfree NodeLine_Name = $NodeLine_Name\n#DBG_listfree NodeLine_Load = $NodeLine_Load"
+    # echo -e "#DBG_listfree NodeLine_lag = $NodeLine_lag\n#DBG_listfree Log latency = $loglatency\n\n"
 }
 
 # Subfunction to select free node, output $FreeNode
-selectnode()
+selectfree()
 {
-    listnode
-    # echo -e "\n#DBG_selectnode_in NodeLine_Name = $NodeLine_Name\n#DBG_selectnode_in NodeLine_tstamp = $NodeLine_tstamp\n#DBG_selectnode_in NodeLine_lag = $NodeLine_lag\n\n"
+    listfree
+    # echo -e "\n#DBG_selectfree_in NodeLine_Name = $NodeLine_Name\n#DBG_selectfree_in NodeLine_tstamp = $NodeLine_tstamp\n#DBG_selectfree_in NodeLine_lag = $NodeLine_lag\n\n"
     echo -e "Refreshing node load info..\c"
     while [ ! -n "$NodeLine_lag" -o "$NodeLine_lag" -gt "$loglatency" ]
     do
         #rm -f /receptionist/opstmp/secrt.sitrep.load.$NodeLine_Name
         sleep $loglatency
-        listnode
+        listfree
         echo -n .
-        # echo -e "\n#DBG_selectnode_run NodeLine_Name = $NodeLine_Name\n#DBG_selectnode_run NodeLine_tstamp = $NodeLine_tstamp\n#DBG_selectnode_run NodeLine_lag = $NodeLine_lag\n\n"
+        # echo -e "\n#DBG_selectfree_run NodeLine_Name = $NodeLine_Name\n#DBG_selectfree_run NodeLine_tstamp = $NodeLine_tstamp\n#DBG_selectfree_run NodeLine_lag = $NodeLine_lag\n\n"
     done
     echo
-    # echo -e "\n#DBG_selectnode_out NodeLine_Name = $NodeLine_Name\n#DBG_selectnode_out NodeLine_tstamp = $NodeLine_tstamp\n#DBG_selectnode_out NodeLine_lag = $NodeLine_lag\n\n"
+    # echo -e "\n#DBG_selectfree_out NodeLine_Name = $NodeLine_Name\n#DBG_selectfree_out NodeLine_tstamp = $NodeLine_tstamp\n#DBG_selectfree_out NodeLine_lag = $NodeLine_lag\n\n"
     FreeNode=$NodeLine_Name
     echo -e "\nSelect $FreeNode as node with lowest load\n"
 }
@@ -333,7 +333,7 @@ mountlist
 if [ ! -n "$MountList_node" ]
 then
     echo -e "Did not find your image mounted on any node\n"
-    selectnode
+    selectfree
     mountcmd
     LaunchNode=$FreeNode
     # echo -e "#DBG_Main2_a_run_2 LaunchNode=$LaunchNode\n MountList = $MountList"
@@ -382,7 +382,7 @@ then
       if [ "$USER_CFM" == "YES" ]
       then
         terminator
-        selectnode
+        selectfree
         mountcmd
         LaunchNode=$FreeNode
         secpatch
