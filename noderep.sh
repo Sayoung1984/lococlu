@@ -133,13 +133,17 @@ secrtsend()
 # Infant image maker, !!! current only for /images/vol01 !!!
 mkinfantimg()
 {
-    if [ ! -f /images/vol01/diskinfant ]
-	then
-		/bin/dd if=/dev/zero of=/images/vol01/diskinfant bs=1G count=0 seek=500
-		/bin/chmod 666 /images/vol01/diskinfant
-		/sbin/mkfs.ext4 -Fq /images/vol01/diskinfant 500G
-		sleep 1
-    fi
+    for volpath in `ls /images/vol*`
+    do
+        fmtvolpath=`/bin/echo $volpath | /usr/bin/awk -F ":" '{print $1}'`
+        if [ ! -f $fmtvolpath/diskinfant ]
+    	then
+    		/bin/dd if=/dev/zero of=$fmtvolpath/diskinfant bs=1G count=0 seek=500
+    		/bin/chmod 666 $fmtvolpath/diskinfant
+    		/sbin/mkfs.ext4 -Fq $fmtvolpath/diskinfant 500G
+    		sleep 1
+        fi
+    done
 }
 
 # User image maker
