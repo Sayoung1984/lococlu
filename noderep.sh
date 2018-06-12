@@ -72,8 +72,8 @@ imgonrep()
   /bin/echo -e "$endline" `hostname`
 }
 
-# Live User Scan info structure in "Hostname"  "Last Login Time" "UID" "Login From" "Timestamp machine"
-luscrep()
+# User Live Scan info structure in "Hostname"  "Last Login Time" "UID" "Login From" "Timestamp machine"
+ulscrep()
 {
     # for LIVEUSER in `COLUMNS=300 /usr/bin/w -h | /bin/grep -v sshd | /usr/bin/awk '{print $4"\t"$1"\t"$3}' | /usr/bin/sort -k2 | /usr/bin/uniq -f 1 | /usr/bin/sort -k1`
     for LIVEUSER in `COLUMNS=300 /usr/bin/w -h | /bin/grep -v sshd | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
@@ -188,7 +188,7 @@ do
   cputock
   loadrep > /var/log/rt.sitrep.load.`hostname`
   imgonrep > /var/log/rt.sitrep.imgon.`hostname`
-  luscrep > /var/log/rt.sitrep.lusc.`hostname`
+  ulscrep > /var/log/rt.sitrep.ulsc.`hostname`
   # imgonrep > /root/dbg_imgonrep
   # /bin/echo -e "$endline" `hostname` >> /var/log/rt.sitrep.load.`hostname`
   # /bin/echo -e "$endline" `hostname` >> /var/log/rt.sitrep.imgon.`hostname`
