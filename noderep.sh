@@ -130,7 +130,7 @@ secrtsend()
   done
 }
 
-# Infant image maker, !!! current only for /images/vol01 !!!
+# Infant image maker, now for /images/vol**
 mkinfantimg()
 {
     for volpath in `ls /images/vol*`
