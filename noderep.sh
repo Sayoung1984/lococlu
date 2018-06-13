@@ -192,10 +192,7 @@ do
   cputock
   loadrep > /var/log/rt.sitrep.load.`hostname`
   imgonrep > /var/log/rt.sitrep.imgon.`hostname`
-  ulscrep > /var/log/rt.sitrep.ulsc.`hostname`
-  # imgonrep > /root/dbg_imgonrep
-  # /bin/echo -e "$endline" `hostname` >> /var/log/rt.sitrep.load.`hostname`
-  # /bin/echo -e "$endline" `hostname` >> /var/log/rt.sitrep.imgon.`hostname`
+  # ulscrep > /var/log/rt.sitrep.ulsc.`hostname` #User live scan report
   secrtsend
   mkuserimg
   mkinfantimg
