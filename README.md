@@ -1,6 +1,11 @@
 # lococlu
 Low Coupling Cluster, based on Bash Scripts, designed for Raw Image over NFS structure
 
+
+v0.1.1
+Added image seed auto generate to all NFS volumes, in noderep.sh
+
+
 v0.1
 
 First working version with limited function.
