@@ -87,31 +87,6 @@ ulscrep()
     /bin/echo -e "$endline" `hostname`
 }
 
-# Secure Real Time Text Copy, check text integrity, then drop real time text to NFS at this last step
-secrttcp_old()
-{
-    for REPLX in `/bin/ls /var/log/rt.*`
-        do
-            rpcheckline=`/usr/bin/tail -n 1 $REPLX`
-            if [ "$rpcheckline"  != "###---###---###---###---###" ]
-                then
-                    /bin/rm $REPLX
-                else
-                    /bin/sed -i '$d' $REPLX
-		    rpchecklineL2=`/usr/bin/tail -n 1 $REPLX`
-		    if [ "$rpchecklineL2"  == "###---###---###---###---###" ]
-		    	then
-			     /bin/rm $REPLX
-			else
-			     REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
-		    	     cp $REPLX `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
-                    # cp $REPLX `echo $REPLX | /bin/sed 's/\/var\/log/\/receptionist/'`
-					 chmod 666 `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
-		    fi
-            fi
-        done
-}
-
 # Secure Realtime Text Copy v2, check text integrity, then drop real time text to NFS at this last step, with endline
 # /bin/sed -i '$d' $REPLX # To cat last line, on receive side
 secrtsend()
@@ -197,17 +172,9 @@ do
   cputock
   loadrep > /var/log/rt.sitrep.load.`hostname`
   imgonrep > /var/log/rt.sitrep.imgon.`hostname`
-<<<<<<< HEAD
-  ulscrep > /var/log/rt.sitrep.ulsc.`hostname`
-  # imgonrep > /root/dbg_imgonrep
-  # /bin/echo -e "$endline" `hostname` >> /var/log/rt.sitrep.load.`hostname`
-  # /bin/echo -e "$endline" `hostname` >> /var/log/rt.sitrep.imgon.`hostname`
-=======
-  # ulscrep > /var/log/rt.sitrep.ulsc.`hostname` #User live scan report
->>>>>>> 63ebbc318d5044c1a1883e178c96bcd787904e9f
+  # ulscrep > /var/log/rt.sitrep.ulsc.`hostname`      #User live scan report
   secrtsend
   mkuserimg
-  # mkinfantimg
   geoexec
   cputick
   sleep $step
