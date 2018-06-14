@@ -30,9 +30,14 @@ secrtsend_bdexec()
 # if [ $(id -u) != 0 ]
 if [[ $EUID -ne 0 ]]
 then
-   echo "Please run broadcast execute as root!!!"
-   exit 1
+    echo "Please run broadcast execute as root!!!"
+    exit 1
+else
+    echo "Spooling command broadcast..."
+    echo "This tool will send single line commands to all nodes running noderep deamon."
 fi
+
+
 
 # Main1, get $USER_CMD
 # cat /receptionist/opstmp/secrt.sitrep.load.* | grep -v $endline | awk -F " " '{print $1}' > /receptionist/opstmp/resource.livenodes
@@ -103,11 +108,13 @@ esac
 done
 
 # Main2, Sending $USER_CMD to ticket
-# for i in `/bin/cat /receptionist/opstmp/resource.livenodes`
 for execnode in $execlist
 do
 	echo $USER_CMD>/var/log/rt.ticket.geoexec.$execnode
 	echo -e "$endline $execnode" >> /var/log/rt.ticket.geoexec.$execnode
     sleep 0.33
     secrtsend_bdexec
-	echo -e "Ticket for $execno
+    echo -e "Ticket to $execnode sent..."
+done
+
+echo -e "All command tickets sent out"
