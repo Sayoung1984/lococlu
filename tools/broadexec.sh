@@ -26,6 +26,14 @@ secrtsend_bdexec()
   done
 }
 
+# Main0, root permission check
+# if [ $(id -u) != 0 ]
+if [[ $EUID -ne 0 ]]
+then
+   echo "Please run broadcast execute as root!!!"
+   exit 1
+fi
+
 # Main1, get $USER_CMD
 # cat /receptionist/opstmp/secrt.sitrep.load.* | grep -v $endline | awk -F " " '{print $1}' > /receptionist/opstmp/resource.livenodes
 # chmod 666 /receptionist/opstmp/resource.livenodes
@@ -102,8 +110,4 @@ do
 	echo -e "$endline $execnode" >> /var/log/rt.ticket.geoexec.$execnode
     sleep 0.33
     secrtsend_bdexec
-	echo -e "Ticket for $execnode sent..."
-done
-# rm -f /receptionist/opstmp/resource.livenodes
-sleep 1
-echo -e "All command tickets sent out"
+	echo -e "Ticket for $execno
