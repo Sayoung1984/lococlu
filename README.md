@@ -1,7 +1,9 @@
 # lococlu
 Low Coupling Cluster, based on Bash Scripts, designed for Raw Image over NFS structure
 
+
 v0.1.2
+
 Added Execute Broadcaster in tools/execbdcst.sh, to send multi-line commands to all live nodes.  
 
 
