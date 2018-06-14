@@ -151,6 +151,7 @@ mkinfantimg()
 # User image maker
 mkuserimg()
 {
+    mkinfantimg
     MkImgUser=`/bin/cat /receptionist/opstmp/secrt.ticket.mkimg.* 2> /dev/null`
     #/bin/echo -e "DBG_MkImgUser_A MkImgUser=$MkImgUser" > /root/DBG_MkImgUser_A
     if [ -n "$MkImgUser" ]
@@ -165,6 +166,7 @@ mkuserimg()
       fi
       MkImgUser=""
     fi
+    mkinfantimg
 }
 
 # General Operation Executor v2, run command in tickets with checkline as root
@@ -197,7 +199,7 @@ do
   # ulscrep > /var/log/rt.sitrep.ulsc.`hostname` #User live scan report
   secrtsend
   mkuserimg
-  mkinfantimg
+  # mkinfantimg
   geoexec
   cputick
   sleep $step
