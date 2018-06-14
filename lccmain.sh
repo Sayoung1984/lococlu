@@ -1,8 +1,8 @@
 #! /bin/bash
 COLUMNS=512
 endline="###---###---###---###---###"
-echo -e "#DBG You're been hosted by receptionist v0.1\n"
-echo -e "#DBG Your login UID is $LOGNAME\n"
+# echo -e "#DBG You're been hosted by receptionist v0.1\n"
+# echo -e "#DBG Your login UID is $LOGNAME\n"
 
 # Set log latency threshhold
 loglatency=3
