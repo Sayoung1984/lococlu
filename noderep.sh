@@ -82,7 +82,7 @@ ulscrep()
     do
         /bin/echo -en `/bin/hostname`"\t"
         /usr/bin/w -h | /usr/bin/awk '{print $4"\t"$1"\t"$3}' | /usr/bin/sort | /usr/bin/uniq -f 1 | /bin/grep $LIVEUSER | /usr/bin/head -n 1 | /usr/bin/tr "\n" "\t"
-        /bin/echo -e `/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
+        /bin/echo -e "\t"`/bin/date +%s`
     done
     /bin/echo -e "$endline" `hostname`
 }
@@ -172,7 +172,7 @@ do
   cputock
   loadrep > /var/log/rt.sitrep.load.`hostname`
   imgonrep > /var/log/rt.sitrep.imgon.`hostname`
-  # ulscrep > /var/log/rt.sitrep.ulsc.`hostname`      #User live scan report
+  ulscrep > /var/log/rt.sitrep.ulsc.`hostname`      #User live scan report
   secrtsend
   mkuserimg
   geoexec
