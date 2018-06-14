@@ -55,7 +55,8 @@ loadrep()
     /bin/echo -ne $CPULoad"\t"
     /bin/echo -ne $USERCOUNT"\t"
     #/bin/echo -e " 10 * $CPUUSE "| /usr/bin/bc | /usr/bin/awk -F "." '{print $1}' | /usr/bin/tr "\n" "\t"
-    /bin/echo -e `/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
+    # /bin/echo -e `/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
+    /bin/echo -e "\t"`/bin/date +%s`
     /bin/echo -e "$endline" `hostname`
 }
 
@@ -67,7 +68,8 @@ imgonrep()
     /bin/echo -ne `/bin/hostname`"\t"
     /bin/echo -ne $LOOPIMG"\t"
     /bin/mount | /bin/grep $LOOPIMG | /usr/bin/awk -F " " '{printf $3}'
-    /bin/echo -e "\t"`/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
+    # /bin/echo -e "\t"`/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
+    /bin/echo -e "\t"`/bin/date +%s`
   done
   /bin/echo -e "$endline" `hostname`
 }
