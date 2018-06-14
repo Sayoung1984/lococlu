@@ -55,7 +55,8 @@ loadrep()
     /bin/echo -ne $CPULoad"\t"
     /bin/echo -ne $USERCOUNT"\t"
     #/bin/echo -e " 10 * $CPUUSE "| /usr/bin/bc | /usr/bin/awk -F "." '{print $1}' | /usr/bin/tr "\n" "\t"
-    /bin/echo -e `/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
+    # /bin/echo -e `/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
+    /bin/echo -e "\t"`/bin/date +%s`
     /bin/echo -e "$endline" `hostname`
 }
 
@@ -67,7 +68,8 @@ imgonrep()
     /bin/echo -ne `/bin/hostname`"\t"
     /bin/echo -ne $LOOPIMG"\t"
     /bin/mount | /bin/grep $LOOPIMG | /usr/bin/awk -F " " '{printf $3}'
-    /bin/echo -e "\t"`/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
+    # /bin/echo -e "\t"`/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
+    /bin/echo -e "\t"`/bin/date +%s`
   done
   /bin/echo -e "$endline" `hostname`
 }
@@ -130,7 +132,7 @@ secrtsend()
   done
 }
 
-# Infant image maker, !!! current only for /images/vol01 !!!
+# Infant image maker, now for /images/vol**
 mkinfantimg()
 {
     for volpath in `ls /images/vol*`
@@ -153,16 +155,19 @@ mkuserimg()
     #/bin/echo -e "DBG_MkImgUser_A MkImgUser=$MkImgUser" > /root/DBG_MkImgUser_A
     if [ -n "$MkImgUser" ]
     then
-    	# /bin/mv /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser /receptionist/opstmp/done.secrt.ticket.mkimg.$MkImgUser	#DBG
+        mkinfantimg
+        # /bin/mv /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser /receptionist/opstmp/done.secrt.ticket.mkimg.$MkImgUser	#DBG
     	/bin/rm -f /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser
-      if [ ! -f /images/vol01/$MkImgUser.img ]
-      then
-        /bin/mv /images/vol01/diskinfant /images/vol01/$MkImgUser.img
-      else
-        /bin/echo -e "Got mkuserimg conflict for $MkImgUser, at `date +%Y-%m%d-%H%M-%S`" > /var/log/fail.mkuserimg
-      fi
-      MkImgUser=""
+        if [ ! -f /images/vol01/$MkImgUser.img ]
+        then
+            /bin/mv /images/vol01/diskinfant /images/vol01/$MkImgUser.img
+        else
+            /bin/echo -e "Got mkuserimg conflict for $MkImgUser, at `date +%Y-%m%d-%H%M-%S`" > /var/log/fail.mkuserimg
+        fi
+        MkImgUser=""
+        mkinfantimg
     fi
+
 }
 
 # General Operation Executor v2, run command in tickets with checkline as root
@@ -192,13 +197,17 @@ do
   cputock
   loadrep > /var/log/rt.sitrep.load.`hostname`
   imgonrep > /var/log/rt.sitrep.imgon.`hostname`
+<<<<<<< HEAD
   ulscrep > /var/log/rt.sitrep.ulsc.`hostname`
   # imgonrep > /root/dbg_imgonrep
   # /bin/echo -e "$endline" `hostname` >> /var/log/rt.sitrep.load.`hostname`
   # /bin/echo -e "$endline" `hostname` >> /var/log/rt.sitrep.imgon.`hostname`
+=======
+  # ulscrep > /var/log/rt.sitrep.ulsc.`hostname` #User live scan report
+>>>>>>> 63ebbc318d5044c1a1883e178c96bcd787904e9f
   secrtsend
   mkuserimg
-  mkinfantimg
+  # mkinfantimg
   geoexec
   cputick
   sleep $step
