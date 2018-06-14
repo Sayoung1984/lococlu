@@ -34,7 +34,7 @@ then
     exit 1
 else
     echo "Spooling command broadcast..."
-    echo "This tool will send single line commands to all nodes running noderep deamon."
+    echo "This tool will pack single line commands into geoexec tickets, and send to all live nodes running noderep deamon."
 fi
 
 
