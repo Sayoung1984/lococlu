@@ -110,7 +110,7 @@ secrtsend()
 # Infant image maker, now for /images/vol**
 mkinfantimg()
 {
-    for volpath in `ls /images/vol*`
+    for volpath in `/bin/ls -d /images/vol*`
     do
         fmtvolpath=`/bin/echo $volpath | /usr/bin/awk -F ":" '{print $1}'`
         if [ ! -f $fmtvolpath/diskinfant ]
