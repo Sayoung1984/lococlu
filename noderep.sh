@@ -11,6 +11,8 @@ echo $$ >$pidpath
 
 COLUMNS=300
 endline="###---###---###---###---###"
+opstmp=/receptionist/opstmp
+source ./lcc.conf
 
 # Fixed parameters for CPU info
 # CPUFREQ=`cat /proc/cpuinfo | /bin/grep "model name" | /usr/bin/uniq | /bin/sed -r 's/.*@ (.*)GHz.*/\1/'` # Not compatible with AMD CPU
@@ -98,8 +100,8 @@ secrtsend()
     if [ "$CheckLineL1"  == "$endline `hostname`" -a "$CheckLineL2"  != "$endline `hostname`" ]
     then
       REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
-      cp $REPLX `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
-      chmod 666 `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
+      cp $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
+      chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
     else
       # /bin/mv $REPLX.fail  #DBG
       /bin/rm $REPLX
@@ -126,13 +128,13 @@ mkinfantimg()
 # User image maker
 mkuserimg()
 {
-    MkImgUser=`/bin/cat /receptionist/opstmp/secrt.ticket.mkimg.* 2> /dev/null`
+    MkImgUser=`/bin/cat $opstmp/secrt.ticket.mkimg.* 2> /dev/null`
     #/bin/echo -e "DBG_MkImgUser_A MkImgUser=$MkImgUser" > /root/DBG_MkImgUser_A
     if [ -n "$MkImgUser" ]
     then
         mkinfantimg
-        # /bin/mv /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser /receptionist/opstmp/done.secrt.ticket.mkimg.$MkImgUser	#DBG
-    	/bin/rm -f /receptionist/opstmp/secrt.ticket.mkimg.$MkImgUser
+        # /bin/mv $opstmp/secrt.ticket.mkimg.$MkImgUser $opstmp/done.secrt.ticket.mkimg.$MkImgUser	#DBG
+        /bin/rm -f $opstmp/secrt.ticket.mkimg.$MkImgUser
         if [ ! -f /images/vol01/$MkImgUser.img ]
         then
             /bin/mv /images/vol01/diskinfant /images/vol01/$MkImgUser.img
@@ -148,7 +150,7 @@ mkuserimg()
 # General Operation Executor v2, run command in tickets with checkline as root
 geoexec()
 {
-  HTKT=/receptionist/opstmp/secrt.ticket.geoexec.`hostname`
+  HTKT=$opstmp/secrt.ticket.geoexec.`hostname`
   if [ -f "$HTKT" ]
     then
       exectime=`/bin/date +%Y-%m%d-%H%M-%S`
@@ -169,6 +171,7 @@ geoexec()
 step=1 #Execution time interval, MUST UNDER 3600!!!
 for (( i = 0; i < 3600; i=(i+step) ))
 do
+  (
   cputock
   loadrep > /var/log/rt.sitrep.load.`hostname`
   imgonrep > /var/log/rt.sitrep.imgon.`hostname`
@@ -177,6 +180,7 @@ do
   mkuserimg
   geoexec
   cputick
+  ) &
   sleep $step
 done
 exit 0
