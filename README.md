@@ -1,10 +1,9 @@
 # lococlu
 Low Coupling Cluster, based on Bash Scripts, designed for Raw Image over NFS structure
 
-Made by Sayoung Han of China-SW-EC, Qualcomm Inc. sayoungh@qti.qualcomm.com
-
+## Getting Started
 Basic structure as below
-
+```
 /receptionist/                 # Lococlu runtime folder, NFS mounted by all heads/nodes
 ├── lococlu                    # Lococlu main functions folder
 │   ├── lcc.conf               # Lococlu config file
@@ -21,14 +20,23 @@ Basic structure as below
 ├── vol01                      # ImgON volume 01, NFS mounted by all heads/nodes
 └── vol02                      # ImgON volume 02, NFS mounted by all heads/nodes
 └── vol..                      # ImgON volumes, NFS mounts, vol+`2 digits numeral name`
+```
 
+## Built With
+* [GNU Linux](https://www.kernel.org/) - The /proc system used
+* [Bash](https://www.gnu.org/software/bash/) - Fully depends on bash logic
 
-v0.2.1
+## Authors
+* **Sayoung Han** - *Initial work* - [China-SW-EC, Qualcomm Inc.](sayoungh@qti.qualcomm.com)
 
+## License
+This project is licensed under the GNU General Public License (GPLv3) - see the [LICENSE.md](LICENSE.md) file for details
+
+## Current Version
+### v0.2.1
 noderep loop design improvements
 
-v0.2
-
+### v0.2
 workspace auto-balance function now ready in mkuserimg_v2 of noderep.sh, waiting for periphery checks to enable for Qualcomm Cluster
 
 Missing parts:
@@ -37,24 +45,20 @@ Head and Node deploy scripts missing.
 Join domain script missing.
 
 
-v0.1.3
-
+### v0.1.3
 Added global basic config file lcc.conf
 
 Forked loop works of noderep deamon out to minimize performance impact from workloads.
 
-v0.1.2
-
+### v0.1.2
 Added Execute Broadcaster in tools/execbdcst.sh, to send multi-line commands to all live nodes.  
 
 
-v0.1.1
-
+### v0.1.1
 Added image seed auto generate to all NFS volumes, in noderep.sh
 
 
-v0.1
-
+### v0.1
 First working version with limited function.
 Still need some tests to make sure everything works as expected.
 
@@ -68,6 +72,5 @@ Also maybe missing some other function on cross NFS filer structure
 Anyway, too later, too tired, let's call this v0.1
 
 
-v0.0
-
+### v0.0
 Function not complete yet.
