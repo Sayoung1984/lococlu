@@ -1,6 +1,28 @@
 # lococlu
 Low Coupling Cluster, based on Bash Scripts, designed for Raw Image over NFS structure
 
+Made by Sayoung Han of China-SW-EC, Qualcomm Inc. sayoungh@qti.qualcomm.com
+
+Basic structure as below
+
+/receptionist/                 # Lococlu runtime folder, NFS mounted by all heads/nodes
+├── lococlu                    # Lococlu main functions folder
+│   ├── lcc.conf               # Lococlu config file
+│   ├── lccmain.sh             # Lococlu main function
+│   ├── noderep.sh             # Lococlu node deamon, run as cronjobs on nodes
+│   └── tools                  # Lococlu extra tools folder
+│       ├── autoballast.sh     # Burn cpu tool, make cpu workloads for debug
+│       ├── deploynode.sh      # node deployment script, currently blank
+│       └── execbdcst.sh       # Execute Broadcaster, batch send commands to all live nodes
+└── opstmp                     # Lococlu operation temp folder, set as 777, for node sitreps and session lock files
+
+
+/images/                       # ImgON volumes folder
+├── vol01                      # ImgON volume 01, NFS mounted by all heads/nodes
+└── vol02                      # ImgON volume 02, NFS mounted by all heads/nodes
+└── vol..                      # ImgON volumes, NFS mounts, vol+`2 digits numeral name`
+
+
 v0.2.1
 
 noderep loop design improvements
