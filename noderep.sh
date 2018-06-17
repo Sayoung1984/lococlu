@@ -147,6 +147,33 @@ mkuserimg()
 
 }
 
+# User image maker v2, with image autobalance when assignning diskinfants to users.
+mkuserimg_v2()
+{
+    MkImgUser=`/bin/cat $opstmp/secrt.ticket.mkimg.* 2> /dev/null`
+    #/bin/echo -e "DBG_MkImgUser_A MkImgUser=$MkImgUser" > /root/DBG_MkImgUser_A
+    if [ -n "$MkImgUser" ]
+    then
+        mkinfantimg
+        # /bin/mv $opstmp/secrt.ticket.mkimg.$MkImgUser $opstmp/done.secrt.ticket.mkimg.$MkImgUser	#DBG
+        /bin/rm -f $opstmp/secrt.ticket.mkimg.$MkImgUser
+        # Choose which diskinfant to assign here
+        # Have to fix the df lag issue on GV before put this one really in use, "strace df"
+        chkimg=`find  /images/vol* -type f | egrep "(\.\.|\/)$MkImgUser\.img$" 2>/dev/null`
+        if [ -n "$chkimg" ]
+        then
+          /bin/echo -e "Got mkuserimg conflict for $MkImgUser, image file found at $chkimg, time `date +%Y-%m%d-%H%M-%S`" > /var/log/fail.mkuserimg
+        else
+          initvol=`/bin/df | /bin/grep "/images/vol" | /usr/bin/sort -n -k5 | /usr/bin/awk '{print $NF}' | /usr/bin/head -n 1`
+          /bin/mv $initvol/diskinfant $initvol/$MkImgUser.img
+        fi
+        MkImgUser=""
+        chkimg=""
+        mkinfantimg
+    fi
+
+}
+
 # General Operation Executor v2, run command in tickets with checkline as root
 geoexec()
 {
