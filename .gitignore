@@ -1,3 +1,4 @@
 # Operation temp folder
 opstmp/
 .nfs*
+lcc.conf
