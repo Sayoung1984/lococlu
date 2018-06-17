@@ -2,6 +2,12 @@
 Low Coupling Cluster, based on Bash Scripts, designed for Raw Image over NFS structure
 
 
+v0.1.3
+
+Added global basic config file lcc.conf
+
+Forked loop works of noderep deamon out to minimize performance impact from workloads.
+
 v0.1.2
 
 Added Execute Broadcaster in tools/execbdcst.sh, to send multi-line commands to all live nodes.  
@@ -30,4 +36,3 @@ Anyway, too later, too tired, let's call this v0.1
 v0.0
 
 Function not complete yet.
-
