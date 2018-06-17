@@ -6,6 +6,9 @@
 
 COLUMNS=300
 endline="###---###---###---###---###"
+opstmp=/receptionist/opstmp
+lococlu=/receptionist/lococlu
+source $lococlu/lcc.conf
 
 # Secure Realtime Text Copy v2, execbd variant with target node signature in tickets' name and checklines
 # Check text integrity, then drop real time text to NFS at this last step, with endline
@@ -18,8 +21,8 @@ secrtsend_execbd()
     if [ "$CheckLineL1"  == "$endline $node" -a "$CheckLineL2"  != "$endline $execnode" ]
     then
       REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
-      cp $REPLX `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
-      chmod 666 `/bin/echo -e "/receptionist/opstmp/sec$REPLXNAME"`
+      cp $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
+      chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
     else
       # /bin/mv $REPLX.fail  #DBG
       /bin/rm $REPLX
@@ -39,7 +42,7 @@ else
 fi
 
 # Main1, list live nodes
-execlist=`cat /receptionist/opstmp/secrt.sitrep.load.* 2>/dev/null | grep -v $endline | awk -F " " '{print $1}'`
+execlist=`cat $opstmp/secrt.sitrep.load.* 2>/dev/null | grep -v $endline | awk -F " " '{print $1}'`
 echo -e "Found nodes as below:"
 echo "$execlist"
 echo -e "Refresh node list? (Y/N) \c"
@@ -47,7 +50,7 @@ while true; do
 read USER_CHO
 	case $USER_CHO in
 		Y|y|YES|Yes|yes)
-                execlist=`cat /receptionist/opstmp/secrt.sitrep.load.* 2>/dev/null | grep -v $endline | awk -F " " '{print $1}'`
+                execlist=`cat $opstmp/secrt.sitrep.load.* 2>/dev/null | grep -v $endline | awk -F " " '{print $1}'`
                 echo -e "Now the list are:"
                 echo "$execlist"
                 echo -e "Refresh again? (Y/N) \c"

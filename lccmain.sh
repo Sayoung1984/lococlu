@@ -1,10 +1,12 @@
 #! /bin/bash
 COLUMNS=512
 endline="###---###---###---###---###"
-# Set log latency threshhold
 loglatency=3
 opstmp=/receptionist/opstmp
-source ./lcc.conf
+lococlu=/receptionist/lococlu
+source $lococlu/lcc.conf
+# /bin/echo -e "# DBG_lcc.conf \nCOLUMNS=$COLUMNS\nendline=$endline\nopstmp=$opstmp\nlococlu=$lococlu\ndskinitsz=$dskinitsz\n#\n" > /root/DBG_lcc.conf
+# /bin/cat $lococlu/lcc.conf >> /root/DBG_lcc.conf
 
 # echo -e "#DBG You're been hosted by receptionist v0.1\n"
 # echo -e "#DBG Your login UID is $LOGNAME\n"
