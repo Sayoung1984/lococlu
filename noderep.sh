@@ -198,16 +198,16 @@ geoexec()
 step=1 #Execution time interval, MUST UNDER 3600!!!
 for (( i = 0; i < 3600; i=(i+step) ))
 do
-  (
   cputock
   loadrep > /var/log/rt.sitrep.load.`hostname`
   imgonrep > /var/log/rt.sitrep.imgon.`hostname`
   ulscrep > /var/log/rt.sitrep.ulsc.`hostname`      #User live scan report
   secrtsend
+  (
   mkuserimg
   geoexec
-  cputick
   ) &
+  cputick
   sleep $step
 done
 exit 0

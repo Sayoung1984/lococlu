@@ -1,6 +1,10 @@
 # lococlu
 Low Coupling Cluster, based on Bash Scripts, designed for Raw Image over NFS structure
 
+v0.2.1
+
+noderep loop design improvements
+
 v0.2
 
 workspace auto-balance function now ready in mkuserimg_v2 of noderep.sh, waiting for periphery checks to enable for Qualcomm Cluster
