@@ -234,7 +234,7 @@ secpatch()
 }
 
 # Main0 User launch lock
-echo -e "#DBG_Main0_in lockpath=$opstmp/launchlock.$LOGNAME"
+# echo -e "#DBG_Main0_in lockpath=$opstmp/launchlock.$LOGNAME"
 lockpath=$opstmp/launchlock.$LOGNAME
 # echo lockpath=$lockpath #DBG
 # ls -lah $lockpath #DBG
