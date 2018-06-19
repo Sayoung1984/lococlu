@@ -36,14 +36,15 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 ### v0.2.1
 noderep loop design improvements
 
+Missing parts:
+* Premade code template image management.
+* More robust security designs.
+* Head and Node deploy scripts.
+* Join domain script.
+
+
 ### v0.2
 workspace auto-balance function now ready in mkuserimg_v2 of noderep.sh, waiting for periphery checks to enable for Qualcomm Cluster
-
-Missing parts:
-More robust security designs.
-Head and Node deploy scripts missing.
-Join domain script missing.
-
 
 ### v0.1.3
 Added global basic config file lcc.conf
