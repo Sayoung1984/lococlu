@@ -30,7 +30,7 @@ Basic structure as below
 * **Sayoung Han** - *Initial work* - [China-SW-EC, Qualcomm Inc.](sayoungh@qti.qualcomm.com)
 
 ## License
-This project is licensed under the GNU General Public License (GPLv3) - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the GNU General Public License version 3 (GPL-3.0) - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Current Version
 ### v0.2.1
