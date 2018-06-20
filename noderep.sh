@@ -131,7 +131,7 @@ mkdskinfant()
 }
 
 # User image maker
-mkuserimg()
+mkuserimg_old()
 {
     MkImgUser=`/bin/cat $opstmp/secrt.ticket.mkimg.* 2> /dev/null`
     #/bin/echo -e "DBG_MkImgUser_A MkImgUser=$MkImgUser" > /root/DBG_MkImgUser_A
@@ -153,7 +153,7 @@ mkuserimg()
 }
 
 # User image maker v2, with image autobalance when assignning diskinfants to users.
-mkuserimg_v2()
+mkuserimg()
 {
     MkImgUser=`/bin/cat $opstmp/secrt.ticket.mkimg.* 2> /dev/null`
     #/bin/echo -e "DBG_MkImgUser_A MkImgUser=$MkImgUser" > /root/DBG_MkImgUser_A
