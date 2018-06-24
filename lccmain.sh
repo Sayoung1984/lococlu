@@ -118,7 +118,9 @@ mkuserimg()
   echo -e "#! /bin/bash\nMKIMGUSER=\"$MKIMGUSER\"\ndskinitsz=\"$dskinitsz\"" > $opstmp/draft.rt.ticket.geoexec
 
   cat >> $opstmp/draft.rt.ticket.geoexec << "MAINFUNC"
-  # Infant image maker, now for /images/vol**
+  # Ticket of make user image
+
+  # Subfunc of make disk infant, now for /images/vol**
   mkdskinfant()
   {
       for volpath in `/bin/ls -d /images/vol*`
@@ -135,6 +137,7 @@ mkuserimg()
       done
   }
 
+  # Main functions below
   mkdskinfant
   chkimg=`find  /images/vol* -type f | egrep "(\.\.|\/)$MKIMGUSER\.img$" 2>/dev/null`
   if [ -n "$chkimg" ]
@@ -150,7 +153,7 @@ MAINFUNC
   echo -e "$endline $FreeNode" >> $opstmp/draft.rt.ticket.geoexec
   chmod 666 $opstmp/draft.rt.ticket.geoexec
   mv $opstmp/draft.rt.ticket.geoexec $opstmp/secrt.ticket.geoexec.$FreeNode
-  echo -e "Image make request sent to $FreeNode...\c"
+  echo -e "Creating image on $FreeNode...\c"
   sleep $loglatency
   listimg
   while [ ! -n "$ImgList" ]
@@ -208,6 +211,7 @@ mountcmd()
   echo -e "#! /bin/bash\nMOUNTROOT=\"$MOUNTROOT\"\nMOUNTUSER=\"$LOGNAME\"" > $opstmp/draft.rt.ticket.geoexec
 
   cat >> $opstmp/draft.rt.ticket.geoexec << "MAINFUNC"
+  # Ticket of mount user image
   ImgList=`/usr/bin/find  /images/vol* -type f | /bin/egrep "(\.\.|\/)$MOUNTUSER\.img$" 2>/dev/null`
   MPSORT=`for IMG in $ImgList ; do /bin/echo -en $IMG | /bin/sed 's/^\/images\/vol[0-9][0-9]\///g' | /bin/sed 's/\img$/./g' | /bin/sed 's/\.\./\//g' | /usr/bin/tac -s "/" ; /bin/echo ; done | /usr/bin/sort`
   for MP in $MPSORT
@@ -232,7 +236,7 @@ MAINFUNC
   # echo -e "#DBG_mountcmd_run2 var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
   mv $opstmp/draft.rt.ticket.geoexec $opstmp/secrt.ticket.geoexec.$FreeNode
   # echo -e "#DBG_mountcmd_run3 var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
-  echo -e "Image mount request sent to $FreeNode...\c"
+  echo -e "Mounting images on $FreeNode...\c"
   sleep $loglatency
   mountlist
   while [ ! -n "$MountList_node" ]
@@ -256,6 +260,7 @@ terminator()
   echo -e "#! /bin/bash\nMOUNTROOT=\"$MOUNTROOT\"\nKILLUSER=\"$LOGNAME\"" > $opstmp/draft.rt.ticket.geoexec.$MountNode
 
   cat >> $opstmp/draft.rt.ticket.geoexec.$MountNode << "MAINFUNC"
+  # Ticket of terminate user session and umount user images
   umountuser()
   {
     UmountList=`/sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}' | /bin/egrep "(\.\.|\/)$KILLUSER\.img$" 2>/dev/null`
