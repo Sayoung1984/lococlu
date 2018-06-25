@@ -4,9 +4,8 @@ endline="###---###---###---###---###"
 loglatency=3
 opstmp=/receptionist/opstmp
 lococlu=/receptionist/lococlu
-dskinitsz=500
 source $lococlu/lcc.conf
-# /bin/echo -e "#DBG_lcc.conf \nCOLUMNS=$COLUMNS\nendline=$endline\nopstmp=$opstmp\nlococlu=$lococlu\ndskinitsz=$dskinitsz\n#\n" > /root/DBG_lcc.conf
+# /bin/echo -e "# DBG_lcc.conf \nCOLUMNS=$COLUMNS\nendline=$endline\nopstmp=$opstmp\nlococlu=$lococlu\ndskinitsz=$dskinitsz\n#\n" > /root/DBG_lcc.conf
 # /bin/cat $lococlu/lcc.conf >> /root/DBG_lcc.conf
 
 # echo -e "#DBG You're been hosted by receptionist v0.1\n"
@@ -107,111 +106,17 @@ mountlist()
     # echo -e "#DBG_mountlist MountList_lag =\t$MountList_lag\n#DBG_mountlist Log latency =\t$loglatency\n\n"
 }
 
-# Subfunction to send make image ticket, $FreeNode make user image from diskinfant, then get $ImgList
-mkuserimg()
-{
-  echo -e "Sending image make request to $FreeNode now...\n"
-  MKIMGUSER=$LOGNAME
-  MKIMGOPRNODE=$FreeNode
-  # echo -e "#DBG_mkuserimg_in var input \n  MKIMGUSER=$MKIMGUSER\n FreeNode=$FreeNode\n MKIMGOPRNODE=$MKIMGOPRNODE\n dskinitsz=$dskinitsz"
-
-  echo -e "#! /bin/bash\nMKIMGUSER=\"$MKIMGUSER\"\ndskinitsz=\"$dskinitsz\"" > $opstmp/draft.rt.ticket.geoexec
-
-  cat >> $opstmp/draft.rt.ticket.geoexec << "MAINFUNC"
-  # Ticket of make user image
-
-  # Subfunc of make disk infant, now for /images/vol**
-  mkdskinfant()
-  {
-      for volpath in `/bin/ls -d /images/vol*`
-      do
-          fmtvolpath=`/bin/echo $volpath | /usr/bin/awk -F ":" '{print $1}'`
-          if [ ! -f $fmtvolpath/diskinfant ]
-      	then
-      		/bin/dd if=/dev/zero of=$fmtvolpath/diskinfant bs=1G count=0 seek="$dskinitsz"
-      		/bin/chmod 666 $fmtvolpath/diskinfant
-      		/sbin/mkfs.ext4 -Fq $fmtvolpath/diskinfant "$dskinitsz"G
-          # /bin/echo -e "#DBG_mkdskinfant dskinitsz=$dskinitsz" > /root/DBG_mkdskinfant
-      		sleep 1
-          fi
-      done
-  }
-
-  # Main functions below
-  mkdskinfant
-  chkimg=`find  /images/vol* -type f | egrep "(\.\.|\/)$MKIMGUSER\.img$" 2>/dev/null`
-  if [ -n "$chkimg" ]
-  then
-    /bin/echo -e "Got mkuserimg conflict for $MKIMGUSER, image file found at $chkimg, time `date +%Y-%m%d-%H%M-%S`" > /var/log/fail.mkuserimg
-  else
-    initvol=`/bin/df | /bin/grep "/images/vol" | /usr/bin/sort -n -k5 | /usr/bin/awk '{print $NF}' | /usr/bin/head -n 1`
-    /bin/mv $initvol/diskinfant $initvol/$MKIMGUSER.img
-  fi
-  mkdskinfant
-
-MAINFUNC
-  echo -e "$endline $FreeNode" >> $opstmp/draft.rt.ticket.geoexec
-  chmod 666 $opstmp/draft.rt.ticket.geoexec
-  mv $opstmp/draft.rt.ticket.geoexec $opstmp/secrt.ticket.geoexec.$FreeNode
-  echo -e "Creating image on $FreeNode...\c"
-  sleep $loglatency
-  listimg
-  while [ ! -n "$ImgList" ]
-  do
-      echo -n .
-      listimg
-      sleep $loglatency
-  done
-  echo
-
-}
-
-# Subfunction to check and create user root workspace image if does not exist, output $ImgList when finished.
-chkusrimg()
-{
-  echo -e "Looking for your workspace image...\n"
-  listimg
-  # echo -e "#DBG_Main1   First Check, ImgList =\n$ImgList"
-  if [ ! -n "$ImgList" ]
-  then
-      sleep $loglatency
-      listimg
-      # echo -e "#DBG_Main1   Double check, ImgList =\n$ImgList"
-      if [ ! -n "$ImgList" ]
-      then
-          sleep $loglatency
-          listimg
-          # echo -e "#DBG_Main1   Treble Check, ImgList =\n$ImgList"
-          if [ ! -n "$ImgList" ]
-          then
-            mkuserimg
-            echo -e "\nFetching your new image..\c"
-            while [ ! -n "$ImgList" ]
-              do
-                echo -ne "."
-                sleep 1
-                listimg
-                # echo -e "#DBG_Main1   Loop Check, ImgList =\n$ImgList"
-              done
-            echo
-          fi
-      fi
-  fi
-  echo -e "\nGot your image "$ImgList"\n"
-}
-
 # Subfunction to send mount ticket, mount $ImgList to $FreeNode, then get $IMGoM_MP
 mountcmd()
 {
   echo -e "Sending mount request to $FreeNode now...\n"
   MOUNTUSER=$LOGNAME
   MOUNTOPRNODE=$FreeNode
-  # echo -e "#DBG_mountcmd_in var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$MOUNTUSER\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
+  # echo -e "#DBG_mountcmd_in var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
 
   echo -e "#! /bin/bash\nMOUNTROOT=\"$MOUNTROOT\"\nMOUNTUSER=\"$LOGNAME\"" > $opstmp/draft.rt.ticket.geoexec
 
   cat >> $opstmp/draft.rt.ticket.geoexec << "MAINFUNC"
-  # Ticket of mount user image
   ImgList=`/usr/bin/find  /images/vol* -type f | /bin/egrep "(\.\.|\/)$MOUNTUSER\.img$" 2>/dev/null`
   MPSORT=`for IMG in $ImgList ; do /bin/echo -en $IMG | /bin/sed 's/^\/images\/vol[0-9][0-9]\///g' | /bin/sed 's/\img$/./g' | /bin/sed 's/\.\./\//g' | /usr/bin/tac -s "/" ; /bin/echo ; done | /usr/bin/sort`
   for MP in $MPSORT
@@ -236,7 +141,7 @@ MAINFUNC
   # echo -e "#DBG_mountcmd_run2 var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
   mv $opstmp/draft.rt.ticket.geoexec $opstmp/secrt.ticket.geoexec.$FreeNode
   # echo -e "#DBG_mountcmd_run3 var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
-  echo -e "Mounting images on $FreeNode...\c"
+  echo -e "Image mount request sent to $FreeNode...\c"
   sleep $loglatency
   mountlist
   while [ ! -n "$MountList_node" ]
@@ -260,7 +165,6 @@ terminator()
   echo -e "#! /bin/bash\nMOUNTROOT=\"$MOUNTROOT\"\nKILLUSER=\"$LOGNAME\"" > $opstmp/draft.rt.ticket.geoexec.$MountNode
 
   cat >> $opstmp/draft.rt.ticket.geoexec.$MountNode << "MAINFUNC"
-  # Ticket of terminate user session and umount user images
   umountuser()
   {
     UmountList=`/sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}' | /bin/egrep "(\.\.|\/)$KILLUSER\.img$" 2>/dev/null`
@@ -365,21 +269,60 @@ if [ ! -f "$lockpath" ]
 fi
 
 
-# Main1, check Image mount status, if mount then $LaunchNode=$MountNode, else $LaunchNode=$FreeNode
+# Main1, create user root workspace image if does not exist, output  $ImgList when finished.
+echo -e "Looking for your workspace image...\n"
+listimg
+# echo -e "#DBG_Main1   First Check, ImgList =\n$ImgList"
+if [ ! -n "$ImgList" ]
+then
+    sleep $loglatency
+    listimg
+    # echo -e "#DBG_Main1   Double check, ImgList =\n$ImgList"
+    if [ ! -n "$ImgList" ]
+    then
+        sleep $loglatency
+        listimg
+        # echo -e "#DBG_Main1   Treble Check, ImgList =\n$ImgList"
+        if [ ! -n "$ImgList" ]
+        then
+        	echo -e "$LOGNAME" > $opstmp/secrt.ticket.mkimg.$LOGNAME
+        	chmod 666 $opstmp/secrt.ticket.mkimg.$LOGNAME
+        	# echo -e "#DBG_Main1    Pre-Create, ImgList = \n$ImgList\n"
+        	echo -e "\nCreating new image for you, please wait ..\c"
+        	while [ ! -n "$ImgList" ]
+        		do
+        			echo -ne "."
+        			sleep 1
+        			listimg
+              # echo -e "#DBG_Main1   Loop Check, ImgList =\n$ImgList"
+        		done
+        	echo
+        fi
+    fi
+fi
+echo -e "\nGot your image "$ImgList"\n"
 
+# Got $LOGNAME and $ImgList above, Needs $LaunchNode and $IMGoM_MP
+
+# Main2_a, check Image mount status, if not mount then $LaunchNode=$FreeNode
+# echo -e "#DBG_Main2_run_in MountList = $MountList"
 mountlist
+# echo -e "#DBG_Main2_run_1 MountList = $MountList"
+# echo -e "#DBG_Main2_run_1 MountList family:\t$MountList\n#DBG_Main2_run_1 MountList_node =\t$MountList_node"
+# echo -e "#DBG_Main2_run_1 MountList_img =\t$MountList_img\n#DBG_Main2_run_1 MountList_mntp =\t$MountList_mntp"
+# echo -e "#DBG_Main2_run_1 MountList_lag =\t$MountList_lag\n#DBG_Main2_run_1 Log latency =\t$loglatency\n\n"
 if [ ! -n "$MountList_node" ]
 then
-    echo -e "Did not find your image mounted on any node...\n"
+    echo -e "Did not find your image mounted on any node\n"
     selectfree
-    chkusrimg
     mountcmd
     LaunchNode=$FreeNode
-    # echo -e "#DBG_Main1_a_run_2 LaunchNode=$LaunchNode\n MountList = $MountList"
+    # echo -e "#DBG_Main2_a_run_2 LaunchNode=$LaunchNode\n MountList = $MountList"
     secpatch
+# Main2_b, check Image mount status, if mount then MountNode=$MountList_node
 elif [ "$loglatency" -lt "$MountList_lag" ]
 then
-  # echo -e "#DBG_Main1_b_in MountList = $MountList"
+  # echo -e "#DBG_Main2_b_in MountList = $MountList"
   rm -f $opstmp/secrt.sitrep.imgon.$MountList_node 2>/dev/null
 	echo -e "Image mount record overtime > $loglatency seconds!!! Refreshing ..\c"
   sleep $loglatency
@@ -396,8 +339,7 @@ then
 fi
 MountNode=$MountList_node
 IMGoM_MP=$MountList_mntp
-listimg
-echo -e "\nFound your image:\n $ImgList\nmounted on:\n $MountList_mntp\nof $MountNode\n"
+echo -e "\nFound your image mounted on:\n$MountList_mntp\n of $MountNode\n"
 
 # Check CPU usage of $MountNode, if over 80% ask if change node, else patch through
 while [ ! -n "$MountNodeLoad" ]

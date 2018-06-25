@@ -5,18 +5,19 @@ Low Coupling Cluster, based on Bash Scripts, designed for Raw Image over NFS str
 Basic structure as below
 ```
 /receptionist/                 # Lococlu runtime folder, NFS mounted by all heads/nodes
-├── lococlu                    # Lococlu main functions folder
-│   ├── lcc.conf               # Lococlu config file
-│   ├── lccmain.sh             # Lococlu main function
-│   ├── noderep.sh             # Lococlu node deamon, run as cronjobs on nodes
-│   └── tools                  # Lococlu extra tools folder
+├── lococlu                    # Main functions folder
+│   ├── lcc.conf               # Config file (ignored by git, a sample was provided instead)
+│   ├── lccmain.sh             # Nain function
+│   ├── noderep.sh             # Node deamon, run as cronjobs on nodes
+│   └── tools                  # Extra tools folder
 │       ├── autoballast.sh     # Burn cpu tool, make cpu workloads for debug
-│       ├── deploynode.sh      # node deployment script, currently blank
+│       ├── deploynode.sh      # Node deployment script, currently blank
 │       └── execbdcst.sh       # Execute Broadcaster, batch send commands to all live nodes
-└── opstmp                     # Lococlu operation temp folder, set as 777, for node sitreps and session lock files
+└── opstmp                     # Operation temp folder, set as 777, for node sitreps and session lock files
+└── dbgtmp                     # Debug temp folder (optional), set as 777, for geoexec tickets trace
 
 
-/images/                       # ImgON volumes folder
+/images/                       # ImgON volumes mount point nest
 ├── vol01                      # ImgON volume 01, NFS mounted by all heads/nodes
 └── vol02                      # ImgON volume 02, NFS mounted by all heads/nodes
 └── vol..                      # ImgON volumes, NFS mounts, vol+`2 digits numeral name`
@@ -32,16 +33,21 @@ Basic structure as below
 ## License
 This project is licensed under the GNU General Public License version 3 (GPL-3.0) - see the [LICENSE.md](LICENSE.md) file for details
 
-## Current Version
-### v0.2.1
-noderep loop design improvements
-
-Missing parts:
+## Missing parts:
 * Premade code template image management.
 * More robust security designs.
 * Head and Node deploy scripts.
 * Join domain script.
 
+## Current Version
+### v0.3
+* Added PerfScore mechanism to noderep, lococlu now fully support asymmetrical nodes. Yet, still recommend to add nodes with similar hardware spec into cluster
+* New lccmain running logic, image mount check before image existence check, for quicker daily response and evolution of mkuserimg
+* Unified mkuserimg into geoexec framework, foundation of premade code template call
+* Improved geoexec response time and noderep loop cleanups
+
+### v0.2.1
+noderep loop design improvements
 
 ### v0.2
 workspace auto-balance function now ready in mkuserimg_v2 of noderep.sh, waiting for periphery checks to enable for Qualcomm Cluster
