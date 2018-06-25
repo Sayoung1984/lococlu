@@ -60,7 +60,7 @@ secrtsend()
 # Subfunction to list user images, output $ImgList if found
 listimg()
 {
-    ImgList=`find  /images/vol* -type f | egrep "(\.\.|\/)$LOGNAME\.img$" 2>/dev/null`
+    ImgList=`find  /images/vol*/*.img -type f | egrep "(\.\.|\/)$LOGNAME\.img$" 2>/dev/null`
 }
 
 # Subfunction to get node in lowest load, output $NodeLine family
@@ -139,7 +139,7 @@ mkuserimg()
 
   # Main functions below
   mkdskinfant
-  chkimg=`find  /images/vol* -type f | egrep "(\.\.|\/)$MKIMGUSER\.img$" 2>/dev/null`
+  chkimg=`find  /images/vol*/*.img -type f | egrep "(\.\.|\/)$MKIMGUSER\.img$" 2>/dev/null`
   if [ -n "$chkimg" ]
   then
     /bin/echo -e "Got mkuserimg conflict for $MKIMGUSER, image file found at $chkimg, time `date +%Y-%m%d-%H%M-%S`" > /var/log/fail.mkuserimg
@@ -212,7 +212,7 @@ mountcmd()
 
   cat >> $opstmp/draft.rt.ticket.geoexec << "MAINFUNC"
   # Ticket of mount user image
-  ImgList=`/usr/bin/find  /images/vol* -type f | /bin/egrep "(\.\.|\/)$MOUNTUSER\.img$" 2>/dev/null`
+  ImgList=`/usr/bin/find /images/vol*/*.img -type f | /bin/egrep "(\.\.|\/)$MOUNTUSER\.img$" 2>/dev/null`
   MPSORT=`for IMG in $ImgList ; do /bin/echo -en $IMG | /bin/sed 's/^\/images\/vol[0-9][0-9]\///g' | /bin/sed 's/\img$/./g' | /bin/sed 's/\.\./\//g' | /usr/bin/tac -s "/" ; /bin/echo ; done | /usr/bin/sort`
   for MP in $MPSORT
   do
