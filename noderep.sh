@@ -113,79 +113,10 @@ secrtsend()
   done
 }
 
-<<<<<<< HEAD
-# Infant image maker, now for /images/vol**
-mkdskinfant()
-{
-    for volpath in `/bin/ls -d /images/vol*`
-    do
-        fmtvolpath=`/bin/echo $volpath | /usr/bin/awk -F ":" '{print $1}'`
-        if [ ! -f $fmtvolpath/diskinfant ]
-    	then
-    		/bin/dd if=/dev/zero of=$fmtvolpath/diskinfant bs=1G count=0 seek="$dskinitsz"
-    		/bin/chmod 666 $fmtvolpath/diskinfant
-    		/sbin/mkfs.ext4 -Fq $fmtvolpath/diskinfant "$dskinitsz"G
-        # /bin/echo -e "# DBG_mkdskinfant dskinitsz=$dskinitsz" > /root/DBG_mkdskinfant
-    		sleep 1
-        fi
-    done
-}
-
-# User image maker
-mkuserimg_old()
-{
-    MkImgUser=`/bin/cat $opstmp/secrt.ticket.mkimg.* 2> /dev/null`
-    #/bin/echo -e "DBG_MkImgUser_A MkImgUser=$MkImgUser" > /root/DBG_MkImgUser_A
-    if [ -n "$MkImgUser" ]
-    then
-        mkdskinfant
-        # /bin/mv $opstmp/secrt.ticket.mkimg.$MkImgUser $opstmp/done.secrt.ticket.mkimg.$MkImgUser	#DBG
-        /bin/rm -f $opstmp/secrt.ticket.mkimg.$MkImgUser
-        if [ ! -f /images/vol01/$MkImgUser.img ]
-        then
-            /bin/mv /images/vol01/diskinfant /images/vol01/$MkImgUser.img
-        else
-            /bin/echo -e "Got mkuserimg conflict for $MkImgUser, at `date +%Y-%m%d-%H%M-%S`" > /var/log/fail.mkuserimg
-        fi
-        MkImgUser=""
-        mkdskinfant
-    fi
-
-}
-
-# User image maker v2, with image autobalance when assignning diskinfants to users.
-mkuserimg()
-{
-    MkImgUser=`/bin/cat $opstmp/secrt.ticket.mkimg.* 2> /dev/null`
-    #/bin/echo -e "DBG_MkImgUser_A MkImgUser=$MkImgUser" > /root/DBG_MkImgUser_A
-    if [ -n "$MkImgUser" ]
-    then
-        mkdskinfant
-        # /bin/mv $opstmp/secrt.ticket.mkimg.$MkImgUser $opstmp/done.secrt.ticket.mkimg.$MkImgUser	#DBG
-        /bin/rm -f $opstmp/secrt.ticket.mkimg.$MkImgUser
-        # Choose which diskinfant to assign here
-        # Have to fix the df lag issue on GV before put this one really in use, "strace df"
-        chkimg=`find  /images/vol* -type f | egrep "(\.\.|\/)$MkImgUser\.img$" 2>/dev/null`
-        if [ -n "$chkimg" ]
-        then
-          /bin/echo -e "Got mkuserimg conflict for $MkImgUser, image file found at $chkimg, time `date +%Y-%m%d-%H%M-%S`" > /var/log/fail.mkuserimg
-        else
-          initvol=`/bin/df | /bin/grep "/images/vol" | /usr/bin/sort -n -k5 | /usr/bin/awk '{print $NF}' | /usr/bin/head -n 1`
-          /bin/mv $initvol/diskinfant $initvol/$MkImgUser.img
-        fi
-        MkImgUser=""
-        chkimg=""
-        mkdskinfant
-    fi
-
-}
-
-=======
->>>>>>> 9dbf1327f3488e6145a4189905c19f52f516d73f
 # General Operation Executor v2, run command in tickets with checkline as root
 geoexec()
 {
-  ls $opstmp
+  ls $opstmp/secrt.ticket.geoexec.*
   HTKT=$opstmp/secrt.ticket.geoexec.`hostname`
   if [ -f "$HTKT" ]
     then
