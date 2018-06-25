@@ -53,16 +53,16 @@ cputock()
 
 # System load info structure in "Hostname"  "PerfIndex" "CPULoad" "Timestamp human" "Timestamp machine"
 # Current perfIndex = (10*liveUsers + 100*Loadavg / PhysicCores) / PerfScore
-# Current perfIndex = 10*liveUsers / PerfScore + 100*Loadavg / CPUFREQ
+# Current perfIndex = 10*liveUsers / PerfScore + 100*Loadavg / PhysicCores^2 / CPUFREQ
 loadrep()
 {
     SHORTLOAD=`/bin/cat /proc/loadavg | /usr/bin/awk '{print $1}'`
     USERCOUNT=`/usr/bin/w -h | grep -v "sshd" | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
     /bin/echo -ne `/bin/hostname`"\t"
-    /bin/echo -e "scale=2; 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $CPUFREQ " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
-    # /bin/echo -ne "#DBG_loadrep PHYSICORE=$PHYSICORE CPUFREQ=$CPUFREQ PerfScore=$PerfScore\t"
+    /bin/echo -e "scale=2; 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
     /bin/echo -ne $CPULoad"\t"
     /bin/echo -ne $USERCOUNT"\t"
+    # /bin/echo -ne "#DBG_loadrep 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE\t"
     /bin/echo -e "\t"`/bin/date +%s`
     /bin/echo -e "$endline" `hostname`
 }
