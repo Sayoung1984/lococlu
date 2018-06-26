@@ -221,7 +221,7 @@ mountcmd()
     # /bin/echo IMG=$IMG MTP=$MTP >> /root/mntdbg #DBG
           if [ ! -d $MTP ]
           then
-            /bin/mkdir $MTP
+            /bin/mkdir -p $MTP
           fi
           /bin/mount -o loop $IMG $MTP
           /bin/sleep 0.2

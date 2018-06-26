@@ -144,7 +144,7 @@ do
   imgonrep > /var/log/rt.sitrep.imgon.`hostname`
   ulscrep > /var/log/rt.sitrep.ulsc.`hostname`      #User live scan report
   secrtsend
-  geoexec
+  geoexec &
   cputick
   sleep $step
 done
