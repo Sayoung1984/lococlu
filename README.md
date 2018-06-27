@@ -33,11 +33,14 @@ Basic structure as below
 ## License
 This project is licensed under the GNU General Public License version 3 (GPL-3.0) - see the [LICENSE.md](LICENSE.md) file for details
 
-## Missing parts:
+## Missing parts
 * Premade code template image management.
 * More robust security designs.
 * Head and Node deploy scripts.
 * Join domain script.
+
+## Known issue
+* If already user code image, user root workspace image check will be skipped. 
 
 ## Current Version
 ### v0.3
