@@ -57,8 +57,8 @@ cputock()
 loadrep()
 {
     SHORTLOAD=`/bin/cat /proc/loadavg | /usr/bin/awk '{print $1}'`
-    # USERCOUNT=`/usr/bin/w -h | grep -v "sshd" | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
-    USERCOUNT=`/usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
+    USERCOUNT=`/usr/bin/w -h | grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
+    # USERCOUNT=`/usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
     /bin/echo -ne `/bin/hostname`"\t"
     /bin/echo -e "scale=2; 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
     /bin/echo -ne $CPULoad"\t"
@@ -85,8 +85,8 @@ imgonrep()
 # User Live Scan info structure in "Hostname"  "Last Login Time" "UID" "Login From" "Timestamp machine"
 ulscrep()
 {
-    # for LIVEUSER in `COLUMNS=512 /usr/bin/w -h | /bin/grep -v sshd | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
-    for LIVEUSER in `COLUMNS=512 /usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
+    for LIVEUSER in `COLUMNS=512 /usr/bin/w -h | /bin/grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
+    # for LIVEUSER in `COLUMNS=512 /usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
     do
         /bin/echo -en `/bin/hostname`"\t"
         /usr/bin/w -h | /usr/bin/awk '{print $4"\t"$1"\t"$3}' | /usr/bin/sort | /usr/bin/uniq -f 1 | /bin/grep $LIVEUSER | /usr/bin/head -n 1 | /usr/bin/tr "\n" "\t"
