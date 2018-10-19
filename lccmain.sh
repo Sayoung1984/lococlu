@@ -23,6 +23,7 @@ do
       ;;
     ap.qualcomm.com|AP.QUALCOMM.COM|qualcomm.com|QUALCOMM.COM)
       MOUNTROOT="/local/mnt/workspace/"
+      cp /var/adm/gv/user $lococlu/user.conf
       break
       ;;
     *)

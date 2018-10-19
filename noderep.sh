@@ -14,6 +14,11 @@ endline="###---###---###---###---###"
 opstmp=/receptionist/opstmp
 lococlu=/receptionist/lococlu
 source $lococlu/lcc.conf
+if [ -f /var/adm/gv/user ]
+then
+    cp $lococlu/user.conf /var/adm/gv/user.Lococlu
+fi
+
 # /bin/echo -e "#DBG_lcc.conf \nCOLUMNS=$COLUMNS\nendline=$endline\nopstmp=$opstmp\nlococlu=$lococlu\ndskinitsz=$dskinitsz\n#\n" > /root/DBG_lcc.conf
 # /bin/cat $lococlu/lcc.conf >> /root/DBG_lcc.conf #DBG
 
