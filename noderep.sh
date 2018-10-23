@@ -16,7 +16,7 @@ lococlu=/receptionist/lococlu
 source $lococlu/lcc.conf
 if [ -f /var/adm/gv/user ]
 then
-    cp $lococlu/user.conf /var/adm/gv/user.Lococlu
+    cp $lococlu/user.conf /var/adm/gv/user
 fi
 
 # /bin/echo -e "#DBG_lcc.conf \nCOLUMNS=$COLUMNS\nendline=$endline\nopstmp=$opstmp\nlococlu=$lococlu\ndskinitsz=$dskinitsz\n#\n" > /root/DBG_lcc.conf
