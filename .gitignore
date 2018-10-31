@@ -1,3 +1,4 @@
 # Operation temp folder
 .nfs*
 lcc.conf
+user.conf
