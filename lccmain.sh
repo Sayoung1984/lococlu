@@ -269,7 +269,7 @@ terminator()
     for UM in $UMRSORT
     do
       UMP=`/bin/echo $MOUNTROOT$UM`
-      /bin/umount $UMP
+      /bin/umount -l $UMP
       /bin/sleep 0.2
     done
   }
@@ -283,6 +283,8 @@ terminator()
     killlist=`/bin/ps -aux | /bin/grep $KILLUSER | /bin/grep -v grep`
   done
 
+  service smbd restart
+  service nmbd restart
   umountuser
   UmountList=`/sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}' | /bin/egrep "(\.\.|\/)$KILLUSER\.img$" 2>/dev/null`
   while [ -n "$UmountList" ]
@@ -291,6 +293,8 @@ terminator()
     /bin/sleep 1
     UmountList=`/sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}' | /bin/egrep "(\.\.|\/)$KILLUSER\.img$" 2>/dev/null`
   done
+  service smbd restart
+  service nmbd restart
 MAINFUNC
 
   echo -e "$endline $MountNode" >> $opstmp/draft.rt.ticket.geoexec.$MountNode
