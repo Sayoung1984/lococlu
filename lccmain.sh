@@ -83,7 +83,8 @@ selectfree()
     echo -e "Refreshing node load info..\c"
     while [ ! -n "$NodeLine_lag" -o "$NodeLine_lag" -gt "$loglatency" ]
     do
-        #rm -f $opstmp/secrt.sitrep.load.$NodeLine_Name
+        # rm -f $opstmp/secrt.sitrep.load.$NodeLine_Name #Drop1
+        rm -f $opstmp/*.$NodeLine_Name #Drop1*
         sleep $loglatency
         listfree
         echo -n .
@@ -385,14 +386,16 @@ then
 elif [ "$loglatency" -lt "$MountList_lag" ]
 then
   # echo -e "#DBG_Main1_b_in MountList = $MountList"
-  rm -f $opstmp/secrt.sitrep.imgon.$MountList_node 2>/dev/null
+    # rm -f $opstmp/secrt.sitrep.imgon.$MountList_node 2>/dev/null #Drop0
+    rm -f $opstmp/*.$MountList_node 2>/dev/null #Drop0*
 	echo -e "Image mount record overtime > $loglatency seconds!!! Refreshing ..\c"
   sleep $loglatency
   mountlist
   #while [ "$loglatency" -lt "$MountList_lag" ]
   while [ ! -n "$MountList_lag" ]
   do
-    # rm -f $opstmp/secrt.sitrep.imgon.$MountList_node 2>/dev/null
+    # rm -f $opstmp/secrt.sitrep.imgon.$MountList_node 2>/dev/null #Drop2
+    rm -f $opstmp/*.$MountList_node 2>/dev/null #Drop2*
     sleep $loglatency
     mountlist
     echo -n .
