@@ -40,34 +40,49 @@ PerfScore=`/bin/echo -e "scale=1; $CPUFREQ * $PHYSICORE " | /usr/bin/bc`
 # Calculate rounded CPU usage percentage (0~100) $CPULoad via /proc/stat, must be a time interval between cputick and cputock
 cputick()
 {
-  LineTick=`/bin/cat /proc/stat | grep '^cpu ' | sed 's/^cpu[ \t]*//g'`
+  LineTick=`/bin/cat /proc/stat | /bin/grep '^cpu ' | /bin/sed 's/^cpu[ \t]*//g'`
   SumTick=`/bin/echo $LineTick | /usr/bin/tr " " "+" | /usr/bin/bc`
-  IdleTick=`/bin/echo $LineTick | awk '{print $4}'`
+  IdleTick=`/bin/echo $LineTick | /usr/bin/awk '{print $4}'`
 }
 
 # Do the math and output $CPULoad
 cputock()
 {
-  LineTock=`/bin/cat /proc/stat | grep '^cpu ' | sed 's/^cpu[ \t]*//g'`
+  LineTock=`/bin/cat /proc/stat | /bin/grep '^cpu ' | /bin/sed 's/^cpu[ \t]*//g'`
   SumTock=`/bin/echo $LineTock | /usr/bin/tr " " "+" | /usr/bin/bc`
-  IdleTock=`/bin/echo $LineTock | awk '{print $4}'`
+  IdleTock=`/bin/echo $LineTock | /usr/bin/awk '{print $4}'`
   DiffSum=`/usr/bin/expr $SumTock - $SumTick`
   DiffIdle=`/usr/bin/expr $IdleTock - $IdleTick`
   CPULoad=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 100 * ( $DiffSum - $DiffIdle ) / $DiffSum " | /usr/bin/bc)`
 }
 
+iotick()
+{
+    TickT=`/bin/date +%s`
+    IOTick=`/bin/cat /proc/diskstats | /bin/grep loop | /usr/bin/awk '{x=x+$(NF-1)} END {print x}'`
+}
+
+iotock()
+{
+    TockT=`/bin/date +%s`
+    IOTock=`/bin/cat /proc/diskstats | /bin/grep loop | /usr/bin/awk '{x=x+$(NF-1)} END {print x}'`
+    GapT=`/bin/echo -e " $TockT - $TickT " | /usr/bin/bc`
+    IOIndex=`/bin/echo -e "scale=2; $IOTock / 10 * $GapT - $IOTick / 10 * $GapT " | /usr/bin/bc`
+}
 # System load info structure in "Hostname"  "PerfIndex" "CPULoad" "Timestamp human" "Timestamp machine"
 # Current perfIndex = (10*liveUsers + 100*Loadavg / PhysicCores) / PerfScore
 # Current perfIndex = 10*liveUsers / PerfScore + 100*Loadavg / PhysicCores^2 / CPUFREQ
 loadrep()
 {
     SHORTLOAD=`/bin/cat /proc/loadavg | /usr/bin/awk '{print $1}'`
-    USERCOUNT=`/usr/bin/w -h | grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
+    USERCOUNT=`/usr/bin/w -h | /bin/grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
     # USERCOUNT=`/usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
     /bin/echo -ne `/bin/hostname`"\t"
-    /bin/echo -e "scale=2; 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
+    /bin/echo -e "scale=2; $IOIndex /100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
     /bin/echo -ne $CPULoad"\t"
-    /bin/echo -ne $USERCOUNT"\t"
+    /bin/echo -ne "CPULoad=$CPULoad\tIOIndex=$IOIndex\tGapT=$GapT\tUSERCOUNT=$USERCOUNT"
+    # /bin/echo -e "scale=2; $IOTock / 1000 - $IOTick / 1000 " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
+    # /bin/echo -ne "USERCOUNT=$USERCOUNT\t"
     # /bin/echo -ne "#DBG_loadrep 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE\t"
     /bin/echo -e "\t"`/bin/date +%s`
     /bin/echo -e "$endline" `hostname`
@@ -106,8 +121,8 @@ secrtsend()
 {
   for REPLX in `/bin/ls /var/log/rt.* 2>/dev/null`
   do
-    CheckLineL1=`/usr/bin/tac $REPLX | sed -n '1p'`
-    CheckLineL2=`/usr/bin/tac $REPLX | sed -n '2p'`
+    CheckLineL1=`/usr/bin/tac $REPLX | /bin/sed -n '1p'`
+    CheckLineL2=`/usr/bin/tac $REPLX | /bin/sed -n '2p'`
     if [ "$CheckLineL1"  == "$endline `hostname`" -a "$CheckLineL2"  != "$endline `hostname`" ]
     then
       REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
@@ -128,8 +143,8 @@ geoexec()
   if [ -f "$HTKT" ]
     then
       exectime=`/bin/date +%Y-%m%d-%H%M-%S`
-      tickettail=`/usr/bin/tac $HTKT | sed -n '1p'`
-      tickettail2=`/usr/bin/tac $HTKT | sed -n '2p'`
+      tickettail=`/usr/bin/tac $HTKT | /bin/sed -n '1p'`
+      tickettail2=`/usr/bin/tac $HTKT | /bin/sed -n '2p'`
       if [ "$endline `hostname`" == "$tickettail" -a "$endline `hostname`" != "$tickettail2" ]
       then
         # echo -e "#DBG\n tickettail=$tickettail\n tickettail2=$tickettail2" >> $HTKT
@@ -147,12 +162,14 @@ step=1 #Execution time interval, MUST UNDER 3600!!!
 for (( i = 0; i < 3600; i=(i+step) ))
 do
   cputock
+  iotock
   loadrep > /var/log/rt.sitrep.load.`hostname`
   imgonrep > /var/log/rt.sitrep.imgon.`hostname`
   ulscrep > /var/log/rt.sitrep.ulsc.`hostname`      #User live scan report
   secrtsend
   geoexec &
   cputick
+  iotick
   sleep $step
 done
 exit 0
