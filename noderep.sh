@@ -80,7 +80,7 @@ loadrep()
     /bin/echo -ne `/bin/hostname`"\t"
     /bin/echo -e "scale=2; $IOIndex /100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
     /bin/echo -ne $CPULoad"\t"
-    /bin/echo -ne "CPULoad=$CPULoad\tIOIndex=$IOIndex\tGapT=$GapT\tUSERCOUNT=$USERCOUNT"
+    /bin/echo -ne "CPULoad=$CPULoad\tIOIndex=$IOIndex\tUSERCOUNT=$USERCOUNT"
     # /bin/echo -e "scale=2; $IOTock / 1000 - $IOTick / 1000 " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
     # /bin/echo -ne "USERCOUNT=$USERCOUNT\t"
     # /bin/echo -ne "#DBG_loadrep 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE\t"
