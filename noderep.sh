@@ -67,7 +67,7 @@ iotock()
     TockT=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
     IOTock=`/bin/cat /proc/diskstats | /bin/grep loop | /usr/bin/awk '{x=x+$(NF-1)} END {print x}'`
     GapT=`/bin/echo -e " $TockT - $TickT " | /usr/bin/bc`
-    IOIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 100 * $IOTock / $GapT - 100 * $IOTick / $GapT " | /usr/bin/bc)`
+    IOIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 0 + 100 * $IOTock / $GapT - 100 * $IOTick / $GapT " | /usr/bin/bc)`
 }
 # System load info structure in "Hostname"  "PerfIndex" "CPULoad" "Timestamp human" "Timestamp machine"
 # Current perfIndex = (10*liveUsers + 100*Loadavg / PhysicCores) / PerfScore
@@ -161,15 +161,16 @@ geoexec()
 step=1 #Execution time interval, MUST UNDER 3600!!!
 for (( i = 0; i < 3600; i=(i+step) ))
 do
-  cputock
-  iotock
-  loadrep > /var/log/rt.sitrep.load.`hostname`
-  imgonrep > /var/log/rt.sitrep.imgon.`hostname`
-  ulscrep > /var/log/rt.sitrep.ulsc.`hostname`      #User live scan report
-  secrtsend
-  geoexec &
-  cputick
-  iotick
-  sleep $step
+    cputick
+    iotick
+    sleep $step
+    cputock
+    iotock
+    loadrep > /var/log/rt.sitrep.load.`hostname`
+    imgonrep > /var/log/rt.sitrep.imgon.`hostname`
+    ulscrep > /var/log/rt.sitrep.ulsc.`hostname`      #User live scan report
+    secrtsend
+    geoexec &
+
 done
 exit 0
