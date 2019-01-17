@@ -415,7 +415,7 @@ do
 done
 # echo -e "#DBG_checkload MountNodeLoad = $MountNodeLoad %\n"
 
-if [ "$MountNodeLoad" -gt 80 ]
+if [ "$MountNodeLoad" -gt 150 ]
 then
   echo -e "Your current node is under heavy load, switch node? Y/N\n"
   while true

@@ -68,7 +68,7 @@ iotock()
     IOTock=`/bin/cat /proc/diskstats | /bin/grep loop | /usr/bin/awk '{x=x+$(NF-1)} END {print x}'`
     GapT=`/bin/echo -e " $TockT - $TickT " | /usr/bin/bc`
     IOIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 0 + 100 * $IOTock / $GapT - 100 * $IOTick / $GapT " | /usr/bin/bc)`
-    LatencyT=`/bin/echo -e " $GapT - 1000 " | /usr/bin/bc`
+    LagT=`/bin/echo -e " $GapT - 1000 " | /usr/bin/bc`
 }
 # System load info structure in "Hostname"  "PerfIndex" "CPULoad" "Timestamp human" "Timestamp machine"
 # Current perfIndex = (10*liveUsers + 100*Loadavg / PhysicCores) / PerfScore
@@ -77,11 +77,12 @@ loadrep()
 {
     SHORTLOAD=`/bin/cat /proc/loadavg | /usr/bin/awk '{print $1}'`
     USERCOUNT=`/usr/bin/w -h | /bin/grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
+    PerfIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2;  $IOIndex + $CPULoad " | /usr/bin/bc)`
     # USERCOUNT=`/usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
     /bin/echo -ne `/bin/hostname`"\t"
     /bin/echo -e "scale=2; $IOIndex / 100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
-    /bin/echo -ne $CPULoad"\t"
-    /bin/echo -ne "CPULoad=$CPULoad\tIOIndex=$IOIndex\tLatencyT=$LatencyT\tUSERCOUNT=$USERCOUNT\tNodepid=`cat /tmp/noderep.pid`"
+    /bin/echo -ne $PerfIndex"\t"
+    /bin/echo -ne "CPULoad=$CPULoad\tIOIndex=$IOIndex\tPerfIndex=$PerfIndex\tLagT=$LagT\tUSERC=$USERCOUNT\tNpid=`cat /tmp/noderep.pid`"
     # /bin/echo -e "scale=2; $IOTock / 1000 - $IOTick / 1000 " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
     # /bin/echo -ne "USERCOUNT=$USERCOUNT\t"
     # /bin/echo -ne "#DBG_loadrep 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE\t"

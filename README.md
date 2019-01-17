@@ -40,9 +40,11 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * Join domain script.
 
 ## Known issue
-* If already user code image, user root workspace image check will be skipped. 
+* If already user code image, user root workspace image check will be skipped.
 
 ## Current Version
+### v0.3.1
+* Added IO status sensor into noderep and lccmain "switch node" mechanism
 ### v0.3
 * Added PerfScore mechanism to noderep, lococlu now fully support asymmetrical nodes. Yet, still recommend to add nodes with similar hardware spec into cluster
 * New lccmain running logic, image mount check before image existence check, for quicker daily response and evolution of mkuserimg
