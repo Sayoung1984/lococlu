@@ -14,7 +14,8 @@ endline="###---###---###---###---###"
 opstmp=/receptionist/opstmp
 lococlu=/receptionist/lococlu
 source $lococlu/lcc.conf
-if [ -f /var/adm/gv/user ]
+USERDIFF=$(diff -q $lococlu/user.conf /var/adm/gv/user)
+if [ "$USERDIFF" != "" ]
 then
     cp $lococlu/user.conf /var/adm/gv/user
 fi
