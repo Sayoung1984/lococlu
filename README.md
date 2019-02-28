@@ -7,7 +7,7 @@ Basic structure as below
 /receptionist/                 # Lococlu runtime folder, NFS mounted by all heads/nodes
 ├── lococlu                    # Main functions folder
 │   ├── lcc.conf               # Config file (ignored by git, a sample was provided instead)
-│   ├── lccmain.sh             # Nain function
+│   ├── lccmain.sh             # Main function
 │   ├── noderep.sh             # Node deamon, run as cronjobs on nodes
 │   └── tools                  # Extra tools folder
 │       ├── autoballast.sh     # Burn cpu tool, make cpu workloads for debug

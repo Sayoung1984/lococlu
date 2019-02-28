@@ -169,9 +169,9 @@ do
     sleep $step
     cputock
     iotock
-    loadrep > /var/log/rt.sitrep.load.`hostname`
-    imgonrep > /var/log/rt.sitrep.imgon.`hostname`
-    ulscrep > /var/log/rt.sitrep.ulsc.`hostname`      #User live scan report
+    loadrep > /var/log/rt.sitrep.load.`hostname`        #System load report
+    imgonrep > /var/log/rt.sitrep.imgon.`hostname`      #ImgON mount scan report
+    ulscrep > /var/log/rt.sitrep.ulsc.`hostname`        #User live scan report
     secrtsend
     geoexec &
 
