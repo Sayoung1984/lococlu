@@ -80,10 +80,11 @@ loadrep()
     USERCOUNT=`/usr/bin/w -h | /bin/grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
     PerfIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2;  $IOIndex + $CPULoad " | /usr/bin/bc)`
     # USERCOUNT=`/usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
-    /bin/echo -ne `/bin/hostname`"\t"
+    /bin/echo -ne "Node= "`/bin/hostname`"\t"
     /bin/echo -e "scale=2; $IOIndex / 100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
-    /bin/echo -ne $PerfIndex"\t"
-    /bin/echo -ne "CPULoad=$CPULoad\tIOIndex=$IOIndex\tPerfIndex=$PerfIndex\tLagT=$LagT\tUSERC=$USERCOUNT\tNpid=`cat /tmp/noderep.pid`"
+    /bin/echo -ne $PerfIndex"\t"LoadIndex=
+    /bin/echo -e "scale=2; $IOIndex / 100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
+    /bin/echo -ne "PerfIndex=$PerfIndex\tCPULoad=$CPULoad\tIOIndex=$IOIndex\tLagT=$LagT\tUSERC=$USERCOUNT\t"
     # /bin/echo -e "scale=2; $IOTock / 1000 - $IOTick / 1000 " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
     # /bin/echo -ne "USERCOUNT=$USERCOUNT\t"
     # /bin/echo -ne "#DBG_loadrep 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE\t"
@@ -96,7 +97,7 @@ imgonrep()
 {
   for LOOPIMG in `COLUMNS=300 /sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}'`
   do
-    /bin/echo -ne `/bin/hostname`"\t"
+    /bin/echo -ne "Node= "`/bin/hostname`"\t"
     /bin/echo -ne $LOOPIMG"\t"
     /bin/mount | /bin/grep $LOOPIMG | /usr/bin/awk -F " " '{printf $3}'
     # /bin/echo -e "\t"`/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
@@ -111,7 +112,7 @@ ulscrep()
     for LIVEUSER in `COLUMNS=512 /usr/bin/w -h | /bin/grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
     # for LIVEUSER in `COLUMNS=512 /usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
     do
-        /bin/echo -en `/bin/hostname`"\t"
+        /bin/echo -ne "Node= "`/bin/hostname`"\t"
         /usr/bin/w -h | /usr/bin/awk '{print $4"\t"$1"\t"$3}' | /usr/bin/sort | /usr/bin/uniq -f 1 | /bin/grep $LIVEUSER | /usr/bin/head -n 1 | /usr/bin/tr "\n" "\t"
         /bin/echo -e "\t"`/bin/date +%s`
     done
