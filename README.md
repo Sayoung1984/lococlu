@@ -40,9 +40,11 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * Join domain script.
 
 ## Known issue
-* If already user code image, user root workspace image check will be skipped.
+* If user manager not on mgrlist, dskbill script will fall into infinite running loop
 
 ## Current Version
+## v0.3.2
+* Bugfix:   Fixed issue of when next mount level image existing, root workspace image creating was skipped.
 ### v0.3.1
 * Added IO status sensor into noderep and lccmain "switch node" mechanism
 ### v0.3
