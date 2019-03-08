@@ -108,7 +108,7 @@ selectfree()
 mountlist()
 {
     MountList=`cat $opstmp/secrt.sitrep.imgon.* | grep -v $endline | egrep "(\.\.|\/)$LOGNAME\.img"`
-    MountList_node=`echo -e "$MountList" | head -n 1 | awk -F " " '{print $NR}'`
+    MountList_node=`echo -e "$MountList" | head -n 1 | awk -F " " '{print $NR}' | awk -F= '{print $2}'`
     MountList_img=`echo -e "$MountList" | awk -F " " '{print $2}'`
     MountList_mntp=`echo -e "$MountList" | awk -F " " '{print $3}'`
     MountList_lag=`expr $(date +%s) - $(echo -e "$MountList" | head -n 1 | awk -F " " '{print $NF}') 2>/dev/null`
