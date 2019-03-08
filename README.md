@@ -41,10 +41,11 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 
 ## Known issue
 * If user manager not on mgrlist, dskbill script will fall into infinite running loop
+* When next mount level image existing, root workspace image creating will be skipped.
 
 ## Current Version
-## v0.3.2
-* Bugfix:   Fixed issue of when next mount level image existing, root workspace image creating was skipped.
+## v0.3.1a
+* Roll back from 0.3.2 as the "root image mount" bugfix needs further tests
 ### v0.3.1
 * Added IO status sensor into noderep and lccmain "switch node" mechanism
 ### v0.3

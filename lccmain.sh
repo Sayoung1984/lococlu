@@ -58,19 +58,11 @@ secrtsend()
 }
 
 
-# Subfunction to list user root images, output $ImgList if found
-listrootimg()
-{
-    # ImgList=`find  /images/vol*/*.img -type f | egrep "(\.\.|\/)$LOGNAME\.img$" 2>/dev/null`
-    ImgList=`find  /images/vol*/*.img -type f | egrep "\/$LOGNAME\.img$" 2>/dev/null`
-}
-
-# Subfunction to list user all images, output $ImgList if found
-listallimg()
+# Subfunction to list user images, output $ImgList if found
+listimg()
 {
     ImgList=`find  /images/vol*/*.img -type f | egrep "(\.\.|\/)$LOGNAME\.img$" 2>/dev/null`
 }
-
 
 # Subfunction to get node in lowest load, output $NodeLine family
 listfree()
@@ -108,7 +100,7 @@ selectfree()
 mountlist()
 {
     MountList=`cat $opstmp/secrt.sitrep.imgon.* | grep -v $endline | egrep "(\.\.|\/)$LOGNAME\.img"`
-    MountList_node=`echo -e "$MountList" | head -n 1 | awk -F " " '{print $NR}' | awk -F= '{print $2}'`
+    MountList_node=`echo -e "$MountList" | head -n 1 | awk -F " " '{print $NR}'`
     MountList_img=`echo -e "$MountList" | awk -F " " '{print $2}'`
     MountList_mntp=`echo -e "$MountList" | awk -F " " '{print $3}'`
     MountList_lag=`expr $(date +%s) - $(echo -e "$MountList" | head -n 1 | awk -F " " '{print $NF}') 2>/dev/null`
@@ -149,8 +141,7 @@ mkuserimg()
 
   # Main functions below
   mkdskinfant
-  chkimg=`find  /images/vol*/*.img -type f | egrep "\/$MKIMGUSER\.img$" 2>/dev/null`
-  # chkimg=`find  /images/vol*/*.img -type f | egrep "(\.\.|\/)$MKIMGUSER\.img$" 2>/dev/null`
+  chkimg=`find  /images/vol*/*.img -type f | egrep "(\.\.|\/)$MKIMGUSER\.img$" 2>/dev/null`
   if [ -n "$chkimg" ]
   then
     /bin/echo -e "Got mkuserimg conflict for $MKIMGUSER, image file found at $chkimg, time `date +%Y-%m%d-%H%M-%S`" > /var/log/fail.mkuserimg
@@ -166,11 +157,11 @@ MAINFUNC
   mv $opstmp/draft.rt.ticket.geoexec $opstmp/secrt.ticket.geoexec.$FreeNode
   echo -e "Creating image on $FreeNode...\c"
   sleep $loglatency
-  listrootimg
+  listimg
   while [ ! -n "$ImgList" ]
   do
       echo -n .
-      listrootimg
+      listimg
       sleep $loglatency
   done
   echo
@@ -181,17 +172,17 @@ MAINFUNC
 chkusrimg()
 {
   echo -e "Looking for your workspace image...\n"
-  listrootimg
+  listimg
   # echo -e "#DBG_Main1   First Check, ImgList =\n$ImgList"
   if [ ! -n "$ImgList" ]
   then
       sleep $loglatency
-      listrootimg
+      listimg
       # echo -e "#DBG_Main1   Double check, ImgList =\n$ImgList"
       if [ ! -n "$ImgList" ]
       then
           sleep $loglatency
-          listrootimg
+          listimg
           # echo -e "#DBG_Main1   Treble Check, ImgList =\n$ImgList"
           if [ ! -n "$ImgList" ]
           then
@@ -201,14 +192,13 @@ chkusrimg()
               do
                 echo -ne "."
                 sleep 1
-                listrootimg
+                listimg
                 # echo -e "#DBG_Main1   Loop Check, ImgList =\n$ImgList"
               done
             echo
           fi
       fi
   fi
-  listallimg
   echo -e "\nGot your image "$ImgList"\n"
 }
 
@@ -414,7 +404,7 @@ then
 fi
 MountNode=$MountList_node
 IMGoM_MP=$MountList_mntp
-listallimg
+listimg
 echo -e "\nFound your image:\n $ImgList\nmounted on:\n $MountList_mntp\nof $MountNode\n"
 
 # Check CPU usage of $MountNode, if over 80% ask if change node, else patch through
