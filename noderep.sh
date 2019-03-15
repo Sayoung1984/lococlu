@@ -142,7 +142,7 @@ secrtsend()
 # General Operation Executor v2, run command in tickets with checkline as root
 geoexec()
 {
-  ls $opstmp/secrt.ticket.geoexec.*
+  /bin/ls $opstmp/secrt.ticket.geoexec.* 2>/dev/null
   HTKT=$opstmp/secrt.ticket.geoexec.`hostname`
   if [ -f "$HTKT" ]
     then
