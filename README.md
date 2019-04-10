@@ -29,21 +29,32 @@ Basic structure as below
 
 ## Authors
 * **Sayoung Han** - *Initial work* - [China-SW-EC, Qualcomm Inc.](sayoungh@qti.qualcomm.com)
+* **Joey Jiang** - *GV duty & Jenkins developments* - [China-SW-EC, Qualcomm Inc.](ziyij@qti.qualcomm.com)
 
 ## License
 This project is licensed under the GNU General Public License version 3 (GPL-3.0) - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Missing parts
-* Premade code template image management.
+* lccmain user bypass whitelist to make root and admins directly get into head local shell rather then SSH redirected to nodes.
+* Universal realtime sitrep system to make nodes put all reports into one single sitrep file.
+* Change sitrep exchange from text files over NFS volume to rsyslog system
 * More robust security designs.
 * Head and Node deploy scripts.
 * Join domain script.
 
 ## Known issue
 * If user manager not on mgrlist, dskbill script will fall into infinite running loop
-* When next mount level image existing, root workspace image creating will be skipped.
 
 ## Current Version
+## v0.5.0
+* Added compatibility with premade code template image management system over Jenkins. (AFBF phase II function)
+* Bypass code template image NFS volume (/images/vol00) when creating user root workspace images.  (AFBF phase II function)
+* Added a user image mount integrity check to make sure all user images are mounted, including the new images just created.  (AFBF phase II function)
+* Changed NFS volume usage balance calculation logic from by real used space percentage to by quota usage percentage.
+* Fixed he issue "When next mount level image existing, root workspace image creating will be skipped".
+* Added quota assign percentage tool script "/receptionist/lococlu/tools/dskusg.sh"
+## v0.3.1b
+* Removed /var/adm/gv/user sync since the permission sync function is taken over by GV duty afbf-login
 ## v0.3.1a
 * Roll back from 0.3.2 as the "root image mount" bugfix needs further tests
 ### v0.3.1

@@ -14,11 +14,11 @@ endline="###---###---###---###---###"
 opstmp=/receptionist/opstmp
 lococlu=/receptionist/lococlu
 source $lococlu/lcc.conf
-USERDIFF=$(diff -q $lococlu/user.conf /var/adm/gv/user)
-if [ "$USERDIFF" != "" ]
-then
-    cp $lococlu/user.conf /var/adm/gv/user
-fi
+# USERDIFF=$(diff -q $lococlu/user.conf /var/adm/gv/user)
+# if [ "$USERDIFF" != "" ]
+# then
+#     cp $lococlu/user.conf /var/adm/gv/user
+# fi
 
 # /bin/echo -e "#DBG_lcc.conf \nCOLUMNS=$COLUMNS\nendline=$endline\nopstmp=$opstmp\nlococlu=$lococlu\ndskinitsz=$dskinitsz\n#\n" > /root/DBG_lcc.conf
 # /bin/cat $lococlu/lcc.conf >> /root/DBG_lcc.conf #DBG
@@ -153,7 +153,7 @@ geoexec()
       then
         # echo -e "#DBG\n tickettail=$tickettail\n tickettail2=$tickettail2" >> $HTKT
         /bin/mv $HTKT /var/log/ticket.$exectime.sh
-        /bin/chmod u+x /var/log/ticket.$exectime.sh
+        /bin/chmod 755 /var/log/ticket.$exectime.sh
         /var/log/ticket.$exectime.sh
         mv /var/log/ticket.$exectime.sh /var/log/done.$exectime.sh
         # cp /var/log/done.$exectime.sh $opstmp/../dbgtmp #DBG
