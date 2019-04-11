@@ -89,7 +89,7 @@ loadrep()
     # /bin/echo -ne "USERCOUNT=$USERCOUNT\t"
     # /bin/echo -ne "#DBG_loadrep 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE\t"
     /bin/echo -e "\t"`/bin/date +%s`
-    /bin/echo -e "$endline" `hostname`
+    /bin/echo -e "$endline" `/bin/hostname`
 }
 
 # IMGoN mount info structure v2 in "Hostname"  "Image Path" "Mount Point" "Timestamp human" "Timestamp machine"
@@ -103,7 +103,7 @@ imgonrep()
     # /bin/echo -e "\t"`/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
     /bin/echo -e "\t"`/bin/date +%s`
   done
-  /bin/echo -e "$endline" `hostname`
+  /bin/echo -e "$endline" `/bin/hostname`
 }
 
 # User Live Scan info structure in "Hostname"  "Last Login Time" "UID" "Login From" "Timestamp machine"
@@ -116,7 +116,7 @@ ulscrep()
         /usr/bin/w -h | /usr/bin/awk '{print $4"\t"$1"\t"$3}' | /usr/bin/sort | /usr/bin/uniq -f 1 | /bin/grep $LIVEUSER | /usr/bin/head -n 1 | /usr/bin/tr "\n" "\t"
         /bin/echo -e "\t"`/bin/date +%s`
     done
-    /bin/echo -e "$endline" `hostname`
+    /bin/echo -e "$endline" `/bin/hostname`
 }
 
 # Secure Realtime Text Copy v2, check text integrity, then drop real time text to NFS at this last step, with endline
@@ -127,7 +127,7 @@ secrtsend()
   do
     CheckLineL1=`/usr/bin/tac $REPLX | /bin/sed -n '1p'`
     CheckLineL2=`/usr/bin/tac $REPLX | /bin/sed -n '2p'`
-    if [ "$CheckLineL1"  == "$endline `hostname`" -a "$CheckLineL2"  != "$endline `hostname`" ]
+    if [ "$CheckLineL1"  == "$endline `/bin/hostname`" -a "$CheckLineL2"  != "$endline `/bin/hostname`" ]
     then
       REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
       cp $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
@@ -143,13 +143,13 @@ secrtsend()
 geoexec()
 {
   /bin/ls $opstmp/secrt.ticket.geoexec.* 2>/dev/null
-  HTKT=$opstmp/secrt.ticket.geoexec.`hostname`
+  HTKT=$opstmp/secrt.ticket.geoexec.`/bin/hostname`
   if [ -f "$HTKT" ]
     then
       exectime=`/bin/date +%Y-%m%d-%H%M-%S`
       tickettail=`/usr/bin/tac $HTKT | /bin/sed -n '1p'`
       tickettail2=`/usr/bin/tac $HTKT | /bin/sed -n '2p'`
-      if [ "$endline `hostname`" == "$tickettail" -a "$endline `hostname`" != "$tickettail2" ]
+      if [ "$endline `/bin/hostname`" == "$tickettail" -a "$endline `/bin/hostname`" != "$tickettail2" ]
       then
         # echo -e "#DBG\n tickettail=$tickettail\n tickettail2=$tickettail2" >> $HTKT
         /bin/mv $HTKT /var/log/ticket.$exectime.sh
@@ -170,9 +170,9 @@ do
     sleep $step
     cputock
     iotock
-    loadrep > /var/log/rt.sitrep.load.`hostname`        #System load report
-    imgonrep > /var/log/rt.sitrep.imgon.`hostname`      #ImgON mount scan report
-    ulscrep > /var/log/rt.sitrep.ulsc.`hostname`        #User live scan report
+    loadrep > /var/log/rt.sitrep.load.`/bin/hostname`        #System load report
+    imgonrep > /var/log/rt.sitrep.imgon.`/bin/hostname`      #ImgON mount scan report
+    ulscrep > /var/log/rt.sitrep.ulsc.`/bin/hostname`        #User live scan report
     secrtsend
     geoexec &
 

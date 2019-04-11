@@ -45,9 +45,9 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * If user manager not on mgrlist, dskbill script will fall into infinite running loop
 
 ## Current Version
-## v0.5.1
+## v0.4.1
 * Added admin lccmain bypass whitelist function (/receptionist/lococlu/backstage.conf). No SSH2 needed now.
-## v0.5.0
+## v0.4.0
 * Added compatibility with premade code template image management system over Jenkins. (AFBF phase II function)
 * Bypass code template image NFS volume (/images/vol00) when creating user root workspace images.  (AFBF phase II function)
 * Added a user image mount integrity check to make sure all user images are mounted, including the new images just created.  (AFBF phase II function)

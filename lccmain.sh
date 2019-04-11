@@ -42,7 +42,7 @@ Whitelist=`cat $lococlu/backstage.conf`
 UserChecker=`/bin/echo $Whitelist | grep $LOGNAME`
 if [ -n "$UserChecker" ]
 then
-    /bin/echo -e "Aha! White list user! LCC-Main bypassed to head back stage!"
+    /bin/echo -e "Aha! White list admin! LCC-Main bypassed to back stage of the head now!"
     exec /bin/bash
 fi
 
