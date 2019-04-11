@@ -20,7 +20,6 @@ Basic structure as below
 └── opstmp                     # Operation temp folder, set as 777, for node sitreps and session lock files
 └── dbgtmp                     # Debug temp folder (optional), set as 777, for geoexec tickets trace
 
-
 /images/                       # ImgON volumes mount point nest
 ├── vol00                      # ImgON volume 00, NFS mounted by all heads/nodes, code image template volume
 ├── vol01                      # ImgON volume 01, NFS mounted by all heads/nodes, user root image volume
