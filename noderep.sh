@@ -119,6 +119,54 @@ ulscrep()
     /bin/echo -e "$endline" `/bin/hostname`
 }
 
+unirep.loadrep()
+{
+    SHORTLOAD=`/bin/cat /proc/loadavg | /usr/bin/awk '{print $1}'`
+    USERCOUNT=`/usr/bin/w -h | /bin/grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
+    PerfIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2;  $IOIndex + $CPULoad " | /usr/bin/bc)`
+    LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc`
+    # USERCOUNT=`/usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
+    /bin/echo -ne `/bin/hostname`"\t"
+    /bin/echo -en "log=load\t"
+    #/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
+    /bin/echo -ne $LoadIndex"\t"$PerfIndex"\t"
+    /bin/echo -ne "Load_C=$LoadIndex\tPerf_R=$PerfIndex\tCPU=$CPULoad IO=$IOIndex\tNR=$LagT USERC=$USERCOUNT"
+    # /bin/echo -e "scale=2; $IOTock / 1000 - $IOTick / 1000 " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
+    # /bin/echo -ne "USERCOUNT=$USERCOUNT\t"
+    # /bin/echo -ne "#DBG_loadrep 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE\t"
+    /bin/echo -e "\t"`/bin/date +%s`
+}
+
+# IMGoN mount info structure v2 in "Hostname"  "Image Path" "Mount Point" "Timestamp human" "Timestamp machine"
+unirep.imgonrep()
+{
+  for LOOPIMG in `COLUMNS=300 /sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}'`
+  do
+    /bin/echo -ne `/bin/hostname`"\t"
+    /bin/echo -en "log=imgon\t"
+    /bin/echo -ne $LOOPIMG"\t"
+    /bin/mount | /bin/grep $LOOPIMG | /usr/bin/awk -F " " '{printf $3}'
+    # /bin/echo -e "\t"`/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
+    /bin/echo -e "\t"`/bin/date +%s`
+  done
+}
+
+# User Live Scan info structure in "Hostname"  "Last Login Time" "UID" "Login From" "Timestamp machine"
+unirep.ulscrep()
+{
+    for LIVEUSER in `COLUMNS=512 /usr/bin/w -h | /bin/grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
+    # for LIVEUSER in `COLUMNS=512 /usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
+    do
+        /bin/echo -en `/bin/hostname`"\t"
+        /bin/echo -en "log=ulsc\t"
+        /usr/bin/w -h | /usr/bin/awk '{print $4"\t"$1"\t"$3}' | /usr/bin/sort | /usr/bin/uniq -f 1 | /bin/grep $LIVEUSER | /usr/bin/head -n 1 | /usr/bin/tr "\n" "\t"
+        /bin/echo -e "\t"`/bin/date +%s`
+    done
+}
+
+
+
+
 # Secure Realtime Text Copy v2, check text integrity, then drop real time text to NFS at this last step, with endline
 # /bin/sed -i '$d' $REPLX # To cut last line, on receive side
 secrtsend()
@@ -170,9 +218,13 @@ do
     sleep $step
     cputock
     iotock
-    loadrep > /var/log/rt.sitrep.load.`/bin/hostname`        #System load report
-    imgonrep > /var/log/rt.sitrep.imgon.`/bin/hostname`      #ImgON mount scan report
-    ulscrep > /var/log/rt.sitrep.ulsc.`/bin/hostname`        #User live scan report
+    # loadrep > /var/log/rt.sitrep.load.`/bin/hostname`        #System load report
+    # imgonrep > /var/log/rt.sitrep.imgon.`/bin/hostname`      #ImgON mount scan report
+    # ulscrep > /var/log/rt.sitrep.ulsc.`/bin/hostname`        #User live scan report
+    unirep.loadrep > /var/log/rt.sitrep.unirep.`/bin/hostname`        #System load report
+    unirep.imgonrep >> /var/log/rt.sitrep.unirep.`/bin/hostname`      #ImgON mount scan report
+    unirep.ulscrep >> /var/log/rt.sitrep.unirep.`/bin/hostname`
+    /bin/echo -e "$endline" `/bin/hostname` >> /var/log/rt.sitrep.unirep.`/bin/hostname`
     secrtsend
     geoexec &
 

@@ -83,9 +83,10 @@ lsrootimg()
 # Subfunction to get node in lowest load, output $NodeLine family
 listfree()
 {
-    NodeLine=`/bin/cat $opstmp/secrt.sitrep.load.* 2>/dev/null | /bin/grep -v $endline | /usr/bin/sort -n -t$'\t' -k 2 | /usr/bin/head -n 1`
+    # NodeLine=`/bin/cat $opstmp/secrt.sitrep.load.* 2>/dev/null | /bin/grep -v $endline | /usr/bin/sort -n -t$'\t' -k 2 | /usr/bin/head -n 1`
+    NodeLine=`/bin/cat $opstmp/secrt.sitrep.unirep.* 2>/dev/null | /bin/grep "log=load" | /usr/bin/sort -n -t$'\t' -k 3 | /usr/bin/head -n 1`
     NodeLine_Name=`/bin/echo $NodeLine | /usr/bin/awk '{print $NR}'`
-    # NodeLine_Load=`/bin/echo $NodeLine | /usr/bin/awk '{print $3}'`
+    # NodeLine_Load=`/bin/echo $NodeLine | /usr/bin/awk '{print $4}'`
     NodeLine_lag=`/usr/bin/expr $(/bin/date +%s) - $(/bin/echo -e "$NodeLine" | /usr/bin/awk -F " " '{print $NF}') 2>/dev/null`
     # /bin/echo -e "\n#DBG_listfree NodeLine_Name = $NodeLine_Name\n#DBG_listfree NodeLine_Load = $NodeLine_Load"
     # /bin/echo -e "#DBG_listfree NodeLine_lag = $NodeLine_lag\n#DBG_listfree Log latency = $loglatency\n\n"
@@ -115,10 +116,11 @@ selectfree()
 # Subfunction to check Image mount info, output $MountList family
 mountlist()
 {
-    MountList=`/bin/cat $opstmp/secrt.sitrep.imgon.* | /bin/grep -v $endline | /bin/egrep "(\.\.|\/)$LOGNAME\.img"`
+    # MountList=`/bin/cat $opstmp/secrt.sitrep.imgon.* | /bin/grep -v $endline | /bin/egrep "(\.\.|\/)$LOGNAME\.img"`
+    MountList=`/bin/cat $opstmp/secrt.sitrep.unirep.* | /bin/grep "log=imgon" | /bin/egrep "(\.\.|\/)$LOGNAME\.img"`
     MountList_node=`/bin/echo -e "$MountList" | /usr/bin/head -n 1 | /usr/bin/awk -F " " '{print $NR}'`
-    MountList_img=`/bin/echo -e "$MountList" | /usr/bin/awk -F " " '{print $2}'`
-    MountList_mntp=`/bin/echo -e "$MountList" | /usr/bin/awk -F " " '{print $3}'`
+    MountList_img=`/bin/echo -e "$MountList" | /usr/bin/awk -F " " '{print $3}'`
+    MountList_mntp=`/bin/echo -e "$MountList" | /usr/bin/awk -F " " '{print $4}'`
     MountList_lag=`/usr/bin/expr $(/bin/date +%s) - $(/bin/echo -e "$MountList" | /usr/bin/head -n 1 | /usr/bin/awk -F " " '{print $NF}') 2>/dev/null`
     # /bin/echo -e "#DBG_mountlist MountList family:\t$MountList\n#DBG_mountlist MountList_node =\t$MountList_node"
     # /bin/echo -e "#DBG_mountlist MountList_img =\t$MountList_img\n#DBG_mountlist MountList_mntp =\t$MountList_mntp"
@@ -141,7 +143,7 @@ mkrootimg()
   # Subfunc of make disk infant, now for /images/vol**
   mkdskinfant()
   {
-      for volpath in `/bin/ls -d /images/vol*`
+      for volpath in `/bin/ls -d /images/vol* | /bin/grep -v vol00`
       do
           fmtvolpath=`/bin/echo $volpath | /usr/bin/awk -F ":" '{print $1}'`
           if [ ! -f $fmtvolpath/diskinfant ]
@@ -456,7 +458,8 @@ fi
 # Check /bin/cpU usage of $MountNode, if over 80% ask if change node, else patch through
 while [ ! -n "$MountNodeLoad" ]
 do
-  MountNodeLoad=`/bin/cat $opstmp/secrt.sitrep.load.$MountNode | /bin/grep -v $endline | /usr/bin/awk '{print $3}'`
+  # MountNodeLoad=`/bin/cat $opstmp/secrt.sitrep.load.$MountNode | /bin/grep -v $endline | /usr/bin/awk '{print $3}'`
+  MountNodeLoad=`/bin/cat $opstmp/secrt.sitrep.unirep.$MountNode | /bin/grep "log=load" | /usr/bin/awk '{print $4}'`
   /bin/sleep $loglatency
 done
 # /bin/echo -e "#DBG_checkload MountNodeLoad = $MountNodeLoad %\n"

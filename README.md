@@ -39,7 +39,6 @@ Basic structure as below
 This project is licensed under the GNU General Public License version 3 (GPL-3.0) - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Missing parts
-* Universal realtime sitrep system to make nodes put all reports into one single sitrep file.
 * Change sitrep exchange from text files over NFS volume to rsyslog system
 * More robust security designs.
 * Head and Node deploy scripts.
@@ -49,6 +48,8 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * If user manager not on mgrlist, dskbill script will fall into infinite running loop
 
 ## Current Version
+## v0.5.0
+* Changed the realtime sitrep system into universal single sitrep file, with line data type declarations. To lower the NFS exchange frequency, and as preparation to move from text log system to rsyslog system.
 ## v0.4.1
 * Added admin lccmain bypass whitelist function (/receptionist/lococlu/backstage.conf). No SSH2 needed now.
 ## v0.4.0
