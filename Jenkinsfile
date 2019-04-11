@@ -1,7 +1,9 @@
 pipeline {
-  node {
+  agent {
+    node {
       label 'cron-sh-01'
     }
+  }
   stages {
     stage('Verification') {
       steps {
