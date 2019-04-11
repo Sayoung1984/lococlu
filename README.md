@@ -35,7 +35,6 @@ Basic structure as below
 This project is licensed under the GNU General Public License version 3 (GPL-3.0) - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Missing parts
-* lccmain user bypass whitelist to make root and admins directly get into head local shell rather then SSH redirected to nodes.
 * Universal realtime sitrep system to make nodes put all reports into one single sitrep file.
 * Change sitrep exchange from text files over NFS volume to rsyslog system
 * More robust security designs.
@@ -46,13 +45,17 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * If user manager not on mgrlist, dskbill script will fall into infinite running loop
 
 ## Current Version
+## v0.5.1
+* Added admin lccmain bypass whitelist function (/receptionist/lococlu/backstage.conf). No SSH2 needed now.
 ## v0.5.0
 * Added compatibility with premade code template image management system over Jenkins. (AFBF phase II function)
 * Bypass code template image NFS volume (/images/vol00) when creating user root workspace images.  (AFBF phase II function)
 * Added a user image mount integrity check to make sure all user images are mounted, including the new images just created.  (AFBF phase II function)
+## v0.3.3
 * Changed NFS volume usage balance calculation logic from by real used space percentage to by quota usage percentage.
-* Fixed he issue "When next mount level image existing, root workspace image creating will be skipped".
 * Added quota assign percentage tool script "/receptionist/lococlu/tools/dskusg.sh"
+## v0.3.2
+* Fixed he issue "When next mount level image existing, root workspace image creating will be skipped".
 ## v0.3.1b
 * Removed /var/adm/gv/user sync since the permission sync function is taken over by GV duty afbf-login
 ## v0.3.1a

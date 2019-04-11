@@ -37,6 +37,16 @@ MOUNTROOT=`/bin/echo $MOUNTROOT | /bin/sed '/\/$/!  s/^.*$/&\//'`
 # /bin/echo -e "#DBG_MOUNTROOT Current domain = $CURDOM\n"
 # /bin/echo -e "#DBG_MOUNTROOT Default user mount root = $MOUNTROOT\n"
 
+# lccmain bypass user list
+Whitelist=`cat $lococlu/backstage.conf`
+UserChecker=`/bin/echo $Whitelist | grep $LOGNAME`
+if [ -n "$UserChecker" ]
+then
+    /bin/echo -e "Aha! White list user! LCC-Main bypassed to head back stage!"
+    exec /bin/bash
+fi
+
+
 # Secure Realtime Text Send v2, check text integrity, then drop real time text to NFS at this last step, with endline
 # /bin/sed -i '$d' $REPLX # To cat last line, on receive side
 secrtsend()
