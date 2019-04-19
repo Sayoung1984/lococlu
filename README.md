@@ -6,21 +6,25 @@ Basic structure as below
 ```
 /receptionist/                 # Lococlu runtime folder, NFS mounted by all heads/nodes
 ├── lococlu                    # Main functions folder
-│   ├── lcc.conf               # Config file (ignored by git, a sample was provided instead)
+│   ├── backstage.conf         # LCC bypass white list
+│   ├── lcc.conf               # Main config file (ignored by git, a sample was provided instead)
 │   ├── lccmain.sh             # Main function
 │   ├── noderep.sh             # Node deamon, run as cronjobs on nodes
 │   └── tools                  # Extra tools folder
 │       ├── autoballast.sh     # Burn cpu tool, make cpu workloads for debug
 │       ├── deploynode.sh      # Node deployment script, currently blank
-│       └── execbdcst.sh       # Execute Broadcaster, batch send commands to all live nodes
+│       ├── dskbill.sh         # User team disk quota usage calculator
+│       ├── dskusg.sh          # NFS volume quota usage percentage calculator
+│       ├── execbdcst.sh       # Execute Broadcaster, batch send commands to all live nodes
+│       └── mgrlist            # User team manager list for dskbill.sh
 └── opstmp                     # Operation temp folder, set as 777, for node sitreps and session lock files
 └── dbgtmp                     # Debug temp folder (optional), set as 777, for geoexec tickets trace
 
-
 /images/                       # ImgON volumes mount point nest
-├── vol01                      # ImgON volume 01, NFS mounted by all heads/nodes
-└── vol02                      # ImgON volume 02, NFS mounted by all heads/nodes
-└── vol..                      # ImgON volumes, NFS mounts, vol+`2 digits numeral name`
+├── vol00                      # ImgON volume 00, NFS mounted by all heads/nodes, code image template volume
+├── vol01                      # ImgON volume 01, NFS mounted by all heads/nodes, user root image volume
+├── vol02                      # ImgON volume 02, NFS mounted by all heads/nodes, user root image volume
+└── vol..                      # ImgON volumesXX, NFS mounted by all heads/nodes, vol+`2 digits numeral name`, user root image volume
 ```
 
 ## Built With
@@ -29,21 +33,36 @@ Basic structure as below
 
 ## Authors
 * **Sayoung Han** - *Initial work* - [China-SW-EC, Qualcomm Inc.](sayoungh@qti.qualcomm.com)
+* **Joey Jiang** - *GV duty & Jenkins developments* - [China-SW-EC, Qualcomm Inc.](ziyij@qti.qualcomm.com)
 
 ## License
 This project is licensed under the GNU General Public License version 3 (GPL-3.0) - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Missing parts
-* Premade code template image management.
+* Change sitrep exchange from text files over NFS volume to rsyslog system
 * More robust security designs.
 * Head and Node deploy scripts.
 * Join domain script.
 
 ## Known issue
 * If user manager not on mgrlist, dskbill script will fall into infinite running loop
-* When next mount level image existing, root workspace image creating will be skipped.
 
 ## Current Version
+## v0.5.0
+* Changed the realtime sitrep system into universal single sitrep file, with line data type declarations. To lower the NFS exchange frequency, and as preparation to move from text log system to rsyslog system.
+## v0.4.1
+* Added admin lccmain bypass whitelist function (/receptionist/lococlu/backstage.conf). No SSH2 needed now.
+## v0.4.0
+* Added compatibility with premade code template image management system over Jenkins. (AFBF phase II function)
+* Bypass code template image NFS volume (/images/vol00) when creating user root workspace images.  (AFBF phase II function)
+* Added a user image mount integrity check to make sure all user images are mounted, including the new images just created.  (AFBF phase II function)
+## v0.3.3
+* Changed NFS volume usage balance calculation logic from by real used space percentage to by quota usage percentage.
+* Added quota assign percentage calculation tool script "/receptionist/lococlu/tools/dskusg.sh"
+## v0.3.2
+* Fixed he issue "When next mount level image existing, root workspace image creating will be skipped".
+## v0.3.1b
+* Removed /var/adm/gv/user sync since the permission sync function is taken over by GV duty afbf-login
 ## v0.3.1a
 * Roll back from 0.3.2 as the "root image mount" bugfix needs further tests
 ### v0.3.1

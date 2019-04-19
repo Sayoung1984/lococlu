@@ -14,11 +14,11 @@ endline="###---###---###---###---###"
 opstmp=/receptionist/opstmp
 lococlu=/receptionist/lococlu
 source $lococlu/lcc.conf
-USERDIFF=$(diff -q $lococlu/user.conf /var/adm/gv/user)
-if [ "$USERDIFF" != "" ]
-then
-    cp $lococlu/user.conf /var/adm/gv/user
-fi
+# USERDIFF=$(diff -q $lococlu/user.conf /var/adm/gv/user)
+# if [ "$USERDIFF" != "" ]
+# then
+#     cp $lococlu/user.conf /var/adm/gv/user
+# fi
 
 # /bin/echo -e "#DBG_lcc.conf \nCOLUMNS=$COLUMNS\nendline=$endline\nopstmp=$opstmp\nlococlu=$lococlu\ndskinitsz=$dskinitsz\n#\n" > /root/DBG_lcc.conf
 # /bin/cat $lococlu/lcc.conf >> /root/DBG_lcc.conf #DBG
@@ -89,7 +89,7 @@ loadrep()
     # /bin/echo -ne "USERCOUNT=$USERCOUNT\t"
     # /bin/echo -ne "#DBG_loadrep 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE\t"
     /bin/echo -e "\t"`/bin/date +%s`
-    /bin/echo -e "$endline" `hostname`
+    /bin/echo -e "$endline" `/bin/hostname`
 }
 
 # IMGoN mount info structure v2 in "Hostname"  "Image Path" "Mount Point" "Timestamp human" "Timestamp machine"
@@ -103,7 +103,7 @@ imgonrep()
     # /bin/echo -e "\t"`/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
     /bin/echo -e "\t"`/bin/date +%s`
   done
-  /bin/echo -e "$endline" `hostname`
+  /bin/echo -e "$endline" `/bin/hostname`
 }
 
 # User Live Scan info structure in "Hostname"  "Last Login Time" "UID" "Login From" "Timestamp machine"
@@ -116,8 +116,56 @@ ulscrep()
         /usr/bin/w -h | /usr/bin/awk '{print $4"\t"$1"\t"$3}' | /usr/bin/sort | /usr/bin/uniq -f 1 | /bin/grep $LIVEUSER | /usr/bin/head -n 1 | /usr/bin/tr "\n" "\t"
         /bin/echo -e "\t"`/bin/date +%s`
     done
-    /bin/echo -e "$endline" `hostname`
+    /bin/echo -e "$endline" `/bin/hostname`
 }
+
+unirep.loadrep()
+{
+    SHORTLOAD=`/bin/cat /proc/loadavg | /usr/bin/awk '{print $1}'`
+    USERCOUNT=`/usr/bin/w -h | /bin/grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
+    PerfIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2;  $IOIndex + $CPULoad " | /usr/bin/bc)`
+    LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc`
+    # USERCOUNT=`/usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
+    /bin/echo -ne `/bin/hostname`"\t"
+    /bin/echo -en "log=load\t"
+    #/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
+    /bin/echo -ne $LoadIndex"\t"$PerfIndex"\t"
+    /bin/echo -ne "Load_C=$LoadIndex\tPerf_R=$PerfIndex\tCPU=$CPULoad IO=$IOIndex\tNR=$LagT USERC=$USERCOUNT"
+    # /bin/echo -e "scale=2; $IOTock / 1000 - $IOTick / 1000 " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
+    # /bin/echo -ne "USERCOUNT=$USERCOUNT\t"
+    # /bin/echo -ne "#DBG_loadrep 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE\t"
+    /bin/echo -e "\t"`/bin/date +%s`
+}
+
+# IMGoN mount info structure v2 in "Hostname"  "Image Path" "Mount Point" "Timestamp human" "Timestamp machine"
+unirep.imgonrep()
+{
+  for LOOPIMG in `COLUMNS=300 /sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}'`
+  do
+    /bin/echo -ne `/bin/hostname`"\t"
+    /bin/echo -en "log=imgon\t"
+    /bin/echo -ne $LOOPIMG"\t"
+    /bin/mount | /bin/grep $LOOPIMG | /usr/bin/awk -F " " '{printf $3}'
+    # /bin/echo -e "\t"`/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
+    /bin/echo -e "\t"`/bin/date +%s`
+  done
+}
+
+# User Live Scan info structure in "Hostname"  "Last Login Time" "UID" "Login From" "Timestamp machine"
+unirep.ulscrep()
+{
+    for LIVEUSER in `COLUMNS=512 /usr/bin/w -h | /bin/grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
+    # for LIVEUSER in `COLUMNS=512 /usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
+    do
+        /bin/echo -en `/bin/hostname`"\t"
+        /bin/echo -en "log=ulsc\t"
+        /usr/bin/w -h | /usr/bin/awk '{print $4"\t"$1"\t"$3}' | /usr/bin/sort | /usr/bin/uniq -f 1 | /bin/grep $LIVEUSER | /usr/bin/head -n 1 | /usr/bin/tr "\n" "\t"
+        /bin/echo -e "\t"`/bin/date +%s`
+    done
+}
+
+
+
 
 # Secure Realtime Text Copy v2, check text integrity, then drop real time text to NFS at this last step, with endline
 # /bin/sed -i '$d' $REPLX # To cut last line, on receive side
@@ -127,7 +175,7 @@ secrtsend()
   do
     CheckLineL1=`/usr/bin/tac $REPLX | /bin/sed -n '1p'`
     CheckLineL2=`/usr/bin/tac $REPLX | /bin/sed -n '2p'`
-    if [ "$CheckLineL1"  == "$endline `hostname`" -a "$CheckLineL2"  != "$endline `hostname`" ]
+    if [ "$CheckLineL1"  == "$endline `/bin/hostname`" -a "$CheckLineL2"  != "$endline `/bin/hostname`" ]
     then
       REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
       cp $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
@@ -143,17 +191,17 @@ secrtsend()
 geoexec()
 {
   /bin/ls $opstmp/secrt.ticket.geoexec.* 2>/dev/null
-  HTKT=$opstmp/secrt.ticket.geoexec.`hostname`
+  HTKT=$opstmp/secrt.ticket.geoexec.`/bin/hostname`
   if [ -f "$HTKT" ]
     then
       exectime=`/bin/date +%Y-%m%d-%H%M-%S`
       tickettail=`/usr/bin/tac $HTKT | /bin/sed -n '1p'`
       tickettail2=`/usr/bin/tac $HTKT | /bin/sed -n '2p'`
-      if [ "$endline `hostname`" == "$tickettail" -a "$endline `hostname`" != "$tickettail2" ]
+      if [ "$endline `/bin/hostname`" == "$tickettail" -a "$endline `/bin/hostname`" != "$tickettail2" ]
       then
         # echo -e "#DBG\n tickettail=$tickettail\n tickettail2=$tickettail2" >> $HTKT
         /bin/mv $HTKT /var/log/ticket.$exectime.sh
-        /bin/chmod u+x /var/log/ticket.$exectime.sh
+        /bin/chmod 755 /var/log/ticket.$exectime.sh
         /var/log/ticket.$exectime.sh
         mv /var/log/ticket.$exectime.sh /var/log/done.$exectime.sh
         # cp /var/log/done.$exectime.sh $opstmp/../dbgtmp #DBG
@@ -170,9 +218,13 @@ do
     sleep $step
     cputock
     iotock
-    loadrep > /var/log/rt.sitrep.load.`hostname`        #System load report
-    imgonrep > /var/log/rt.sitrep.imgon.`hostname`      #ImgON mount scan report
-    ulscrep > /var/log/rt.sitrep.ulsc.`hostname`        #User live scan report
+    # loadrep > /var/log/rt.sitrep.load.`/bin/hostname`        #System load report
+    # imgonrep > /var/log/rt.sitrep.imgon.`/bin/hostname`      #ImgON mount scan report
+    # ulscrep > /var/log/rt.sitrep.ulsc.`/bin/hostname`        #User live scan report
+    unirep.loadrep > /var/log/rt.sitrep.unirep.`/bin/hostname`        #System load report
+    unirep.imgonrep >> /var/log/rt.sitrep.unirep.`/bin/hostname`      #ImgON mount scan report
+    unirep.ulscrep >> /var/log/rt.sitrep.unirep.`/bin/hostname`
+    /bin/echo -e "$endline" `/bin/hostname` >> /var/log/rt.sitrep.unirep.`/bin/hostname`
     secrtsend
     geoexec &
 
