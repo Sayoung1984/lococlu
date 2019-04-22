@@ -40,6 +40,7 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 
 ## Missing parts
 * Change sitrep exchange from text files over NFS volume to rsyslog system
+* Checker of "Ghost loop mount" issue, sometimes the user images are loop mounted without mount point, mostly when unmounting stuck.
 * More robust security designs.
 * Head and Node deploy scripts.
 * Join domain script.
@@ -48,6 +49,8 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * If user manager not on mgrlist, dskbill script will fall into infinite running loop
 
 ## Current Version
+## v0.5.1
+* Added Sub-function "darwinawards" to noderep.sh to kill users not connecting via cluster head out per-loop.
 ## v0.5.0
 * Changed the realtime sitrep system into universal single sitrep file, with line data type declarations. To lower the NFS exchange frequency, and as preparation to move from text log system to rsyslog system.
 ## v0.4.1
