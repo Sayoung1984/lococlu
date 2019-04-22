@@ -1,6 +1,6 @@
 #! /bin/bash
 echo -e "VolumePath\tUsed(G)\tCap(G)\tQuotaPerc"
-for i in `ls /images | grep -v vol00`
+for i in `ls /images`
 do
 	echo -ne "/images/$i \t"
 	quotausage=`ls -l --block-size=g /images/$i |  awk '{ total += $5; print }; END { print total}' | tail -n 1`
