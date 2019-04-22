@@ -38,6 +38,15 @@ fi
 
 PerfScore=`/bin/echo -e "scale=1; $CPUFREQ * $PHYSICORE " | /usr/bin/bc`
 
+# Darwin awards to kill users not connecting via cluster head
+darwinawards()
+{
+for PTSK in `/usr/bin/who | /bin/grep -Ev "head|root|sayoungh|ziyij|evenye|:0 " | /usr/bin/awk '{print $2}'`
+do
+    /usr/bin/pkill -KILL -t  $PTSK
+done
+}
+
 # Calculate rounded CPU usage percentage (0~100) $CPULoad via /proc/stat, must be a time interval between cputick and cputock
 cputick()
 {
@@ -211,6 +220,7 @@ geoexec()
 
 # Main function loop
 step=1 #Execution time interval, MUST UNDER 3600!!!
+darwinawards
 for (( i = 0; i < 3600; i=(i+step) ))
 do
     cputick
