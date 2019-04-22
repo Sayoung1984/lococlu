@@ -13,8 +13,8 @@ userlist()
 
 userdskchk()
 {
-    UDS=`/bin/ls -sl /images/vol0* | grep -v vol00 | /bin/grep $C_USER | /usr/bin/awk '{x=x+$6} END {printf "%.0f\n",x/1024/1024/1024}'`
-    UDU=`/bin/ls -sl /images/vol0* | grep -v vol00 | /bin/grep $C_USER | /usr/bin/awk '{x=x+$1} END {printf "%.0f\n",x/1024/1024}'`
+    UDS=`/bin/ls -sl /images/vol0* | grep -v "\.\." | /bin/grep " "$C_USER.img | /usr/bin/awk '{x=x+$6} END {printf "%.0f\n",x/1024/1024/1024}'`
+    UDU=`/bin/ls -sl /images/vol0* | grep -v "\.\." | /bin/grep " "$C_USER.img | /usr/bin/awk '{x=x+$1} END {printf "%.0f\n",x/1024/1024}'`
 }
 
 mainfunc()
@@ -57,8 +57,8 @@ dots()
 TTS=`/bin/df | /bin/grep " /images" | /usr/bin/awk '{x=x+$2} END {printf "%.0f\n",x/1024/1024}'`
 TTU=`/bin/df | /bin/grep " /images" | /usr/bin/awk '{x=x+$3} END {printf "%.0f\n",x/1024/1024}'`
 SUP=`/usr/bin/printf %.$2f $(/bin/echo -e  "scale=2; 100 * $TTU / $TTS " | /usr/bin/bc )`
-AAS=`/bin/ls -sl /images/vol0*/* | grep -v vol00 | /usr/bin/awk '{x=x+$6} END {printf "%.0f\n",x/1024/1024/1024}'`
-AUS=`/bin/ls -sl /images/vol0*/* | grep -v vol00 | /usr/bin/awk '{x=x+$1} END {printf "%.0f\n",x/1024/1024}'`
+AAS=`/bin/ls -sl /images/vol0*/* | grep -v "\.\." | /usr/bin/awk '{x=x+$6} END {printf "%.0f\n",x/1024/1024/1024}'`
+AUS=`/bin/ls -sl /images/vol0*/* | grep -v "\.\." | /usr/bin/awk '{x=x+$1} END {printf "%.0f\n",x/1024/1024}'`
 SVS=`/usr/bin/printf %.$2f $(/bin/echo -e  "scale=0; $TTU - $AUS " | /usr/bin/bc )`
 /bin/echo -e "\nTotal disk space(G)= $TTS\tLogical used space(G)= $TTU\t$SUP% used"
 /bin/echo -e "\nTotal assigned quota(G)= $AAS\tPhysical used space(G)= $AUS\tSpace saved by compress\\dedup(G)= $SVS\n"
