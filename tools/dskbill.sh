@@ -8,7 +8,7 @@ getmgr()
 
 userlist()
 {
-    /bin/ls -slh /images/vol0* | /bin/grep .img | /usr/bin/awk -F "[ .]" '{print $(NF-1)}' | /usr/bin/sort -u
+    /bin/ls -slh /images/vol0* | grep -v "\.\." | /bin/grep .img | /usr/bin/awk -F "[ .]" '{print $(NF-1)}' | /usr/bin/sort -u
 }
 
 userdskchk()
