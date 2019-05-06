@@ -2,3 +2,4 @@
 .nfs*
 lcc.conf
 user.conf
+backstage.conf
