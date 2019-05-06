@@ -43,7 +43,7 @@ darwinawards()
 {
 for PTSK in `/usr/bin/who | /bin/grep -Ev "head|root|sayoungh|ziyij|evenye|:0 " | /usr/bin/awk '{print $2}'`
 do
-    /usr/bin/pkill -KILL -t  $PTSK
+    /usr/bin/pkill -KILL -t $PTSK
 done
 }
 
@@ -132,7 +132,7 @@ unirep.loadrep()
 {
     SHORTLOAD=`/bin/cat /proc/loadavg | /usr/bin/awk '{print $1}'`
     USERCOUNT=`/usr/bin/w -h | /bin/grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
-    PerfIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2;  $IOIndex + $CPULoad " | /usr/bin/bc)`
+    PerfIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2;  sqrt( ($IOIndex / 1.5) ^2 + $CPULoad ^2 ) " | /usr/bin/bc)`
     LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc`
     # USERCOUNT=`/usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
     /bin/echo -ne `/bin/hostname`"\t"
