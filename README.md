@@ -49,6 +49,9 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * If user manager not on mgrlist, dskbill script will fall into infinite running loop
 
 ## Current Version
+## v0.5.2a
+* Most details provided by dskusg.sh
+* Input module of image dump tool
 ## v0.5.2
 * Realtime PerfIndex is now SRSS of CPU and IO load indexes.
 ## v0.5.1
