@@ -142,7 +142,7 @@ read -p "Deleted image won't be restorable, continue? (Y/N)" USER_OPS
 
 # List of images to delete
 
-$lococlu/tools/UCLI.sh
+$lococlu/tools/UCIL.sh
 derliste=`cat $opstmp/ucdimglst.$LOGNAME | awk '{print $0, "OFF"}'`
 # echo -e "$derliste"
 lstlenth=$(echo -e "$derliste" | wc -l)

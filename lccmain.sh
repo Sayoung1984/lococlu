@@ -72,7 +72,7 @@ secrtsend()
 lsallimg()
 {
     ImgList=`/usr/bin/find  /images/vol*/*.img -type f | /bin/egrep "(\.\.|\/)$LOGNAME\.img$" 2>/dev/null`
-    $lococlu/tools/UCLI.sh &
+    $lococlu/tools/UCIL.sh &
 }
 
 # Subfunction to list user root workspace image, output $RootImg if found
@@ -123,7 +123,7 @@ mountlist()
     MountList_img=`/bin/echo -e "$MountList" | /usr/bin/awk -F " " '{print $3}'`
     MountList_mntp=`/bin/echo -e "$MountList" | /usr/bin/awk -F " " '{print $4}'`
     MountList_lag=`/usr/bin/expr $(/bin/date +%s) - $(/bin/echo -e "$MountList" | /usr/bin/head -n 1 | /usr/bin/awk -F " " '{print $NF}') 2>/dev/null`
-    $lococlu/tools/UCLI.sh &
+    $lococlu/tools/UCIL.sh &
     # /bin/echo -e "#DBG_mountlist MountList family:\t$MountList\n#DBG_mountlist MountList_node =\t$MountList_node"
     # /bin/echo -e "#DBG_mountlist MountList_img =\t$MountList_img\n#DBG_mountlist MountList_mntp =\t$MountList_mntp"
     # /bin/echo -e "#DBG_mountlist MountList_lag =\t$MountList_lag\n#DBG_mountlist Log latency =\t$loglatency\n\n"
