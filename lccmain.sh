@@ -72,6 +72,7 @@ secrtsend()
 lsallimg()
 {
     ImgList=`/usr/bin/find  /images/vol*/*.img -type f | /bin/egrep "(\.\.|\/)$LOGNAME\.img$" 2>/dev/null`
+    $lococlu/tools/UCLI.sh &
 }
 
 # Subfunction to list user root workspace image, output $RootImg if found
@@ -122,6 +123,7 @@ mountlist()
     MountList_img=`/bin/echo -e "$MountList" | /usr/bin/awk -F " " '{print $3}'`
     MountList_mntp=`/bin/echo -e "$MountList" | /usr/bin/awk -F " " '{print $4}'`
     MountList_lag=`/usr/bin/expr $(/bin/date +%s) - $(/bin/echo -e "$MountList" | /usr/bin/head -n 1 | /usr/bin/awk -F " " '{print $NF}') 2>/dev/null`
+    $lococlu/tools/UCLI.sh &
     # /bin/echo -e "#DBG_mountlist MountList family:\t$MountList\n#DBG_mountlist MountList_node =\t$MountList_node"
     # /bin/echo -e "#DBG_mountlist MountList_img =\t$MountList_img\n#DBG_mountlist MountList_mntp =\t$MountList_mntp"
     # /bin/echo -e "#DBG_mountlist MountList_lag =\t$MountList_lag\n#DBG_mountlist Log latency =\t$loglatency\n\n"
@@ -308,7 +310,7 @@ terminator()
     do
       UMP=`/bin/echo $MOUNTROOT$UM`
       /bin/umount -l $UMP
-      /bin/sleep 0.2
+      /bin/sleep 0.1
     done
   }
 
@@ -327,6 +329,8 @@ terminator()
   UmountList=`/sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}' | /bin/egrep "(\.\.|\/)$KILLUSER\.img$" 2>/dev/null`
   while [ -n "$UmountList" ]
   do
+    service smbd restart
+    service nmbd restart
     umountuser
     /bin/sleep 1
     UmountList=`/sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}' | /bin/egrep "(\.\.|\/)$KILLUSER\.img$" 2>/dev/null`
@@ -389,7 +393,7 @@ if [ ! -f "$lockpath" ]
 		echo -e "\nThis might caused by your last launch interruption."
 		echo -e "If this is your ONLY current launch instance, you can override the launch.\n"
 		while true
-    do
+        do
 		read -p "Override to launch from here? (Y/N)" USER_OPS
 			case $USER_OPS in
         			Y|y|YES|Yes|yes)
@@ -452,7 +456,6 @@ if  [ "$ImgCount" -gt "$MntCount" ]
     FreeNode=$MountNode
     /bin/echo -e "Found your new image, mounting to $MountNode now...\n"
     mountcmd
-
 fi
 
 # Check /bin/cpU usage of $MountNode, if over 80% ask if change node, else patch through

@@ -15,6 +15,7 @@ Basic structure as below
 │       ├── deploynode.sh      # Node deployment script, currently blank
 │       ├── dskbill.sh         # User team disk quota usage calculator
 │       ├── dskusg.sh          # NFS volume quota usage percentage calculator
+│       ├── imgdel.sh          # User code image delete tool
 │       ├── execbdcst.sh       # Execute Broadcaster, batch send commands to all live nodes
 │       └── mgrlist            # User team manager list for dskbill.sh
 └── opstmp                     # Operation temp folder, set as 777, for node sitreps and session lock files
@@ -41,7 +42,6 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 ## Missing parts
 * Change sitrep exchange from text files over NFS volume to rsyslog system
 * Checker of "Ghost loop mount" issue, sometimes the user images are loop mounted without mount point, mostly when unmounting stuck.
-* More robust security designs.
 * Head and Node deploy scripts.
 * Join domain script.
 
@@ -49,6 +49,9 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * If user manager not on mgrlist, dskbill script will fall into infinite running loop
 
 ## Current Version
+## v0.5.3
+* Added image delete tool
+* More robust image unmount operations.
 ## v0.5.2a
 * Most details provided by dskusg.sh
 * Input module of image dump tool

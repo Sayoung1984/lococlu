@@ -83,50 +83,50 @@ iotock()
 # System load info structure in "Hostname"  "PerfIndex" "CPULoad" "Timestamp human" "Timestamp machine"
 # Current perfIndex = (10*liveUsers + 100*Loadavg / PhysicCores) / PerfScore
 # Current perfIndex = 10*liveUsers / PerfScore + 100*Loadavg / PhysicCores^2 / CPUFREQ
-loadrep()
-{
-    SHORTLOAD=`/bin/cat /proc/loadavg | /usr/bin/awk '{print $1}'`
-    USERCOUNT=`/usr/bin/w -h | /bin/grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
-    PerfIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2;  $IOIndex + $CPULoad " | /usr/bin/bc)`
-    LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc`
-    # USERCOUNT=`/usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
-    /bin/echo -ne `/bin/hostname`"\t"
-    #/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
-    /bin/echo -ne $LoadIndex"\t"$PerfIndex"\t"
-    /bin/echo -ne "Load_C=$LoadIndex\tPerf_R=$PerfIndex\tCPU_RT=$CPULoad\tIOB_RT=$IOIndex\tNR=$LagT\tUSERC=$USERCOUNT"
-    # /bin/echo -e "scale=2; $IOTock / 1000 - $IOTick / 1000 " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
-    # /bin/echo -ne "USERCOUNT=$USERCOUNT\t"
-    # /bin/echo -ne "#DBG_loadrep 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE\t"
-    /bin/echo -e "\t"`/bin/date +%s`
-    /bin/echo -e "$endline" `/bin/hostname`
-}
-
-# IMGoN mount info structure v2 in "Hostname"  "Image Path" "Mount Point" "Timestamp human" "Timestamp machine"
-imgonrep()
-{
-  for LOOPIMG in `COLUMNS=300 /sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}'`
-  do
-    /bin/echo -ne `/bin/hostname`"\t"
-    /bin/echo -ne $LOOPIMG"\t"
-    /bin/mount | /bin/grep $LOOPIMG | /usr/bin/awk -F " " '{printf $3}'
-    # /bin/echo -e "\t"`/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
-    /bin/echo -e "\t"`/bin/date +%s`
-  done
-  /bin/echo -e "$endline" `/bin/hostname`
-}
-
-# User Live Scan info structure in "Hostname"  "Last Login Time" "UID" "Login From" "Timestamp machine"
-ulscrep()
-{
-    for LIVEUSER in `COLUMNS=512 /usr/bin/w -h | /bin/grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
-    # for LIVEUSER in `COLUMNS=512 /usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
-    do
-        /bin/echo -en `/bin/hostname`"\t"
-        /usr/bin/w -h | /usr/bin/awk '{print $4"\t"$1"\t"$3}' | /usr/bin/sort | /usr/bin/uniq -f 1 | /bin/grep $LIVEUSER | /usr/bin/head -n 1 | /usr/bin/tr "\n" "\t"
-        /bin/echo -e "\t"`/bin/date +%s`
-    done
-    /bin/echo -e "$endline" `/bin/hostname`
-}
+# loadrep()
+# {
+#     SHORTLOAD=`/bin/cat /proc/loadavg | /usr/bin/awk '{print $1}'`
+#     USERCOUNT=`/usr/bin/w -h | /bin/grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
+#     PerfIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2;  $IOIndex + $CPULoad " | /usr/bin/bc)`
+#     LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc`
+#     # USERCOUNT=`/usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
+#     /bin/echo -ne `/bin/hostname`"\t"
+#     #/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
+#     /bin/echo -ne $LoadIndex"\t"$PerfIndex"\t"
+#     /bin/echo -ne "Load_C=$LoadIndex\tPerf_R=$PerfIndex\tCPU_RT=$CPULoad\tIOB_RT=$IOIndex\tNR=$LagT\tUSERC=$USERCOUNT"
+#     # /bin/echo -e "scale=2; $IOTock / 1000 - $IOTick / 1000 " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
+#     # /bin/echo -ne "USERCOUNT=$USERCOUNT\t"
+#     # /bin/echo -ne "#DBG_loadrep 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE\t"
+#     /bin/echo -e "\t"`/bin/date +%s`
+#     /bin/echo -e "$endline" `/bin/hostname`
+# }
+#
+# # IMGoN mount info structure v2 in "Hostname"  "Image Path" "Mount Point" "Timestamp human" "Timestamp machine"
+# imgonrep()
+# {
+#   for LOOPIMG in `COLUMNS=300 /sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}'`
+#   do
+#     /bin/echo -ne `/bin/hostname`"\t"
+#     /bin/echo -ne $LOOPIMG"\t"
+#     /bin/mount | /bin/grep $LOOPIMG | /usr/bin/awk -F " " '{printf $3}'
+#     # /bin/echo -e "\t"`/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
+#     /bin/echo -e "\t"`/bin/date +%s`
+#   done
+#   /bin/echo -e "$endline" `/bin/hostname`
+# }
+#
+# # User Live Scan info structure in "Hostname"  "Last Login Time" "UID" "Login From" "Timestamp machine"
+# ulscrep()
+# {
+#     for LIVEUSER in `COLUMNS=512 /usr/bin/w -h | /bin/grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
+#     # for LIVEUSER in `COLUMNS=512 /usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
+#     do
+#         /bin/echo -en `/bin/hostname`"\t"
+#         /usr/bin/w -h | /usr/bin/awk '{print $4"\t"$1"\t"$3}' | /usr/bin/sort | /usr/bin/uniq -f 1 | /bin/grep $LIVEUSER | /usr/bin/head -n 1 | /usr/bin/tr "\n" "\t"
+#         /bin/echo -e "\t"`/bin/date +%s`
+#     done
+#     /bin/echo -e "$endline" `/bin/hostname`
+# }
 
 unirep.loadrep()
 {
