@@ -42,7 +42,7 @@ else
 fi
 
 # Main1, list live nodes
-execlist=`cat $opstmp/secrt.sitrep.load.* 2>/dev/null | grep -v $endline | awk -F " " '{print $1}'`
+execlist=`cat $opstmp/secrt.sitrep.unirep.* 2>/dev/null | grep log=load | awk -F " " '{print $1}'`
 echo -e "Found nodes as below:"
 echo "$execlist"
 echo -e "Refresh node list? (Y/N) \c"
@@ -50,7 +50,7 @@ while true; do
 read USER_CHO
 	case $USER_CHO in
 		Y|y|YES|Yes|yes)
-                execlist=`cat $opstmp/secrt.sitrep.load.* 2>/dev/null | grep -v $endline | awk -F " " '{print $1}'`
+                execlist=`cat $opstmp/secrt.sitrep.unirep.* 2>/dev/null | grep log=load | awk -F " " '{print $1}'`
                 echo -e "Now the list are:"
                 echo "$execlist"
                 echo -e "Refresh again? (Y/N) \c"
