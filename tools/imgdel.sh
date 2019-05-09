@@ -93,11 +93,11 @@ mv $opstmp/draft.rt.ticket.geoexec $opstmp/secrt.ticket.geoexec.$TGTNode
 lselect=`echo \($select\) | tr " " "|"`
 /bin/echo -e "\nDeleteing images on $TGTNode...\c"
 /bin/sleep 1
-delcheck=`/usr/bin/find /images/vol00/*.img -type f | /bin/grep "\.\.$LOGNAME\.img$" | egrep "$lselect"`
+delcheck=`/usr/bin/find /images/vol00/*.img -type f 2>/dev/null | /bin/grep "\.\.$LOGNAME\.img$" | egrep "$lselect"`
 while [ -n "$delcheck" ]
 do
     /bin/echo -n .
-    delcheck=`/usr/bin/find /images/vol00/*.img -type f | /bin/grep "\.\.$LOGNAME\.img$" | egrep "$lselect"`
+    delcheck=`/usr/bin/find /images/vol00/*.img -type f 2>/dev/null | /bin/grep "\.\.$LOGNAME\.img$" | egrep "$lselect"`
     # echo $delcheck
     /bin/sleep 1
 done
