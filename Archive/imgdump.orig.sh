@@ -41,14 +41,14 @@ done | grep .img | wc -l)
 height=`/bin/echo -e "scale=1; $lstlenth + 7 " | /usr/bin/bc`
 lstheight=`/bin/echo -e "scale=1; $lstlenth " | /usr/bin/bc`
 
-select=$(whiptail --title "Code Image list"  --checklist \
+TgtHitList=$(whiptail --title "Code Image list"  --checklist \
 "       Image name                                Mount node" $height 80 $lstheight \
 ${wtitem[@]} 3>&1 1>&2 2>&3)
 
 exitstatus=$?
 if [ $exitstatus = 0 ];
 then
-    echo "You've choose these images to be destroyed" $select
+    echo "You've choose these images to be destroyed" $TgtHitList
 else
     echo "You chose Cancel."
 fi

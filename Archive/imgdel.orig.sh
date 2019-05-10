@@ -1,5 +1,5 @@
 #! /bin/bash
-# Tool of user self service code images deleter
+# Tool of user self service code images deleter, relys on $opstmp/listcodeimage.sh
 # Or run with -u parameter like:
 # /receptionist/lococlu/tools/imgdel.sh -i "$TgtHitList"
 
@@ -142,39 +142,16 @@ read -p "Deleted image won't be restorable, continue? (Y/N)" USER_OPS
 
 # List of images to delete
 
-# $lococlu/tools/UCIL.sh
-# derliste=`cat $opstmp/ucdimglst.$LOGNAME | awk '{print $0, "OFF"}'`
-# # echo -e "$derliste"
-# lstlenth=$(echo -e "$derliste" | wc -l)
-# height=`/bin/echo -e "scale=1; $lstlenth + 7 " | /usr/bin/bc`
-# lstheight=`/bin/echo -e "scale=1; $lstlenth " | /usr/bin/bc`
-
-read -ra wtitem <<< $(for CODEIMG in `ls -lahs /images/vol* | grep -E "\.\."$LOGNAME | awk '{print $NF}'`
-do
-    echo -en $CODEIMG
-    echo -en "\t\t"
-    MTNODE=`cat /receptionist/opstmp/secrt.sitrep.unirep.* | grep $CODEIMG | awk '{printf $1}'`
-    if [ -n "$MTNODE" ]
-    then
-        echo -en $MTNODE
-    else
-        echo -en Unmount!
-    fi
-#    echo -en `cat /receptionist/opstmp/secrt.sitrep.unirep.* | grep $CODEIMG | awk '{printf $1}'`
-    echo -e "\t\t"OFF
-done)
-# echo ${wtitem[@]}
-
-lstlenth=$(for v in ${wtitem[@]}
-do
-echo $v;
-done | grep .img | wc -l)
+$lococlu/tools/UCIL.sh
+derliste=`cat $opstmp/ucdimglst.$LOGNAME | awk '{print $0, "OFF"}'`
+# echo -e "$derliste"
+lstlenth=$(echo -e "$derliste" | wc -l)
 height=`/bin/echo -e "scale=1; $lstlenth + 7 " | /usr/bin/bc`
 lstheight=`/bin/echo -e "scale=1; $lstlenth " | /usr/bin/bc`
 
 TgtHitList=$(whiptail --title "Code Image list"  --checklist --separate-output \
 "       Image name                                Mount node" $height 80 $lstheight \
-${wtitem[@]} 3>&1 1>&2 2>&3)
+$derliste 3>&1 1>&2 2>&3)
 # List operations
 
 exitstatus=$?
