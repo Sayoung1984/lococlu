@@ -2,6 +2,12 @@
  # FOLDER1=LA.UM-XXX && FOLDER2= && FOLDER3=/images/vol00/LE.UM.0.0-20190510155420
  # BUILD_USER=$LOGNAME
 
+if [[  $Data_backup_verification =~ ^([No]) ]]; then
+   echo No
+   exit
+fi
+
+
 c=0
 for folder in $FOLDER1 $FOLDER2 $FOLDER3
 do
