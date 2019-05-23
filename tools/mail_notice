@@ -1,0 +1,27 @@
+From: China-SW-EC <china-sw-ec.tx@qti.qualcomm.com>
+To: ziyij@qti.qualcomm.com,chn.afbf.notice@qti.qualcomm.com
+Subject: AFBF branch deletion for ziyij
+Reply-To: China-SW-EC <china-sw-ec.tx@qti.qualcomm.com>
+MIME-Version: 1.0
+Content-Type: text/html
+Content-Disposition: inline
+<html>
+<body>
+<pre style="font: monospace">
+Hello Joey,
+
+Thanks for using Android Fast Build Farm, aka AFBF. 
+
+killlist is LV.AU.0.0.1-20190521111851..ziyij.img
+Found -i option
+value=LV.AU.0.0.1-20190521111851..ziyij.img
+
+Deleteing images on node-sh-02...
+
+Deleteing complete, please check.
+
+
+China SW EC Team
+</pre>
+</body>
+</html>

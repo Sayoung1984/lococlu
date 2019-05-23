@@ -63,6 +63,10 @@ delimg()
     TGTUSER=`echo -e $TgtHitList | awk -F ".img" '{print $NR}' | awk -F "." '{print $NF}'`
     TGTNode=`cat /receptionist/opstmp/secrt.sitrep.unirep.* | grep log=imgon | grep /$TGTUSER.img | awk '{print $NR}'`
     # echo -e "TGTUSER=$TGTUSER; TGTNode=$TGTNode; \nTgtHitList=$TgtHitList"
+    if [ ! -n "$TGTNode" ]
+    then
+        TGTNode=`cat /receptionist/opstmp/secrt.sitrep.unirep.* | grep load | sort -r -k 11 | head -n 1 | awk '{print $NR}'`
+    fi
     /bin/echo -e "#! /bin/bash\nMOUNTROOT=\"$MOUNTROOT\"\nTGTUSER=\"$TGTUSER\"\nTGTNode=\"$TGTNode\"\nTgtHitList=\"$TgtHitList\"" > $opstmp/draft.rt.ticket.geoexec
     /bin/cat >> $opstmp/draft.rt.ticket.geoexec << "MAINFUNC"
     # Ticket of delete user code image

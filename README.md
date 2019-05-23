@@ -49,6 +49,8 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * If user manager not on mgrlist, dskbill script will fall into infinite running loop
 
 ## Current Version
+## v0.5.3a
+* Added Jenkins image delete tool
 ## v0.5.3
 * Added image delete tool
 * More robust image unmount operations.
