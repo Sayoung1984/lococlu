@@ -153,7 +153,7 @@ read -p "Deleted image won't be restorable, continue? (Y/N)" USER_OPS
 # $lococlu/tools/UCIL.sh
 # derliste=`/bin/cat $opstmp/ucdimglst.$LOGNAME |/usr/bin/awk  '{print $0, "OFF"}'`
 # # /bin/echo -e "$derliste"
-# lstlenth=$(echo -e "$derliste" | wc -l)
+# lstlenth=$(echo -e "$derliste" | /usr/bin/wc -l)
 # height=`/bin/echo -e "scale=1; $lstlenth + 7 " | /usr/bin/bc`
 # lstheight=`/bin/echo -e "scale=1; $lstlenth " | /usr/bin/bc`
 
@@ -176,7 +176,7 @@ done)
 lstlenth=$(for v in ${wtitem[@]}
 do
 /bin/echo $v;
-done | /bin/grep .img | wc -l)
+done | /bin/grep .img | /usr/bin/wc -l)
 height=`/bin/echo -e "scale=1; $lstlenth + 7 " | /usr/bin/bc`
 lstheight=`/bin/echo -e "scale=1; $lstlenth " | /usr/bin/bc`
 

@@ -455,8 +455,8 @@ lsallimg
 echo -e "\nFound your image:\n $ImgList\nmounted on:\n $MountList_mntp\nof $MountNode\n"
 
 #Mount integrity check
-ImgCount=`/bin/echo $ImgList | /bin/grep -o "/images/vol" | wc -l`
-MntCount=`/bin/echo $MountList_mntp | /bin/grep -o "/local/mnt/workspace" | wc -l`
+ImgCount=`/bin/echo $ImgList | /bin/grep -o "/images/vol" | /usr/bin/wc -l`
+MntCount=`/bin/echo $MountList_mntp | /bin/grep -o "/local/mnt/workspace" | /usr/bin/wc -l`
 if  [ "$ImgCount" -gt "$MntCount" ]
     then
     FreeNode=$MountNode
