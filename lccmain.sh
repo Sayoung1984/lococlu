@@ -38,8 +38,8 @@ MOUNTROOT=`/bin/echo $MOUNTROOT | /bin/sed '/\/$/!  s/^.*$/&\//'`
 # /bin/echo -e "#DBG_MOUNTROOT Default user mount root = $MOUNTROOT\n"
 
 # lccmain bypass user list
-Whitelist=`cat $lococlu/backstage.conf`
-UserChecker=`/bin/echo $Whitelist | grep $LOGNAME`
+Whitelist=`/bin/cat $lococlu/backstage.conf`
+UserChecker=`/bin/echo $Whitelist | /bin/grep $LOGNAME`
 if [ -n "$UserChecker" ]
 then
     /bin/echo -e "Aha! White list admin! LCC-Main bypassed to back stage of the head now!"
@@ -59,7 +59,7 @@ secrtsend()
       then
         REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
         /bin/cp $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
-        chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
+        /bin/chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
       else
         # mv $REPLX.fail  #DBG
         /bin/rm $REPLX
@@ -191,8 +191,8 @@ mkrootimg()
 
 MAINFUNC
   /bin/echo -e "$endline $FreeNode" >> $opstmp/draft.rt.ticket.geoexec
-  chmod 666 $opstmp/draft.rt.ticket.geoexec
-  mv $opstmp/draft.rt.ticket.geoexec $opstmp/secrt.ticket.geoexec.$FreeNode
+  /bin/chmod 666 $opstmp/draft.rt.ticket.geoexec
+  /bin/mv $opstmp/draft.rt.ticket.geoexec $opstmp/secrt.ticket.geoexec.$FreeNode
   /bin/echo -e "Creating image on $FreeNode...\c"
   /bin/sleep $loglatency
   lsrootimg
@@ -273,9 +273,9 @@ mountcmd()
 MAINFUNC
   # /bin/echo -e "#DBG_mountcmd_run1 var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
   /bin/echo -e "$endline $FreeNode" >> $opstmp/draft.rt.ticket.geoexec
-  chmod 666 $opstmp/draft.rt.ticket.geoexec
+  /bin/chmod 666 $opstmp/draft.rt.ticket.geoexec
   # /bin/echo -e "#DBG_mountcmd_run2 var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
-  mv $opstmp/draft.rt.ticket.geoexec $opstmp/secrt.ticket.geoexec.$FreeNode
+  /bin/mv $opstmp/draft.rt.ticket.geoexec $opstmp/secrt.ticket.geoexec.$FreeNode
   # /bin/echo -e "#DBG_mountcmd_run3 var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
   /bin/echo -e "Mounting images on $FreeNode...\c"
   /bin/sleep $loglatency
@@ -309,9 +309,15 @@ terminator()
     for UM in $UMRSORT
     do
       UMP=`/bin/echo $MOUNTROOT$UM`
+      LoopDev=`/sbin/losetup -a | /bin/grep $UMP | /usr/bin/awk -F ":" '{print $NR}'`
+      /usr/sbin/service smbd restart
+      /usr/sbin/service nmbd restart
       /bin/umount -l $UMP
-      /bin/sleep 0.1
+      /bin/sleep 1
     done
+    /usr/sbin/service smbd restart
+    /usr/sbin/service nmbd restart
+    /bin/rm -f /dev/$LoopDev
   }
 
   /usr/bin/pkill -u $KILLUSER
@@ -323,25 +329,25 @@ terminator()
     killlist=`/bin/ps -aux | /bin/grep $KILLUSER | /bin/grep -v grep`
   done
 
-  service smbd restart
-  service nmbd restart
+  /usr/sbin/service smbd restart
+  /usr/sbin/service nmbd restart
   umountuser
   UmountList=`/sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}' | /bin/egrep "(\.\.|\/)$KILLUSER\.img$" 2>/dev/null`
   while [ -n "$UmountList" ]
   do
-    service smbd restart
-    service nmbd restart
+    /usr/sbin/service smbd restart
+    /usr/sbin/service nmbd restart
     umountuser
     /bin/sleep 1
     UmountList=`/sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}' | /bin/egrep "(\.\.|\/)$KILLUSER\.img$" 2>/dev/null`
   done
-  service smbd restart
-  service nmbd restart
+  /usr/sbin/service smbd restart
+  /usr/sbin/service nmbd restart
 MAINFUNC
 
   /bin/echo -e "$endline $MountNode" >> $opstmp/draft.rt.ticket.geoexec.$MountNode
-  chmod 666 $opstmp/draft.rt.ticket.geoexec.$MountNode
-  mv $opstmp/draft.rt.ticket.geoexec.$MountNode $opstmp/secrt.ticket.geoexec.$MountNode
+  /bin/chmod 666 $opstmp/draft.rt.ticket.geoexec.$MountNode
+  /bin/mv $opstmp/draft.rt.ticket.geoexec.$MountNode $opstmp/secrt.ticket.geoexec.$MountNode
   /bin/echo -e "Kill request sent...\c"
   /bin/sleep $loglatency
   mountlist

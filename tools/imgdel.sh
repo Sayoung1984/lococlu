@@ -44,9 +44,9 @@ secrtsend()
       then
         REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
         /bin/cp $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
-        chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
+        /bin/chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
       else
-        # mv $REPLX.fail  #DBG
+        # /bin/mv $REPLX.fail  #DBG
         /bin/rm $REPLX
       fi
     done
@@ -60,49 +60,53 @@ secrtsend()
 # 3. rm items of $TgtHitList
 delimg()
 {
-    TGTUSER=`echo -e $TgtHitList | awk -F ".img" '{print $NR}' | awk -F "." '{print $NF}'`
-    TGTNode=`cat /receptionist/opstmp/secrt.sitrep.unirep.* | grep log=imgon | grep /$TGTUSER.img | awk '{print $NR}'`
-    # echo -e "TGTUSER=$TGTUSER; TGTNode=$TGTNode; \nTgtHitList=$TgtHitList"
+    TGTUSER=`/bin/echo -e $TgtHitList |/usr/bin/awk  -F ".img" '{print $NR}' |/usr/bin/awk  -F "." '{print $NF}'`
+    TGTNode=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep log=imgon | /bin/grep /$TGTUSER.img |/usr/bin/awk  '{print $NR}'`
+    # /bin/echo -e "TGTUSER=$TGTUSER; TGTNode=$TGTNode; \nTgtHitList=$TgtHitList"
     if [ ! -n "$TGTNode" ]
     then
-        TGTNode=`cat /receptionist/opstmp/secrt.sitrep.unirep.* | grep load | sort -r -k 11 | head -n 1 | awk '{print $NR}'`
+        TGTNode=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep load | /usr/bin/sort -r -k 11 | /usr/bin/head -n 1 |/usr/bin/awk  '{print $NR}'`
     fi
     /bin/echo -e "#! /bin/bash\nMOUNTROOT=\"$MOUNTROOT\"\nTGTUSER=\"$TGTUSER\"\nTGTNode=\"$TGTNode\"\nTgtHitList=\"$TgtHitList\"" > $opstmp/draft.rt.ticket.geoexec
     /bin/cat >> $opstmp/draft.rt.ticket.geoexec << "MAINFUNC"
     # Ticket of delete user code image
     for TGTIMG in $TgtHitList
     do
-        TGTIMGPATH=`/usr/bin/find /images/vol00/*.img -type f | grep $TGTIMG$`
-        MountPath=`cat /receptionist/opstmp/secrt.sitrep.unirep.* | grep log=imgon | grep $TGTIMG | awk '{print $4}'`
+        TGTIMGPATH=`/usr/bin/find /images/vol00/*.img -type f | /bin/grep $TGTIMG$`
+        MountPath=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep log=imgon | /bin/grep $TGTIMG |/usr/bin/awk  '{print $4}'`
         if [ -n $MountPath ];
         then
+            LoopDev=`/sbin/losetup -a | /bin/grep $MountPath |/usr/bin/awk  -F ":" '{print $NR}'`
             while [ -n "$MountPath" ]
             do
-              service smbd restart
-              service nmbd restart
-              umount -l $MountPath
+              /usr/sbin/service smbd restart
+              /usr/sbin/service nmbd restart
+              /bin/umount -l $MountPath
               /bin/sleep 1
-              MountPath=`cat /receptionist/opstmp/secrt.sitrep.unirep.* | grep log=imgon | grep $TGTIMG | awk '{print $4}'`
+              MountPath=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep log=imgon | /bin/grep $TGTIMG |/usr/bin/awk  '{print $4}'`
             done
-            rm -fr $MountPath &
+            /usr/sbin/service smbd restart
+            /usr/sbin/service nmbd restart
+            /bin/rm -f /dev/$LoopDev
+            /bin/rm -fr $MountPath &
         fi
-        rm -f $TGTIMGPATH &
+        /bin/rm -f $TGTIMGPATH &
     done
 
 MAINFUNC
 /bin/echo -e "$endline $TGTNode" >> $opstmp/draft.rt.ticket.geoexec
-chmod 666 $opstmp/draft.rt.ticket.geoexec
-mv $opstmp/draft.rt.ticket.geoexec $opstmp/secrt.ticket.geoexec.$TGTNode
+/bin/chmod 666 $opstmp/draft.rt.ticket.geoexec
+/bin/mv $opstmp/draft.rt.ticket.geoexec $opstmp/secrt.ticket.geoexec.$TGTNode
 
-LongTgtHitList=`echo \($TgtHitList\) | tr " " "|"`
+LongTgtHitList=`/bin/echo  \($TgtHitList\) | tr " " "|"`
 /bin/echo -e "\nDeleteing images on $TGTNode...\c"
 /bin/sleep 1
-delcheck=`/usr/bin/find /images/vol00/*.img -type f 2>/dev/null | /bin/grep "\.\.$LOGNAME\.img$" | egrep "$LongTgtHitList"`
+delcheck=`/usr/bin/find /images/vol00/*.img -type f 2>/dev/null | /bin/grep "\.\.$LOGNAME\.img$" | /bin/egrep "$LongTgtHitList"`
 while [ -n "$delcheck" ]
 do
     /bin/echo -n .
-    delcheck=`/usr/bin/find /images/vol00/*.img -type f 2>/dev/null | /bin/grep "\.\.$LOGNAME\.img$" | egrep "$LongTgtHitList"`
-    # echo $delcheck
+    delcheck=`/usr/bin/find /images/vol00/*.img -type f 2>/dev/null | /bin/grep "\.\.$LOGNAME\.img$" | /bin/egrep "$LongTgtHitList"`
+    # /bin/echo $delcheck
     /bin/sleep 1
 done
 /bin/echo -e "\n\nDeleteing complete, please check."
@@ -114,9 +118,9 @@ while [ -n "$1" ]
 do
   case "$1" in
     -i)
-        echo "Found -i option"
-        echo -e "value=$2"
-        TgtHitList=`echo -e "$2"`
+        /bin/echo "Found -i option"
+        /bin/echo -e "value=$2"
+        TgtHitList=`/bin/echo  -e "$2"`
         shift
         delimg
         exit
@@ -132,14 +136,14 @@ done
 read -p "Deleted image won't be restorable, continue? (Y/N)" USER_OPS
     case $USER_OPS in
         Y|y|YES|Yes|yes)
-            echo -e "\nProceeding to image deleter now...\n"
+            /bin/echo -e "\nProceeding to image deleter now...\n"
             ;;
         N|n|NO|No|no)
-            echo -e "\nYou've exit the image deleter.\n"
+            /bin/echo -e "\nYou've exit the image deleter.\n"
             exit
             ;;
         *)
-            echo -e "\nInvalid choice, please choose Yes or No, exiting image deleter now.\n"
+            /bin/echo -e "\nInvalid choice, please choose Yes or No, exiting image deleter now.\n"
             exit
             ;;
     esac
@@ -147,36 +151,36 @@ read -p "Deleted image won't be restorable, continue? (Y/N)" USER_OPS
 # List of images to delete
 
 # $lococlu/tools/UCIL.sh
-# derliste=`cat $opstmp/ucdimglst.$LOGNAME | awk '{print $0, "OFF"}'`
-# # echo -e "$derliste"
+# derliste=`/bin/cat $opstmp/ucdimglst.$LOGNAME |/usr/bin/awk  '{print $0, "OFF"}'`
+# # /bin/echo -e "$derliste"
 # lstlenth=$(echo -e "$derliste" | wc -l)
 # height=`/bin/echo -e "scale=1; $lstlenth + 7 " | /usr/bin/bc`
 # lstheight=`/bin/echo -e "scale=1; $lstlenth " | /usr/bin/bc`
 
-read -ra wtitem <<< $(for CODEIMG in `ls -lahs /images/vol* | grep -E "\.\."$LOGNAME | awk '{print $NF}'`
+read -ra wtitem <<< $(for CODEIMG in `ls -lahs /images/vol* | /bin/grep -E "\.\."$LOGNAME |/usr/bin/awk  '{print $NF}'`
 do
-    echo -en $CODEIMG
-    echo -en "\t\t"
-    MTNODE=`cat /receptionist/opstmp/secrt.sitrep.unirep.* | grep $CODEIMG | awk '{printf $1}'`
+    /bin/echo -en $CODEIMG
+    /bin/echo -en "\t\t"
+    MTNODE=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep $CODEIMG |/usr/bin/awk  '{printf $1}'`
     if [ -n "$MTNODE" ]
     then
-        echo -en $MTNODE
+        /bin/echo -en $MTNODE
     else
-        echo -en Unmount!
+        /bin/echo -en Unmount!
     fi
-#    echo -en `cat /receptionist/opstmp/secrt.sitrep.unirep.* | grep $CODEIMG | awk '{printf $1}'`
-    echo -e "\t\t"OFF
+#    /bin/echo -en `/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep $CODEIMG |/usr/bin/awk  '{printf $1}'`
+    /bin/echo -e "\t\t"OFF
 done)
-# echo ${wtitem[@]}
+# /bin/echo ${wtitem[@]}
 
 lstlenth=$(for v in ${wtitem[@]}
 do
-echo $v;
-done | grep .img | wc -l)
+/bin/echo $v;
+done | /bin/grep .img | wc -l)
 height=`/bin/echo -e "scale=1; $lstlenth + 7 " | /usr/bin/bc`
 lstheight=`/bin/echo -e "scale=1; $lstlenth " | /usr/bin/bc`
 
-TgtHitList=$(whiptail --title "Code Image list"  --checklist --separate-output \
+TgtHitList=$(/bin/whiptail --title "Code Image list"  --checklist --separate-output \
 "       Image name                                Mount node" $height 80 $lstheight \
 ${wtitem[@]} 3>&1 1>&2 2>&3)
 # List operations
@@ -184,22 +188,22 @@ ${wtitem[@]} 3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = 1 ];
 then
-    echo "Image delete canceled."
+    /bin/echo "Image delete canceled."
 elif [[ $exitstatus = 0 && -n $TgtHitList ]]
 then
-    echo -e "You chose these images to be destroyed:"
-    echo -e "$TgtHitList\n"
+    /bin/echo -e "You chose these images to be destroyed:"
+    /bin/echo -e "$TgtHitList\n"
     read -p "Last warning, continue? (Y/N)" USER_OPS
         case $USER_OPS in
             Y|y|YES|Yes|yes)
-                echo -e "\nProceeding to delete now...\n"
+                /bin/echo -e "\nProceeding to delete now...\n"
                 ;;
             N|n|NO|No|no)
-                echo -e "\nGood choice, exiting image deleter.\n"
+                /bin/echo -e "\nGood choice, exiting image deleter.\n"
                 exit
                 ;;
             *)
-                echo -e "\nInvalid choice, please choose Yes or No, exiting image deleter now.\n"
+                /bin/echo -e "\nInvalid choice, please choose Yes or No, exiting image deleter now.\n"
                 exit
                 ;;
         esac
@@ -207,13 +211,13 @@ then
     delimg
     # for imgdel in $TgtHitList
     # do
-    #     echo -e "Kill $imgdel !!!!"
+    #     /bin/echo -e "Kill $imgdel !!!!"
     # done
 
 elif [[ $exitstatus = 0 && ! -n $TgtHitList ]]
 then
-    echo -e "No image to delete, exit."
+    /bin/echo -e "No image to delete, exit."
 else [ $exitstatus = 255 ]
-    echo -e "Image delete tool exit."
+    /bin/echo -e "Image delete tool exit."
 fi
-# echo -e "$? $0 $1 $2"
+# /bin/echo -e "$? $0 $1 $2"

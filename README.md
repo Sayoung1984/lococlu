@@ -46,9 +46,11 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * Join domain script.
 
 ## Known issue
-* If user manager not on mgrlist, dskbill script will fall into infinite running loop
+* "Ghost loop mount" happens from time to time, sometimes caused by OS unmount operation stuck.
 
 ## Current Version
+## v0.5.3b
+* Added loop device delete when unmount image, reliability patch.
 ## v0.5.3a
 * Added Jenkins image delete tool
 ## v0.5.3
