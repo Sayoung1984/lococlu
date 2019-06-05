@@ -267,6 +267,8 @@ mountcmd()
           /bin/mount -o loop $IMG $MTP 2>/dev/null
           /bin/sleep 0.2
           /bin/chown `id -u $MOUNTUSER`:`id -g $MOUNTUSER` $MTP
+          /bin/chmod g+w $MTP
+          umask 0002 $MTP
     # /bin/echo -e `id -u $MOUNTUSER`:`id -g $MOUNTUSER` $MTP>>/root/mntdbg #DBG
   done
 
