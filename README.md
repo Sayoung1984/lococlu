@@ -41,14 +41,19 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 
 ## Missing parts
 * Change sitrep exchange from text files over NFS volume to rsyslog system
-* Checker of "Ghost loop mount" issue, sometimes the user images are loop mounted without mount point, mostly when unmounting stuck.
+* Auto-scanner of "Ghost loop mount" issue, sometimes the user images are loop mounted without mount point, mostly when unmounting stuck.
 * Head and Node deploy scripts.
 * Join domain script.
 
 ## Known issue
-* "Ghost loop mount" happens from time to time, sometimes caused by OS unmount operation stuck.
+* L1 issue: Potentially "Ghost loop mount" issue. ( Should be improved in v0.5.3c )
+* L2 issue: launchlock file accumulation issue.
+* L3 issue: Half disconnected lccmain.sh session burning head CPU.
+* L3 issue: Node sitrep latency high when under heavy CPU load. ( Should be fixed in v0.5.3c )
 
 ## Current Version
+## v0.5.3c
+* High performance improvements for noderep.sh, reduced the sitrep refresh latency.
 ## v0.5.3b
 * Added loop device delete when unmount image, reliability patch.
 ## v0.5.3a
