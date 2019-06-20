@@ -9,6 +9,8 @@ if [ -f "$pidpath" ]
 fi
 echo $$ >$pidpath
 
+/usr/bin/renice -n -4 -p $$
+
 COLUMNS=512
 endline="###---###---###---###---###"
 opstmp=/receptionist/opstmp
@@ -63,9 +65,10 @@ cputock()
   LineTock=`/bin/cat /proc/stat | /bin/grep '^cpu ' | /bin/sed 's/^cpu[ \t]*//g'`
   SumTock=`/bin/echo $LineTock | /usr/bin/tr " " "+" | /usr/bin/bc`
   IdleTock=`/bin/echo $LineTock | /usr/bin/awk '{print $4}'`
-  DiffSum=`/usr/bin/expr $SumTock - $SumTick`
-  DiffIdle=`/usr/bin/expr $IdleTock - $IdleTick`
-  CPULoad=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 100 * ( $DiffSum - $DiffIdle ) / $DiffSum " | /usr/bin/bc)`
+  # DiffSum=`/usr/bin/expr $SumTock - $SumTick`
+  # DiffIdle=`/usr/bin/expr $IdleTock - $IdleTick`
+  # CPULoad=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 100 * ( $DiffSum - $DiffIdle ) / $DiffSum " | /usr/bin/bc)`
+  CPULoad=$((100*($SumTock-$SumTick-$IdleTock+$IdleTick)/($SumTock-$SumTick)))
 }
 
 iotick()
@@ -78,9 +81,9 @@ iotock()
 {
     TockT=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
     IOTock=`/bin/cat /proc/diskstats | /bin/grep loop | /usr/bin/awk '{x=x+$(NF-1)} END {print x}'`
-    GapT=`/bin/echo -e " $TockT - $TickT " | /usr/bin/bc`
-    IOIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 0 + 100 * $IOTock / $GapT - 100 * $IOTick / $GapT " | /usr/bin/bc)`
-    # LagT=`/bin/echo -e " $TockT - $TockTL - 1000 " | /usr/bin/bc`
+    # GapT=`/bin/echo -e " $TockT - $TickT " | /usr/bin/bc`
+    # IOIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 0 + 100 * $IOTock / $GapT - 100 * $IOTick / $GapT " | /usr/bin/bc)`
+    IOIndex=$((100*$IOTock/($TockT-$TickT)-100*$IOTick/($TockT-$TickT)))
 }
 
 unirep.loadrep()
@@ -151,14 +154,14 @@ unirep.ulscrep()
 # /bin/sed -i '$d' $REPLX # To cut last line, on receive side
 secrtsend()
 {
-  for REPLX in `/bin/ls /var/log/rt.* 2>/dev/null`
+  for REPLX in `/bin/ls /tmp/rt.* 2>/dev/null`
   do
     CheckLineL1=`/usr/bin/tac $REPLX | /bin/sed -n '1p'`
     CheckLineL2=`/usr/bin/tac $REPLX | /bin/sed -n '2p'`
     if [ "$CheckLineL1"  == "$endline $hostname" -a "$CheckLineL2"  != "$endline $hostname" ]
     then
-      REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
-      /bin/cp $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
+      REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/tmp/" '{print $2}'`
+      /bin/mv $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
       /bin/chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
     else
       # /bin/mv $REPLX.fail  #DBG
@@ -182,7 +185,7 @@ geoexec()
       then
         # echo -e "#DBG\n tickettail=$tickettail\n tickettail2=$tickettail2" >> $HTKT
         /bin/mv $HTKT /var/log/ticket.$exectime.sh
-        /bin/chmod 755 /var/log/ticket.$exectime.sh
+        /bin/chmod a+x /var/log/ticket.$exectime.sh
         /var/log/ticket.$exectime.sh
         mv /var/log/ticket.$exectime.sh /var/log/done.$exectime.sh
         # cp /var/log/done.$exectime.sh $opstmp/../dbgtmp #DBG
@@ -196,13 +199,15 @@ darwinawards &
 /bin/echo -n > /tmp/nodereplag.log
 for (( i = 0; i < 3600; i=(i+step) ))
 do
+    TickT0=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
     cputick
     iotick
     sleep $step
     TockT0=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
     cputock
     iotock
-    localsitrep=/var/log/lsr.rt.sitrep.unirep
+    TockT_=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
+    localsitrep=/tmp/lsr.rt.sitrep.unirep
     unirep.loadrep > $localsitrep
     TockT1=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
     unirep.imgonrep >> $localsitrep
@@ -210,28 +215,28 @@ do
     unirep.ulscrep >> $localsitrep
     TockT3=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
     /bin/echo -e "$endline" $hostname >> $localsitrep
-    /bin/mv $localsitrep /var/log/rt.sitrep.unirep.$hostname
+    /bin/mv $localsitrep /tmp/rt.sitrep.unirep.$hostname
     TockT4=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
     secrtsend &
     TockT5=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
-    geoexec &
+    geoexec
     TockTE1=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
     TockTE2=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
     TockTE3=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
     TockTEnd=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
-    M1=`/bin/echo -e " $TockT0 - $TickT - 1000 " | /usr/bin/bc`
-    M2=`/bin/echo -e " $TockT - $TockT0 " | /usr/bin/bc`
-    MR=`/bin/echo -e " $TockT - $TickT- 1000 " | /usr/bin/bc`
-    G1=`/bin/echo -e " $TockT1 - $TockT " | /usr/bin/bc`
+    M1=`/bin/echo -e " $TockT0 - $TickT0 - 1000 " | /usr/bin/bc`
+    M2=`/bin/echo -e " $TockT_ - $TockT0 " | /usr/bin/bc`
+    MR=`/bin/echo -e " $TockT_ - $TickT0- 1000 " | /usr/bin/bc`
+    G1=`/bin/echo -e " $TockT1 - $TockT_ " | /usr/bin/bc`
     G2=`/bin/echo -e " $TockT2 - $TockT1 " | /usr/bin/bc`
     G3=`/bin/echo -e " $TockT3 - $TockT2 " | /usr/bin/bc`
-    GR=`/bin/echo -e " $TockT3 - $TockT " | /usr/bin/bc`
+    GR=`/bin/echo -e " $TockT3 - $TockT_ " | /usr/bin/bc`
     S1=`/bin/echo -e " $TockT4 - $TockT3 " | /usr/bin/bc`
     S2=`/bin/echo -e " $TockT5 - $TockT4 " | /usr/bin/bc`
     SR=`/bin/echo -e " $TockT5 - $TockT3 " | /usr/bin/bc`
     XR=`/bin/echo -e " $TockTE1 - $TockT5 " | /usr/bin/bc`
     ER=`/bin/echo -e " $TockTEnd / 3 - $TockTE1 / 3 " | /usr/bin/bc`
-    FR=`/bin/echo -e " $TockTEnd - $TickT - 1000 " | /usr/bin/bc`
+    FR=`/bin/echo -e " $TockTEnd - $TickT0 - 1000 " | /usr/bin/bc`
     /bin/echo -e "$hostname\t MR=$MR\t= $M1 + $M2\t GR=$GR\t=$G1 + $G2 + $G3\t\tSR=$SR\t=$S1+$S2\t\tXR=$XR\tER=$ER\tFR=$FR\tCPU=$CPULoad IO=$IOIndex\t"`/bin/date +%s` >> /tmp/nodereplag.log
     /bin/echo $FR > /tmp/FR
 done
