@@ -68,19 +68,6 @@ secrtsend_execbd()
 }
 
 
-# Subfunction to list all user images, output $ImgList if found
-lsallimg()
-{
-    ImgList=`/usr/bin/find  /images/vol*/*.img -type f | /bin/egrep "(\.\.|\/)$LOGNAME\.img$" 2>/dev/null`
-#    $lococlu/tools/UCIL.sh &
-}
-
-# Subfunction to list user root workspace image, output $RootImg if found
-lsrootimg()
-{
-    RootImg=`/usr/bin/find  /images/vol*/*.img -type f | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
-}
-
 # Subfunction to get node in lowest load, output $NodeLine family
 listfree()
 {
@@ -128,37 +115,38 @@ mountlist()
 # Subfunction to send make image ticket, $FreeNode make user image from diskinfant, then get $ImgList
 mkrootimg()
 {
-  /bin/echo -e "Sending image make request to $FreeNode now...\n"
-  MKIMGUSER=$LOGNAME
-  MKIMGOPRNODE=$FreeNode
-  execnode=$FreeNode
-  # /bin/echo -e "#DBG_mkrootimg_in var input \n  MKIMGUSER=$MKIMGUSER\n FreeNode=$FreeNode\n MKIMGOPRNODE=$MKIMGOPRNODE\n dskinitsz=$dskinitsz"
+    selectfree
+    /bin/echo -e "Sending image make request to $FreeNode now...\n"
+    MKIMGUSER=$LOGNAME
+    MKIMGOPRNODE=$FreeNode
+    execnode=$MKIMGOPRNODE
+    # /bin/echo -e "#DBG_mkrootimg_in var input \n  MKIMGUSER=$MKIMGUSER\n FreeNode=$FreeNode\n MKIMGOPRNODE=$MKIMGOPRNODE\n dskinitsz=$dskinitsz"
 
-  /bin/echo -e "#! /bin/bash\nMKIMGUSER=\"$MKIMGUSER\"\ndskinitsz=\"$dskinitsz\"" > /tmp/draft.rt.ticket.geoexec.$execnode
+    /bin/echo -e "#! /bin/bash\nMKIMGUSER=\"$MKIMGUSER\"\ndskinitsz=\"$dskinitsz\"" > /tmp/draft.rt.ticket.geoexec.$MKIMGOPRNODE
 
-  /bin/cat >> /tmp/draft.rt.ticket.geoexec.$execnode << "MAINFUNC"
-  # Ticket of make user image
+    /bin/cat >> /tmp/draft.rt.ticket.geoexec.$MKIMGOPRNODE << "MAINFUNC"
+    # Ticket of make user image
 
-  # Subfunc of make disk infant, now for /images/vol**
-  mkdskinfant()
-  {
+    # Subfunc of make disk infant, now for /images/vol**
+    mkdskinfant()
+    {
       for volpath in `/bin/ls -d /images/vol* | /bin/grep -v vol00`
       do
-          fmtvolpath=`/bin/echo $volpath | /usr/bin/awk -F ":" '{print $1}'`
-          if [ ! -f $fmtvolpath/diskinfant ]
-      	then
-      		/bin/dd if=/dev/zero of=$fmtvolpath/diskinfant bs=1G count=0 seek="$dskinitsz"
-      		/bin/chmod 666 $fmtvolpath/diskinfant
-      		/sbin/mkfs.ext4 -Fq $fmtvolpath/diskinfant "$dskinitsz"G
-          # /bin/echo -e "#DBG_mkdskinfant dskinitsz=$dskinitsz" > /root/DBG_mkdskinfant
-      		/bin/sleep 1
-          fi
+        fmtvolpath=`/bin/echo $volpath | /usr/bin/awk -F ":" '{print $1}'`
+        if [ ! -f $fmtvolpath/diskinfant ]
+        then
+            /bin/dd if=/dev/zero of=$fmtvolpath/diskinfant bs=1G count=0 seek="$dskinitsz"
+            /bin/chmod 666 $fmtvolpath/diskinfant
+            /sbin/mkfs.ext4 -Fq $fmtvolpath/diskinfant "$dskinitsz"G
+            # /bin/echo -e "#DBG_mkdskinfant dskinitsz=$dskinitsz" > /root/DBG_mkdskinfant
+            /bin/sleep 1
+        fi
       done
-  }
+    }
 
-  # Subfunc of sort image volumes in quota usage, and output $SelVol
-  selvol()
-  {
+    # Subfunc of sort image volumes in quota usage, and output $SelVol
+    selvol()
+    {
     SelVol=$(
     for imgvol in `/bin/ls /images | /bin/grep -v vol00`
     do
@@ -172,103 +160,50 @@ mkrootimg()
     done | /usr/bin/sort -n -k4 | /usr/bin/head -n 1 | /usr/bin/awk '{print $1}'
     )
     /bin/echo SelVol=$SelVol
-  }
+    }
 
-  # Make root image main functions below
-  mkdskinfant
-  chkrootimg=`/usr/bin/find /images/vol*/*.img -type f | /bin/egrep "\/$MKIMGUSER\.img$" 2>/dev/null`
-  if [ -n "$chkrootimg" ]
-  then
+    # Make root image main functions below
+    mkdskinfant
+    chkrootimg=`/usr/bin/find /images/vol*/*.img -type f | /bin/egrep "\/$MKIMGUSER\.img$" 2>/dev/null`
+    if [ -n "$chkrootimg" ]
+    then
     /bin/echo -e "Got mkrootimg conflict for $MKIMGUSER, image file found at $chkrootimg, time `/bin/date +%Y-%m%d-%H%M-%S`" > /var/log/fail.mkrootimg
-  else
+    else
     selvol
     /bin/mv $SelVol/diskinfant $SelVol/$MKIMGUSER.img
-  fi
-  mkdskinfant
+    fi
+    mkdskinfant
 
 MAINFUNC
-  /bin/echo -e "$endline $FreeNode" >> /tmp/draft.rt.ticket.geoexec.$execnode
-  /bin/mv /tmp/draft.rt.ticket.geoexec.$execnode /tmp/rt.ticket.geoexec.$execnode
+  /bin/echo -e "$endline $FreeNode" >> /tmp/draft.rt.ticket.geoexec.$MKIMGOPRNODE
+  /bin/mv /tmp/draft.rt.ticket.geoexec.$MKIMGOPRNODE /tmp/rt.ticket.geoexec.$MKIMGOPRNODE
   secrtsend_execbd
   /bin/echo -e "Creating image on $FreeNode...\c"
   /bin/sleep $loglatency
-  lsrootimg
+  RootImg=`/usr/bin/find  /images/vol*/*.img -type f | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
   while [ ! -n "$RootImg" ]
   do
       /bin/echo -n .
-      lsrootimg
+      RootImg=`/usr/bin/find  /images/vol*/*.img -type f | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
       /bin/sleep $loglatency
   done
   /bin/echo
 
 }
 
-# Subfunction to check and create user root workspace image if does not exist, output $ImgList when finished.
-chkusrimg()
-{
-  /bin/echo -e "Looking for your root workspace image...\n"
-  lsrootimg
-  # /bin/echo -e "#DBG_Main1   First Check, ImgList =\n$ImgList"
-  if [ ! -n "$RootImg" ]
-  then
-      /bin/sleep $loglatency
-      lsrootimg
-      # /bin/echo -e "#DBG_Main1   Double check, ImgList =\n$ImgList"
-      if [ ! -n "$RootImg" ]
-      then
-          /bin/sleep $loglatency
-          lsrootimg
-          # /bin/echo -e "#DBG_Main1   Treble Check, ImgList =\n$ImgList"
-          if [ ! -n "$RootImg" ]
-          then
-            mkrootimg
-            /bin/echo -e "\nFetching your new image..\c"
-            while [ ! -n "$RootImg" ]
-              do
-                /bin/echo -ne "."
-                /bin/sleep 1
-                lsrootimg
-                # /bin/echo -e "#DBG_Main1   Loop Check, ImgList =\n$ImgList"
-              done
-            /bin/echo
-          fi
-      fi
-  fi
-  lsallimg
-  /bin/echo -e "\nGot your image:\n$ImgList\n"
-}
-
-# Subfunction to send mount ticket mountcmd v2, mount $ImgList to $FreeNode, then get $IMGoN_MP
+# Subfunction to send mount ticket mountcmd v2, mount all images of $LOGNAME to $FreeNode, then get $IMGoN_MP
 mountcmd()
 {
   /bin/echo -e "Sending mount request to $FreeNode now...\n"
   MOUNTUSER=$LOGNAME
   MOUNTOPRNODE=$FreeNode
-  execnode=$FreeNode
+  execnode=$MOUNTOPRNODE
   # /bin/echo -e "#DBG_mountcmd_in var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$MOUNTUSER\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
 
-  /bin/echo -e "#! /bin/bash\nMOUNTROOT=\"$MOUNTROOT\"\nMOUNTUSER=\"$LOGNAME\"" > /tmp/draft.rt.ticket.geoexec.$execnode
+  /bin/echo -e "#! /bin/bash\nMOUNTROOT=\"$MOUNTROOT\"\nMOUNTUSER=\"$LOGNAME\"" > /tmp/draft.rt.ticket.geoexec.$MOUNTOPRNODE
 
-  /bin/cat >> /tmp/draft.rt.ticket.geoexec.$execnode << "MAINFUNC"
+  /bin/cat >> /tmp/draft.rt.ticket.geoexec.$MOUNTOPRNODE << "MAINFUNC"
   # Ticket of mount user image
-  # ImgList=`/usr/bin/find /images/vol*/*.img -type f | /bin/egrep "(\.\.|\/)$MOUNTUSER\.img$" 2>/dev/null`
-  # MPSORT=`for IMG in $ImgList ; do /bin/echo -en $IMG | /bin/sed 's/^\/images\/vol[0-9][0-9]\///g' | /bin/sed 's/\img$/./g' | /bin/sed 's/\.\./\//g' | /usr/bin/tac -s "/" ; /bin/echo ; done | /usr/bin/sort`
-  # for MP in $MPSORT
-  # do
-  #   IMG=`/bin/echo $ImgList | /usr/bin/tr " " "\n" | /bin/grep $(/bin/echo -n $MP | /usr/bin/tac -s "/" | /bin/sed 's/\//../g' | /bin/sed 's/\.\.$/.img/g' | /bin/sed 's/^/\//g')`
-  #   MTP=`/bin/echo $MOUNTROOT$MP`
-  #   # /bin/echo IMG=$IMG MTP=$MTP >> /root/mntdbg #DBG
-  #         if [ ! -d $MTP ]
-  #         then
-  #           /bin/mkdir -p $MTP
-  #         fi
-  #         /bin/mount -o loop $IMG $MTP 2>/dev/null
-  #         /bin/sleep 0.2
-  #         /bin/chown `id -u $MOUNTUSER`:`id -g $MOUNTUSER` $MTP
-  #         /bin/chmod g+w $MTP
-  #         umask 0002 $MTP
-  #   # /bin/echo -e `id -u $MOUNTUSER`:`id -g $MOUNTUSER` $MTP>>/root/mntdbg #DBG
-  # done
   ImgList=`/usr/bin/find /images/vol*/*.img -type f | /bin/egrep "(\.\.|\/)$MOUNTUSER\.img$" | /usr/bin/sort -r 2>/dev/null`
   for IMG in $ImgList
   do
@@ -289,9 +224,9 @@ mountcmd()
 
 MAINFUNC
   # /bin/echo -e "#DBG_mountcmd_run1 var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
-  /bin/echo -e "$endline $FreeNode" >> /tmp/draft.rt.ticket.geoexec.$execnode
+  /bin/echo -e "$endline $FreeNode" >> /tmp/draft.rt.ticket.geoexec.$MOUNTOPRNODE
   # /bin/echo -e "#DBG_mountcmd_run2 var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
-  /bin/mv /tmp/draft.rt.ticket.geoexec.$execnode /tmp/rt.ticket.geoexec.$execnode
+  /bin/mv /tmp/draft.rt.ticket.geoexec.$MOUNTOPRNODE /tmp/rt.ticket.geoexec.$MOUNTOPRNODE
   # /bin/echo -e "#DBG_mountcmd_run3 var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
   secrtsend_execbd
   /bin/echo -e "Mounting images on $FreeNode...\c"
@@ -311,53 +246,59 @@ MAINFUNC
 # Subfunction to send ticket of kill all user threads and umount $MountList_mntp on $MountNode terminator v2, and check till finished
 terminator()
 {
-/bin/echo -e "Sending kill and umount request to $MountNode now...\n"
-KILLUSER=$LOGNAME
-# /bin/echo -e "#DBG_terminator_in var input \n MOUNTROOT=$MOUNTROOT \n KILLUSER=$LOGNAME\n ImgList=\n$ImgList"
-for execnode in $MountNode
-do
-  /bin/echo -e "#! /bin/bash\nCOLUMNS=512\nMOUNTROOT=\"$MOUNTROOT\"\nKILLUSER=\"$LOGNAME\"" > /tmp/draft.rt.ticket.geoexec.$execnode
+    /bin/echo -e "Sending kill and umount request to $MountNode now...\n"
+    KILLUSER=$LOGNAME
+    # /bin/echo -e "#DBG_terminator_in var input \n MOUNTROOT=$MOUNTROOT \n KILLUSER=$LOGNAME\n ImgList=\n$ImgList"
+    for execnode in $MountNode
+    do
+    /bin/echo -e "#! /bin/bash\nCOLUMNS=512\nMOUNTROOT=\"$MOUNTROOT\"\nKILLUSER=\"$LOGNAME\"" > /tmp/draft.rt.ticket.geoexec.$execnode
 
-  /bin/cat >> /tmp/draft.rt.ticket.geoexec.$execnode << "MAINFUNC"
-  # Ticket of terminate user session and umount user images
-  umountuser()
-  {
-     UmountInfo=`COLUMNS=512 /bin/lsblk | /bin/grep -v snap | /bin/grep loop | /bin/grep "$KILLUSER" | /usr/bin/awk '{print $NF"\t"$1}' | /usr/bin/sort`
-     # echo -e "UmountInfo=\n$UmountInfo" >> /root/DBG_terminator #DBG
-     # COLUMNS=512 /bin/lsblk >> /root/DBG_terminator #DBG
-     for UML in $UmountInfo
-     do
-      UMP=`/bin/echo -e $UML | /usr/bin/awk '{print $1}'`
-      UMD=`/bin/echo -e $UML | /usr/bin/awk '{print $2}'`
-      # echo -e "UMP=$UMP\nUMD=$UMD" >> /root/DBG_terminator #DBG
-      /usr/sbin/service smbd restart
-      /usr/sbin/service nmbd restart
-      # echo -e "SMB service restarted" >>  /root/DBG_terminator #DBG
-      /bin/umount -l $UMP
-      # echo -e "$UMP unmounted" >> /root/DBG_terminator #DBG
-      /bin/rm -f /dev/$UMD &
-      # echo -e "$UMD deleted" >> /root/DBG_terminator #DBG
-    done
-  }
+    /bin/cat >> /tmp/draft.rt.ticket.geoexec.$execnode << "MAINFUNC"
+    # Ticket of terminate user session and umount user images
+    # echo -e "$(hostname)" >> /tmp/DBG_terminator #DBG
+    umountuser()
+    {
+        UmountInfo=`COLUMNS=512 /bin/lsblk | /bin/grep -v snap | /bin/grep loop | /bin/grep "$KILLUSER" | /usr/bin/awk '{print $NF"\t"$1}' | /usr/bin/sort`
+        # echo -e "UmountInfo=\n$UmountInfo\t$(hostname)" >> /tmp/DBG_terminator #DBG
+        # COLUMNS=512 /bin/lsblk >> /tmp/DBG_terminator #DBG
+        for UML in $UmountInfo
+        do
+            UMP=`/bin/echo -e $UML | /usr/bin/awk '{print $1}'`
+            UMD=`/bin/echo -e $UML | /usr/bin/awk '{print $2}'`
+            # echo -e "UMP=$UMP\nUMD=$UMD\t$(hostname)" >> /tmp/DBG_terminator #DBG
+            /usr/sbin/service smbd restart
+            /usr/sbin/service nmbd restart
+            # echo -e "SMB service restarted\t$(hostname)" >> /tmp/DBG_terminator #DBG
+            /bin/umount -l $UMP
+            # echo -e "$UMP unmounted\t$(hostname)" >> /tmp/DBG_terminator #DBG
+            /bin/rm -f /dev/$UMD &
+            # echo -e "$UMD deleted\t$(hostname)" >> /tmp/DBG_terminator #DBG
+        done
+    }
 
-  /usr/bin/pkill -u $KILLUSER
-  killlist=`/bin/ps -aux | /bin/grep $KILLUSER | /bin/grep -v grep`
-  while [ -n "$killlist" ]
-  do
     /usr/bin/pkill -u $KILLUSER
-    /bin/sleep 0.1
-    killlist=`/bin/ps -aux | /bin/grep $KILLUSER | /bin/grep -v grep`
-  done
-  # echo -e "$KILLUSER killed" >> /root/DBG_terminator #DBG
+    killlist=`/bin/ps -aux | /bin/grep $KILLUSER | /bin/grep -v grep | /usr/bin/awk '{print $2}'`
+    while [ -n "$killlist" ]
+    do
+        for killthd in $killlist
+        do
+            {
+            /bin/kill -9 $killthd
+            }&
+        done
+        sleep 0.5
+        killlist=`/bin/ps -aux | /bin/grep $KILLUSER | /bin/grep -v grep`
+    done
+    echo -e "$KILLUSER killed\t$(hostname)" >> /tmp/DBG_terminator #DBG
 
-  umountuser
-  UmountList=`COLUMNS=512 /bin/mount | /bin/egrep "(\.\.|\/)$KILLUSER\.img" | /bin/grep "$MOUNTROOT" | /usr/bin/awk '{print $3}' | /usr/bin/sort -r 2>/dev/null`
-  while [ -n "$UmountList" ]
-  do
     umountuser
-    /bin/sleep 1
     UmountList=`COLUMNS=512 /bin/mount | /bin/egrep "(\.\.|\/)$KILLUSER\.img" | /bin/grep "$MOUNTROOT" | /usr/bin/awk '{print $3}' | /usr/bin/sort -r 2>/dev/null`
-  done
+    while [ -n "$UmountList" ]
+    do
+        umountuser
+        /bin/sleep 1
+        UmountList=`COLUMNS=512 /bin/mount | /bin/egrep "(\.\.|\/)$KILLUSER\.img" | /bin/grep "$MOUNTROOT" | /usr/bin/awk '{print $3}' | /usr/bin/sort -r 2>/dev/null`
+    done
 MAINFUNC
 
   /bin/echo -e "$endline $execnode" >> /tmp/draft.rt.ticket.geoexec.$execnode
@@ -376,6 +317,96 @@ MAINFUNC
   execnode=""
   # /bin/echo -e "#DBG_terminator_out MountList =\n$MountList\nexecnode unset as \"$execnode\""
 done
+}
+
+# Secure mount module, first check and create user root workspace image if does not exist.
+# Then call mountcmd() to mount all images of $LOGNAME to $FreeNode, then get $IMGoN_MP
+# Check mount integrity before mount:
+# If missing image mounted then mount all again
+# If image mounted multiple times (one or more nodes) the call terminator() to kill all user sessions.
+# Always place secmount() after mountlist() and before secpatch()
+secmount()
+{
+    # echo -e "1 FreeNode=$FreeNode" #DBG_secmount
+    # chkusrimg
+    /bin/echo -e "Checking your workspace image...\n"
+    RootImg=`/usr/bin/find  /images/vol*/*.img -type f | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
+    # /bin/echo -e "#DBG_Main1   First Check, ImgList =\n$ImgList"
+    if [ ! -n "$RootImg" ]
+    then
+        /bin/sleep $loglatency
+        RootImg=`/usr/bin/find  /images/vol*/*.img -type f | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
+        # /bin/echo -e "#DBG_Main1   Double check, ImgList =\n$ImgList"
+        if [ ! -n "$RootImg" ]
+        then
+            /bin/sleep $loglatency
+            RootImg=`/usr/bin/find  /images/vol*/*.img -type f | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
+            # /bin/echo -e "#DBG_Main1   Treble Check, ImgList =\n$ImgList"
+            if [ ! -n "$RootImg" ]
+            then
+              mkrootimg
+              /bin/echo -e "\nCreating your new root image..\c"
+              while [ ! -n "$RootImg" ]
+                do
+                  /bin/echo -ne "."
+                  /bin/sleep 1
+                  RootImg=`/usr/bin/find  /images/vol*/*.img -type f | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
+                  # /bin/echo -e "#DBG_Main1   Loop Check, ImgList =\n$ImgList"
+                done
+              /bin/echo
+            fi
+        fi
+    fi
+    ImgList=`/usr/bin/find  /images/vol*/*.img -type f | /bin/egrep "(\.\.|\/)$LOGNAME\.img$" | /usr/bin/sort -r 2>/dev/null`
+    # $lococlu/tools/UCIL.sh &
+    /bin/echo -e "\nFound your image:\n$ImgList\n"
+
+    # check and mount
+    ImgCount=`/bin/echo $ImgList | /bin/grep -o "/images/vol" | /usr/bin/wc -l`
+    MntCount=`/bin/echo $MountList_mntp | /bin/grep -o "$MOUNTROOT" | /usr/bin/wc -l`
+    MountNodeCount=`/bin/echo -ne "$MountList" | /usr/bin/awk '{print $1}' | /usr/bin/sort -u | /usr/bin/wc -l`
+    # echo -e "2 FreeNode=$FreeNode\n2 MountNode=$MountNode\n2 MountNodeCount=$MountNodeCount"  #DBG_secmount
+    if [ "$MountNodeCount" -gt 1 ]
+    then
+        # M-Kill
+        /bin/echo -e "!!! WARNING !!!\nYour images are mounted to multiple nodes!\nUmounting all of your images to protect your data.\nPlease contact LCC admin ASAP for your data safty!\n"
+        terminator
+        /bin/sleep $loglatency
+        mountlist
+        MountNode=$MountList_node
+        while [ -n "$MountList" ]
+        do
+          terminator
+          /bin/sleep 10
+          mountlist
+          MountNode=$MountList_node
+        done
+        /bin/echo -e "All session killed!!!\nThis connection will be terminated in 120 sec.\nPlease contact LCC admin ASAP for your data safty!"
+        sleep 120
+        exit
+    elif [ "$MountNodeCount" == 0 ]
+    then
+        # Mount from empty
+        MountNode=$FreeNode
+        # echo -e "3 FreeNode=$FreeNode\n3 MountNode=$MountNode" #DBG_secmount
+        /bin/echo -e "Mounting your image to $MountNode now...\n"
+        mountcmd
+    elif [ "$ImgCount" -gt "$MntCount" ]
+    then
+        # Add missiong mount
+        FreeNode=$MountNode
+        # echo -e "4 FreeNode=$FreeNode\n4 MountNode=$MountNode" #DBG_secmount
+        /bin/echo -e "Mounting your image to $MountNode now...\n"
+        mountcmd
+    elif [ "$ImgCount" -lt "$MntCount" ]
+    then
+        # S-Kill
+        /bin/echo -e "!!! WARNING !!!\nYour mounted images are more then actual images!\nUmounting all of your images to protect your data.\nPlease contact LCC admin ASAP for your data safty!\n"
+        terminator
+        /bin/echo -e "All session killed!!!\nThis connection will be terminated in 120 sec.\nPlease contact LCC admin ASAP for your data safty!"
+        sleep 120
+        exit
+    fi
 }
 
 # Secure SSH redirector, the Last subfunction checking $ImgList and $LaunchNode, then patch user through
@@ -440,70 +471,31 @@ if [ ! -n "$MountList_node" ]
 then
     /bin/echo -e "Did not find your image mounted on any node...\n"
     selectfree
-    chkusrimg
-    mountcmd
+    secmount
     LaunchNode=$FreeNode
     # /bin/echo -e "#DBG_Main1_a_run_2 LaunchNode=$LaunchNode\n MountList = $MountList"
     secpatch
 elif [ "$loglatency" -lt "$MountList_lag" ]
 then
-  # /bin/echo -e "#DBG_Main1_b_in MountList = $MountList"
+    # /bin/echo -e "#DBG_Main1_b_in MountList = $MountList"
     /bin/rm -f $opstmp/*.$MountList_node 2>/dev/null #Drop0*
-	echo -e "Image mount record overtime > $loglatency seconds!!! Refreshing ..\c"
-  /bin/sleep $loglatency
-  mountlist
-  #while [ "$loglatency" -lt "$MountList_lag" ]
-  while [ ! -n "$MountList_lag" ]
-  do
-    /bin/rm -f $opstmp/*.$MountList_node 2>/dev/null #Drop2*
+    echo -e "Image mount record overtime > $loglatency seconds!!! Refreshing ..\c"
     /bin/sleep $loglatency
     mountlist
-    /bin/echo -n .
-  done
-  /bin/echo
+    #while [ "$loglatency" -lt "$MountList_lag" ]
+    while [ ! -n "$MountList_lag" ]
+    do
+        /bin/rm -f $opstmp/*.$MountList_node 2>/dev/null #Drop2*
+        /bin/sleep $loglatency
+        mountlist
+        /bin/echo -n .
+    done
+    /bin/echo
 fi
 MountNode=$MountList_node
 IMGoN_MP=$MountList_mntp
-lsallimg
-/bin/echo -e "\nFound your image:\n$ImgList\nmounted on:\n$(/bin/cat $opstmp/secrt.sitrep.unirep.* 2>/dev/null | /bin/grep "log=imgon" | /bin/egrep "(\.\.|\/)$LOGNAME\.img" | /usr/bin/awk '{print $1"\t"$4}')"
-
-#Mount integrity check
-ImgCount=`/bin/echo $ImgList | /bin/grep -o "/images/vol" | /usr/bin/wc -l`
-MntCount=`/bin/echo $MountList_mntp | /bin/grep -o "$MOUNTROOT" | /usr/bin/wc -l`
-if  [ "$ImgCount" -gt "$MntCount" ]
-then
-    FreeNode=$MountNode
-    /bin/echo -e "Found your new image, mounting to $MountNode now...\n"
-    mountcmd
-elif [ "$ImgCount" -lt "$MntCount" ]
-then
-    MountNodeCount=`/bin/echo "$MountList" | /usr/bin/awk '{print $1}' | /usr/bin/sort -u | /usr/bin/wc -l`
-    # echo -e "MountList=\n$MountList" #DBG
-    if [ "$MountNodeCount" == 1 ]
-    then
-        /bin/echo -e "!!! WARNING !!!\nYour mounted images are more then actual images!\nUmounting all of your images to protect your data.\nPlease contact LCC admin ASAP for your data safty!\n"
-        terminator
-        /bin/echo -e "All session killed!!!\nThis connection will be terminated in 120 sec.\nPlease contact LCC admin ASAP for your data safty!"
-        sleep 120
-        exit
-    else
-        /bin/echo -e "!!! WARNING !!!\nYour images are mounted to multiple nodes!\nUmounting all of your images to protect your data.\nPlease contact LCC admin ASAP for your data safty!\n"
-        terminator
-        /bin/sleep $loglatency
-        mountlist
-        MountNode=$MountList_node
-        while [ -n "$MountList" ]
-        do
-          terminator
-          /bin/sleep 10
-          mountlist
-          MountNode=$MountList_node
-        done
-        /bin/echo -e "All session killed!!!\nThis connection will be terminated in 120 sec.\nPlease contact LCC admin ASAP for your data safty!"
-        sleep 120
-        exit
-    fi
-fi
+/bin/echo -e "\nImages mounted on:\n$(/bin/cat $opstmp/secrt.sitrep.unirep.* 2>/dev/null | /bin/grep "log=imgon" | /bin/egrep "(\.\.|\/)$LOGNAME\.img" | /usr/bin/awk '{print $1"\t"$4}')"
+secmount
 
 # Check /bin/cpU usage of $MountNode, if over 80% ask if change node, else patch through
 MountNodeLoad=`/bin/cat $opstmp/secrt.sitrep.unirep.$MountNode 2>/dev/null | /bin/grep "log=load" | /usr/bin/awk '{print $4}'`
@@ -529,7 +521,8 @@ then
       then
         terminator
         selectfree
-        mountcmd
+        mountlist
+        secmount
         LaunchNode=$FreeNode
         secpatch
       else

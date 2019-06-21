@@ -46,11 +46,14 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * Join domain script.
 
 ## Known issue
-* L1 issue: Potentially "Ghost loop mount" issue. ( Should be improved in v0.6.0 )
+* L1 issue: Potentially "Ghost loop mount" issue. ( Should be improved in v0.6.1 )
 * L2 issue: launchlock file accumulation issue.
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.6.1
+* Secured mount logic now covering all mount conditions, including new user, full mount, image add, switch nodes and auto abort image multiple mount ( single node and cross nodes ) .
+* Reliability update for terminator() kill actions.
 ## v0.6.0
 * Added full mount integrity check for lccmain.sh to prevent user images been mounted in wrong way when login.
 * Renewed terminator() module for lccmain.sh, terminator now works with multiple node kill, more secured image unmount, and with active loop device remove been added.
