@@ -41,14 +41,31 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 
 ## Missing parts
 * Change sitrep exchange from text files over NFS volume to rsyslog system
-* Checker of "Ghost loop mount" issue, sometimes the user images are loop mounted without mount point, mostly when unmounting stuck.
+* Auto-scanner of "Ghost loop mount" issue, sometimes the user images are loop mounted without mount point, mostly when unmounting stuck.
 * Head and Node deploy scripts.
 * Join domain script.
 
 ## Known issue
-* If user manager not on mgrlist, dskbill script will fall into infinite running loop
+* L1 issue: Potentially "Ghost loop mount" issue. ( Should be improved in v0.6.0 )
+* L2 issue: launchlock file accumulation issue.
+* L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.6.0
+* Added full mount integrity check for lccmain.sh to prevent user images been mounted in wrong way when login.
+* Renewed terminator() module for lccmain.sh, terminator now works with multiple node kill, more secured image unmount, and with active loop device remove been added.
+* Renewed mountcmd() module for lccmain.sh, with simpler text conversion logic
+* Minor display update on module secpatch() of lccmain.sh.
+* lccmain.sh now using standrad issued secrtsend_execbd to send tickets.
+* secrtsend_execbd and secrtsend is now using RAM disk /tmp for better performance.
+* Added experimental user root image move tool vol2to5.sh and vol2to5_neat.sh.
+* noderep.sh is outputing performance debug info into /tmp/nodereplag.log on each node.
+## v0.5.3c
+* High performance improvements for noderep.sh, reduced the sitrep refresh latency.
+## v0.5.3b
+* Added loop device delete when unmount image, reliability patch.
+## v0.5.3a
+* Added Jenkins image delete tool
 ## v0.5.3
 * Added image delete tool
 * More robust image unmount operations.

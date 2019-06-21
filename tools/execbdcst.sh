@@ -10,19 +10,19 @@ opstmp=/receptionist/opstmp
 lococlu=/receptionist/lococlu
 source $lococlu/lcc.conf
 
-# Secure Realtime Text Copy v2, execbd variant with target node signature in tickets' name and checklines
+# Secure Realtime Text Copy v3, execbd variant with target node $execnode signature in tickets' name and checklines
 # Check text integrity, then drop real time text to NFS at this last step, with endline
 secrtsend_execbd()
 {
-  for REPLX in `/bin/ls /var/log/rt.* 2>/dev/null`
+  for REPLX in `/bin/ls /tmp/rt.* 2>/dev/null`
   do
     CheckLineL1=`/usr/bin/tac $REPLX | sed -n '1p'`
     CheckLineL2=`/usr/bin/tac $REPLX | sed -n '2p'`
-    if [ "$CheckLineL1"  == "$endline $node" -a "$CheckLineL2"  != "$endline $execnode" ]
+    if [ "$CheckLineL1"  == "$endline $execnode" -a "$CheckLineL2"  != "$endline $execnode" ]
     then
-      REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
-      cp $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
-      chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
+      REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/tmp/" '{print $2}'`
+      /bin/mv $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
+      /bin/chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
     else
       # /bin/mv $REPLX.fail  #DBG
       /bin/rm $REPLX
@@ -126,16 +126,17 @@ done
 # Main3, write $USER_CMD into tickets and send
 IFS=$'\n' ARR=($execlist)
 # declare -p ARR
-for node in `printf '%s\n' "${ARR[@]}"`
+for execnode in `printf '%s\n' "${ARR[@]}"`
 do
-  # echo -e "#DBG_Main3 $node"
-  echo -e "#! /bin/bash\n#Ticket sent from $HOSTNAME\n" > /var/log/draft.rt.ticket.geoexec.$node
-  chmod a+x /var/log/draft.rt.ticket.geoexec.$node
-  printf '%s\n' "${USER_CMD[@]}" >> /var/log/draft.rt.ticket.geoexec.$node
-	echo -e "\n$endline $node" >> /var/log/draft.rt.ticket.geoexec.$node
-  cp /var/log/draft.rt.ticket.geoexec.$node /var/log/rt.ticket.geoexec.$node
-  sleep 0.33
+  {
+  # echo -e "#DBG_Main3 $execnode"
+  echo -e "#! /bin/bash\n#Ticket sent from $HOSTNAME\n" > /tmp/draft.rt.ticket.geoexec.$execnode
+  chmod a+x /tmp/draft.rt.ticket.geoexec.$execnode
+  printf '%s\n' "${USER_CMD[@]}" >> /tmp/draft.rt.ticket.geoexec.$execnode
+	echo -e "\n$endline $execnode" >> /tmp/draft.rt.ticket.geoexec.$execnode
+  mv /tmp/draft.rt.ticket.geoexec.$execnode /tmp/rt.ticket.geoexec.$execnode
   secrtsend_execbd
-  echo -e "Ticket to $node sent..."
+  echo -e "Ticket to $execnode sent..."
+  }&
 done
  echo -e "All command tickets sent out"

@@ -74,3 +74,6 @@ for mgr in `cat $basepath/mgrlist`; do
     /bin/echo "$fulllist" | /bin/grep $mgr
     /bin/echo -e "\n"
 done
+
+/bin/echo -e "\n\n"
+/bin/date +%Y-%m%d-%H%M-%S

@@ -3,3 +3,4 @@
 lcc.conf
 user.conf
 backstage.conf
+tools/mail_notice
