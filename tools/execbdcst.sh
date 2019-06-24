@@ -128,7 +128,6 @@ IFS=$'\n' ARR=($execlist)
 # declare -p ARR
 for execnode in `printf '%s\n' "${ARR[@]}"`
 do
-  {
   # echo -e "#DBG_Main3 $execnode"
   echo -e "#! /bin/bash\n#Ticket sent from $HOSTNAME\n" > /tmp/draft.rt.ticket.geoexec.$execnode
   chmod a+x /tmp/draft.rt.ticket.geoexec.$execnode
@@ -137,6 +136,5 @@ do
   mv /tmp/draft.rt.ticket.geoexec.$execnode /tmp/rt.ticket.geoexec.$execnode
   secrtsend_execbd
   echo -e "Ticket to $execnode sent..."
-  }&
 done
  echo -e "All command tickets sent out"

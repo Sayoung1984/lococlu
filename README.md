@@ -46,11 +46,13 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * Join domain script.
 
 ## Known issue
-* L1 issue: Potentially "Ghost loop mount" issue. ( Should be improved in v0.6.1 )
+* L1 issue: Potentially "Ghost loop mount" issue. ( Should be highly improved in v0.6.1 )
 * L2 issue: launchlock file accumulation issue.
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.6.2
+* noderep.sh high performance revision block 2, with execute sequence structure renewed and dedicated performance debug module added.
 ## v0.6.1
 * Secured mount logic now covering all mount conditions, including new user, full mount, image add, switch nodes and auto abort image multiple mount ( single node and cross nodes ) .
 * Reliability update for terminator() kill actions.
@@ -64,7 +66,7 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * Added experimental user root image move tool vol2to5.sh and vol2to5_neat.sh.
 * noderep.sh is outputing performance debug info into /tmp/nodereplag.log on each node.
 ## v0.5.3c
-* High performance improvements for noderep.sh, reduced the sitrep refresh latency.
+* High performance revision block 1 for noderep.sh, reduced the sitrep refresh latency.
 ## v0.5.3b
 * Added loop device delete when unmount image, reliability patch.
 ## v0.5.3a

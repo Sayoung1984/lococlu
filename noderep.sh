@@ -1,11 +1,19 @@
 #! /bin/bash
 
+# Node Sitrep generator HP revision block 2, execute sequence structure renewed and dedicated performance debug module added.
+
 # noderep.sh single instance lock
-pidpath=/tmp/noderep.pid
+pidpath=/tmp/NR_PID
 if [ -f "$pidpath" ]
-    then
-        kill -9 `/bin/cat $pidpath`>/dev/null 2>&1
-        /bin/rm -f $pidpath
+then
+    for ktgt in `/bin/ps -aux | /bin/grep -vE "$$|grep" | /bin/grep noderep.sh | /usr/bin/awk '{print $2}'`
+    do
+    {
+        kill -9 $ktgt 2>/dev/null
+    }&
+    done
+    # kill -9 `/bin/cat $pidpath` > /dev/null 2>&1
+    /bin/rm -f $pidpath
 fi
 echo $$ >$pidpath
 
@@ -16,16 +24,24 @@ endline="###---###---###---###---###"
 opstmp=/receptionist/opstmp
 lococlu=/receptionist/lococlu
 source $lococlu/lcc.conf
-# USERDIFF=$(diff -q $lococlu/user.conf /var/adm/gv/user)
-# if [ "$USERDIFF" != "" ]
-# then
-#     cp $lococlu/user.conf /var/adm/gv/user
-# fi
 
 # /bin/echo -e "#DBG_lcc.conf \nCOLUMNS=$COLUMNS\nendline=$endline\nopstmp=$opstmp\nlococlu=$lococlu\ndskinitsz=$dskinitsz\n#\n" > /root/DBG_lcc.conf
 # /bin/cat $lococlu/lcc.conf >> /root/DBG_lcc.conf #DBG
 
-hostname=`/bin/hostname`
+HOSTNAME=`/bin/hostname`
+
+# For Ubuntu 1.04=+, filter local snap loop devices
+SNAP=`/bin/lsblk | grep "loop.* /snap/" |  awk '{printf $1 "|"}' | sed 's/[|]$//g'`
+if [ ! -n "$SNAP" ]
+then
+    SNAP="No Snap Loop Device!"
+fi
+
+# Checkpath for geoexec
+HTKT=$opstmp/secrt.ticket.geoexec.$HOSTNAME
+
+# Output target for unirep
+localsitrep=/tmp/lsr.rt.sitrep.unirep
 
 # Fixed parameters for CPU info
 LOGICORE=`nproc --all`
@@ -34,15 +50,15 @@ PHYSICORE=`/usr/bin/expr $LOGICORE / $TPCORE`
 
 if [ -n "$(/usr/bin/lscpu | /bin/grep -i intel)" ]
 then
-	CPUFREQ=`/bin/cat /proc/cpuinfo | /bin/grep "model name" | /usr/bin/uniq | /bin/sed -r 's/.*@ (.*)GHz.*/\1/'`
+    CPUFREQ=`/bin/cat /proc/cpuinfo | /bin/grep "model name" | /usr/bin/uniq | /bin/sed -r 's/.*@ (.*)GHz.*/\1/'`
 else
-	CPUFREQM=`/usr/bin/lscpu | /bin/grep "CPU MHz" | /usr/bin/awk -F " " '{print $3}'`
-	CPUFREQ=`/bin/echo -e "scale=1; $CPUFREQM / 1000 " | /usr/bin/bc`
+    CPUFREQM=`/usr/bin/lscpu | /bin/grep "CPU MHz" | /usr/bin/awk -F " " '{print $3}'`
+    CPUFREQ=`/bin/echo -e "scale=1; $CPUFREQM / 1000 " | /usr/bin/bc`
 fi
 
-PerfScore=`/bin/echo -e "scale=1; $CPUFREQ * $PHYSICORE " | /usr/bin/bc`
+PERFScore=`/bin/echo -e "scale=1; $CPUFREQ * $PHYSICORE " | /usr/bin/bc`
 
-# Darwin awards to kill users not connecting via cluster head
+# Darwin awards for imbeciles not connecting via cluster head
 darwinawards()
 {
 for PTSK in `/usr/bin/who | /bin/grep -Ev "head|root|sayoungh|ziyij|evenye|:0 " | /usr/bin/awk '{print $2}'`
@@ -51,193 +67,238 @@ do
 done
 }
 
-# Calculate rounded CPU usage percentage (0~100) $CPULoad via /proc/stat, must be a time interval between cputick and cputock
-cputick()
+# Tick signal generator, generate ( $CPU_LineTickEx $IO_DTickEx $IO_TTickEx )
+cpuiotick()
 {
-  LineTick=`/bin/cat /proc/stat | /bin/grep '^cpu ' | /bin/sed 's/^cpu[ \t]*//g'`
-  SumTick=`/bin/echo $LineTick | /usr/bin/tr " " "+" | /usr/bin/bc`
-  IdleTick=`/bin/echo $LineTick | /usr/bin/awk '{print $4}'`
+    CPU_LineTickEx=`/bin/grep "^cpu " /proc/stat | /bin/sed 's/^cpu[ \t]*//g'`
+    IO_DTickEx=`/bin/grep loop /proc/diskstats | /bin/grep -vE "$SNAP" | /usr/bin/awk '{x=x+$(NF-1)} END {print x}'`
+    IO_TTickEx=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
 }
 
-# Do the math and output $CPULoad
-cputock()
+
+# Tock signal generator, concurrently write below data into /tmp/NR_LastRep:
+# $CPU_SumTock $CPU_IdleTock $IO_DTock $IO_TTock $CPU_SumTick $CPU_IdleTick $IO_TTick $IO_DTickEx $UserCount $ShortLoad
+cpuiotock()
 {
-  LineTock=`/bin/cat /proc/stat | /bin/grep '^cpu ' | /bin/sed 's/^cpu[ \t]*//g'`
-  SumTock=`/bin/echo $LineTock | /usr/bin/tr " " "+" | /usr/bin/bc`
-  IdleTock=`/bin/echo $LineTock | /usr/bin/awk '{print $4}'`
-  # DiffSum=`/usr/bin/expr $SumTock - $SumTick`
-  # DiffIdle=`/usr/bin/expr $IdleTock - $IdleTick`
-  # CPULoad=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 100 * ( $DiffSum - $DiffIdle ) / $DiffSum " | /usr/bin/bc)`
-  CPULoad=$((100*($SumTock-$SumTick-$IdleTock+$IdleTick)/($SumTock-$SumTick)))
+    # CPU_LineTock=`/bin/grep "^cpu " /proc/stat | /bin/sed 's/^cpu[ \t]*//g'`
+    /bin/echo -e "export CPU_LineTock=\"`/bin/grep "^cpu " /proc/stat | /bin/sed 's/^cpu[ \t]*//g'`\"" >> /tmp/NR_LastRep &
+    /bin/echo -e "export IO_DTock=`/bin/grep loop /proc/diskstats | /bin/grep -vE "$SNAP" | /usr/bin/awk '{x=x+$(NF-1)} END {print x}'`" >> /tmp/NR_LastRep &
+    /bin/echo -e "export IO_TTock=`/bin/echo $[$(/bin/date +%s%N)/1000000]`" >> /tmp/NR_LastRep
+    # {
+    # CPU_SumTock=`/bin/echo -e "$CPU_LineTock" | /usr/bin/tr " " "+" | /usr/bin/bc`
+    # CPU_IdleTock=`/bin/echo -e "$CPU_LineTock" | /usr/bin/awk '{print $4}'`
+    # /bin/echo -e "export CPU_SumTock=$CPU_SumTock\nexport CPU_IdleTock=$CPU_IdleTock" >> /tmp/NR_LastRep
+    # }&
+
+
 }
 
-iotick()
+calcmain()
 {
-    TickT=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
-    IOTick=`/bin/cat /proc/diskstats | /bin/grep loop | /usr/bin/awk '{x=x+$(NF-1)} END {print x}'`
-}
+    # TmC_0=$[$(/bin/date +%s%N)/1000000] #DBG_calcmain
+    # Fetch data
 
-iotock()
-{
-    TockT=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
-    IOTock=`/bin/cat /proc/diskstats | /bin/grep loop | /usr/bin/awk '{x=x+$(NF-1)} END {print x}'`
-    # GapT=`/bin/echo -e " $TockT - $TickT " | /usr/bin/bc`
-    # IOIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 0 + 100 * $IOTock / $GapT - 100 * $IOTick / $GapT " | /usr/bin/bc)`
-    IOIndex=$((100*$IOTock/($TockT-$TickT)-100*$IOTick/($TockT-$TickT)))
-}
-
-unirep.loadrep()
-{
-    # SHORTLOAD=`/bin/cat /proc/loadavg | /usr/bin/awk '{print $1}'`
-    # USERCOUNT=`/usr/bin/w -h | /bin/grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
-    # PerfIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2;  sqrt( ($IOIndex / 1.5) ^2 + $CPULoad ^2 ) " | /usr/bin/bc)`
-    # LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc`
-    # # USERCOUNT=`/usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
-    # /bin/echo -ne `/bin/hostname`"\t"
-    # /bin/echo -en "log=load\t"
-    # #/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
-    # /bin/echo -ne $LoadIndex"\t"$PerfIndex"\t"
-    # /bin/echo -ne "Load_C=$LoadIndex\tPerf_R=$PerfIndex\tCPU=$CPULoad IO=$IOIndex\tNR=$LagT USERC=$USERCOUNT"
-    # # /bin/echo -e "scale=2; $IOTock / 1000 - $IOTick / 1000 " | /usr/bin/bc | /usr/bin/tr "\n" "\t"
-    # # /bin/echo -ne "USERCOUNT=$USERCOUNT\t"
-    # # /bin/echo -ne "#DBG_loadrep 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE\t"
-    # /bin/echo -e "\t"`/bin/date +%s`
+    # eval `/bin/grep CPU_SumTick= /tmp/NR_LastRep`
+    # eval `/bin/grep CPU_IdleTick= /tmp/NR_LastRep`
+    # eval `/bin/grep IO_DTick= /tmp/NR_LastRep`
+    # eval `/bin/grep IO_TTick= /tmp/NR_LastRep`
+    # eval `/bin/grep CPU_SumTock= /tmp/NR_LastRep`
+    # eval `/bin/grep CPU_IdleTock= /tmp/NR_LastRep`
+    # eval `/bin/grep IO_DTock= /tmp/NR_LastRep`
+    # eval `/bin/grep IO_TTock= /tmp/NR_LastRep`
     #
-    ## unirep.loadrep HP version
-    SHORTLOAD=`/bin/cat /proc/loadavg | /usr/bin/awk '{print $1}'`
-    USERCOUNT=`/usr/bin/who | /bin/grep -v 'root\|unknown' | /usr/bin/awk '{print $1}' | /usr/bin/sort | /usr/bin/uniq | /usr/bin/wc -l`
+    # eval `/bin/grep UserCount= /tmp/NR_LastRep`
+    # eval `/bin/grep ShortLoad= /tmp/NR_LastRep`
+    # eval `/bin/grep LR= /tmp/NR_LastRep`
+    # eval `/bin/grep AR= /tmp/NR_LastRep`
+    #
+    # /bin/cat /tmp/NR_LastRep > /tmp/NR_LastRep2
+    eval $(/usr/bin/sort /tmp/NR_LastRep)
+    # CKUserCount=`/bin/grep " UserCount=" /tmp/NR_LastRep | awk -F "=" '{print $2}'`
+    # TmC_1=$[$(/bin/date +%s%N)/1000000] #DBG_calcmain
+    #
+    # TimeTable=`/bin/cat /tmp/NR_LastRep | /bin/grep "export Tm" | /usr/bin/sort -r`
+    #
+    infowho=`/usr/bin/who`
+    infomount=`/bin/mount`
+
+
+    /bin/echo -e "export TmM_S=$TmM_0" > /tmp/NR_LastRep #!!! The start of NR_LastRep loop !!!
+    # /bin/echo -e "# DBG Got CKUserCount=$CKUserCount" >> /tmp/NR_LastRep & #DBG_allrange
+
+    # TmC_2=$[$(/bin/date +%s%N)/1000000] #DBG_calcmain
+
+    AR=$(($TmM_0 - $TmM_S - 1000)) #DBG_allrange
+    # /bin/echo -e "export AR=$AR" >> /tmp/NR_LastRep & #DBG_allrange
+
+    # RR=$(($TmR_1 - $TmM_S))  #DBG_reallenth
+    # CalcCPU
+    CPU_SumTock=`/bin/echo -e "$CPU_LineTock" | /usr/bin/tr " " "+" | /usr/bin/bc`
+    CPU_IdleTock=`/bin/echo -e "$CPU_LineTock" | /usr/bin/awk '{print $4}'`
+    # CPULoad=$((100*($CPU_SumTock-$CPU_SumTick-$CPU_IdleTock+$CPU_IdleTick)/($CPU_SumTock-$CPU_SumTick)))
+    CPULoad=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 100 * ( $CPU_SumTock - $CPU_SumTick - $CPU_IdleTock + $CPU_IdleTick ) / ( $CPU_SumTock - $CPU_SumTick ) / 1 " | /usr/bin/bc)`
+    # CalcIO
+    # IOIndex=$((100*$IO_DTock/($IO_TTock-$IO_TTick)-100*$IO_DTick/($IO_TTock-$IO_TTick)))
+    IOIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 0 + 100 * ( $IO_DTock - $IO_DTick ) / ( $IO_TTock - $IO_TTick ) / 1 " | /usr/bin/bc)`
+    # CalcPerf
     PerfIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2;  sqrt( ($IOIndex / 1.5) ^2 + $CPULoad ^2 ) " | /usr/bin/bc)`
-    LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $USERCOUNT / $PerfScore + 100 * $SHORTLOAD / $PerfScore / $PHYSICORE " | /usr/bin/bc`
-    FR=`/bin/cat /tmp/FR`
-    /bin/echo -e "$hostname\tlog=load\t$LoadIndex\t$PerfIndex\tLoad_C=$LoadIndex\tPerf_R=$PerfIndex\tCPU=$CPULoad IO=$IOIndex\tUSERC=$USERCOUNT FR=$FR\t"`/bin/date +%s`
+    LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $UserCount / $PERFScore + 100 * $ShortLoad / $PERFScore / $PHYSICORE " | /usr/bin/bc`
+
+    # TmC_3=$[$(/bin/date +%s%N)/1000000] #DBG_calcmain
+
+    {
+    CPU_SumTick=`/bin/echo $CPU_LineTickEx | /usr/bin/tr " " "+" | /usr/bin/bc`
+    CPU_IdleTick=`/bin/echo $CPU_LineTickEx | /usr/bin/awk '{print $4}'`
+    /bin/echo -e "export CPU_SumTick=$CPU_SumTick" >> /tmp/NR_LastRep &
+    /bin/echo -e "export CPU_IdleTick=$CPU_IdleTick" >> /tmp/NR_LastRep &
+    }&
+
+    /bin/echo -e "export IO_TTick=$IO_TTickEx" >> /tmp/NR_LastRep &
+    /bin/echo -e "export IO_DTick=$IO_DTickEx" >> /tmp/NR_LastRep &
+    /bin/echo -e "export UserCount=`/bin/echo "$infowho" | /bin/grep -v 'root\|unknown' | /usr/bin/awk '{print $1}' | /usr/bin/sort -u | /usr/bin/wc -l`" >> /tmp/NR_LastRep &
+    /bin/echo -e "export ShortLoad=`/bin/cat /proc/loadavg | /usr/bin/awk '{print $1}'`" >> /tmp/NR_LastRep &
 }
 
-# IMGoN mount info structure v2 in "Hostname"  "Image Path" "Mount Point" "Timestamp human" "Timestamp machine"
-unirep.imgonrep()
+unirep()
 {
-    # for LOOPIMG in `COLUMNS=300 /sbin/losetup -a | /bin/grep -v snap | /usr/bin/awk -F "[()]" '{print $2}'`
-    # do
-    #   /bin/echo -ne `/bin/hostname`"\t"
-    #   /bin/echo -en "log=imgon\t"
-    #   /bin/echo -ne $LOOPIMG"\t"
-    #   /bin/mount | /bin/grep $LOOPIMG | /usr/bin/awk -F " " '{printf $3}'
-    #   # /bin/echo -e "\t"`/bin/date +%Y-%m%d-%H%M-%S`"\t"`/bin/date +%s`
-    #   /bin/echo -e "\t"`/bin/date +%s`
-    # done
-    #
-    ## unirep.imgonrep HP version
+    /bin/echo -e "$HOSTNAME\tlog=load\t$LoadIndex\t$PerfIndex\tLoad_C=$LoadIndex\tPerf_R=$PerfIndex\tCPU=$CPULoad IO=$IOIndex\tUSERC=$UserCount AR=$AR\t"`/bin/date +%s`
     MarkT=`/bin/date +%s`
-    /bin/mount | /bin/grep ".img " |  /usr/bin/awk '{print $1"\t"$3}' | /usr/bin/sort -k 2 | /bin/sed "s/^/$hostname\tlog=imgon\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
+    /bin/echo "$infomount" | /bin/grep ".img " |  /usr/bin/awk '{print $1"\t"$3}' | /usr/bin/sort -k 2 | /bin/sed "s/^/$HOSTNAME\tlog=imgon\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
+    /bin/echo "$infowho" | /bin/grep -v 'root\|unknown' | /usr/bin/awk -F "[()]" '{print $1"\t"$2}' | /usr/bin/awk '{print $3"_"$4"\t"$1"\t\t"$5}' | /bin/sed "s/head-sh-01.*/head-sh-01/g" | /usr/bin/sort -k 2 | /usr/bin/uniq -f 1 | /bin/sed "s/^/$HOSTNAME\tlog=ulsc\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
 }
 
-# User Live Scan info structure in "Hostname"  "Last Login Time" "UID" "Login From" "Timestamp machine"
-unirep.ulscrep()
-{
-    # for LIVEUSER in `COLUMNS=512 /usr/bin/w -h | /bin/grep -v root | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
-    # # for LIVEUSER in `COLUMNS=512 /usr/bin/w -h | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
-    # do
-    #     /bin/echo -en `/bin/hostname`"\t"
-    #     /bin/echo -en "log=ulsc\t"
-    #     /usr/bin/w -h | /usr/bin/awk '{print $4"\t"$1"\t"$3}' | /usr/bin/sort | /usr/bin/uniq -f 1 | /bin/grep $LIVEUSER | /usr/bin/head -n 1 | /usr/bin/tr "\n" "\t"
-    #     /bin/echo -e "\t"`/bin/date +%s`
-    # done
-    #
-    ## unirep.ulscrep HP version
-    MarkT=`/bin/date +%s`
-    /usr/bin/who | /bin/grep -v 'root\|unknown' | /usr/bin/awk -F "[()]" '{print $1"\t"$2}' | /usr/bin/awk '{print $3"_"$4"\t"$1"\t\t"$5}' | /bin/sed "s/head-sh-01.*/head-sh-01/g" | /usr/bin/sort -k 2 | /usr/bin/uniq -f 1 | /bin/sed "s/^/$hostname\tlog=ulsc\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
-}
-
-
-
-
-# Secure Realtime Text Copy v2, check text integrity, then drop real time text to NFS at this last step, with endline
-# /bin/sed -i '$d' $REPLX # To cut last line, on receive side
+# Secure Realtime Text Copy v3, check text integrity, then push real time text to NFS at this last step, with endline and lag check
 secrtsend()
 {
-  for REPLX in `/bin/ls /tmp/rt.* 2>/dev/null`
-  do
-    CheckLineL1=`/usr/bin/tac $REPLX | /bin/sed -n '1p'`
-    CheckLineL2=`/usr/bin/tac $REPLX | /bin/sed -n '2p'`
-    if [ "$CheckLineL1"  == "$endline $hostname" -a "$CheckLineL2"  != "$endline $hostname" ]
-    then
-      REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/tmp/" '{print $2}'`
-      /bin/mv $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
-      /bin/chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
-    else
-      # /bin/mv $REPLX.fail  #DBG
-      /bin/rm -f $REPLX
-    fi
-  done
+    # TmS_2a=$[$(/bin/date +%s%N)/1000000]
+    # /bin/echo -e "export TmS_2a=$TmS_2a\nexport TmS_2z=$TmS_2a" >> /tmp/NR_LastRep &#DBG_secrtsend
+    for REPLX in `/bin/ls /tmp/rt.* 2>/dev/null`
+    do
+        CheckLineL1=`/usr/bin/tail -n 1 $REPLX`
+        CheckLineL2=`/usr/bin/tail -n 2 $REPLX | /usr/bin/head -n 1`
+        RepLag=$((`/bin/date +%s`-${CheckLineL2:(-10)}))
+        # /bin/echo -e "export TmS_2b=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep #DBG_secrtsend
+        # /bin/echo -e "# DBG RepLag=$RepLag   loglatency=$loglatency" >> /tmp/NR_LastRep #DBG_secrtsend
+        if [ "$CheckLineL1"  == "$endline $HOSTNAME" -a "$CheckLineL2"  != "$endline $HOSTNAME" -a "$RepLag" -lt "$loglatency" ]
+        then
+            REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/tmp/" '{print $2}'`
+            # /bin/echo -e "export TmS_2c=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep #DBG_secrtsend
+            /bin/cp $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
+            # /bin/echo -e "export TmS_2d=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep #DBG_secrtsend
+            /bin/chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
+            # /bin/echo -e "export TmS_2e=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep #DBG_secrtsend
+        else
+            # /bin/mv $REPLX.fail  #DBG
+            /bin/rm -f $REPLX
+        fi
+    done
+    # /bin/echo -e "export TmS_2z=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep #DBG_secrtsend
+    # /bin/echo -e "export TmR_1=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep #DBG_reallenth
 }
 
-# General Operation Executor v2, run command in tickets with checkline as root
+# General Operation Executor v3, run command in tickets with checkline as root, and with lag check
 geoexec()
 {
-#  /bin/ls $opstmp/secrt.ticket.geoexec.* 2>/dev/null
-  HTKT=$opstmp/secrt.ticket.geoexec.$hostname
-  /bin/ls $HTKT 2>/dev/null
-  if [ -f "$HTKT" ]
+    # /bin/ls $opstmp/secrt.ticket.geoexec.* 2>/dev/null
+    /bin/ls $HTKT 2>/dev/null
+    if [ -f "$HTKT" ]
     then
-      exectime=`/bin/date +%Y-%m%d-%H%M-%S`
-      tickettail=`/usr/bin/tac $HTKT | /bin/sed -n '1p'`
-      tickettail2=`/usr/bin/tac $HTKT | /bin/sed -n '2p'`
-      if [ "$endline $hostname" == "$tickettail" -a "$endline $hostname" != "$tickettail2" ]
-      then
-        # echo -e "#DBG\n tickettail=$tickettail\n tickettail2=$tickettail2" >> $HTKT
-        /bin/mv $HTKT /var/log/ticket.$exectime.sh
-        /bin/chmod a+x /var/log/ticket.$exectime.sh
-        /var/log/ticket.$exectime.sh
-        mv /var/log/ticket.$exectime.sh /var/log/done.$exectime.sh
-        # cp /var/log/done.$exectime.sh $opstmp/../dbgtmp #DBG
-      fi
-  fi
+        exectime=`/bin/date +%Y-%m%d-%H%M-%S`
+        TicketTail=`/usr/bin/tail -n 1 $HTKT`
+        TicketTail2=`/usr/bin/tail -n 2 $HTKT | /usr/bin/head -n 1`
+        TicketLag=$((`/bin/date +%s`-${TicketTail2:(-10)}))
+        if [ "$endline $HOSTNAME" == "$TicketTail" -a "$endline $HOSTNAME" != "$TicketTail2" -a "$TicketLag" -lt 30 ]
+        then
+            # echo -e "#DBG\n TicketTail=$TicketTail\n TicketTail2=$TicketTail2" >> $HTKT
+            /bin/mv $HTKT /var/log/ticket.$exectime.sh
+            /bin/chmod a+x /var/log/ticket.$exectime.sh
+            /var/log/ticket.$exectime.sh
+            /bin/mv /var/log/ticket.$exectime.sh /var/log/done.$exectime.sh
+            # cp /var/log/done.$exectime.sh $opstmp/../dbgtmp #DBG
+        else
+            /bin/mv $HTKT /var/log/dropped.$exectime.sh
+        fi
+    fi
+    # /bin/sleep 0.1 #DBG_geoexec
+    # /bin/echo -e "export TmX_1=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_geoexec
+    # /bin/echo -e "export TmR_1=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep #DBG_reallenth
+}
+
+# Latency debug module
+lagcalc()
+{
+
+    # TmE_0=`/bin/echo $[$(/bin/date +%s%N)/1000000]` #DBG_lagcalc
+    # TmE_1=`/bin/echo $[$(/bin/date +%s%N)/1000000]` #DBG_lagcalc
+    # TmE_2=`/bin/echo $[$(/bin/date +%s%N)/1000000]` #DBG_lagcalc
+    # TmE_3=`/bin/echo $[$(/bin/date +%s%N)/1000000]` #DBG_lagcalc
+    # /bin/echo -e "export TL_X=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_lagcalc
+    # /bin/echo -e "# DBG TmS_0=$TmS_0\t TmG_1=$TmG_1\t TmM_2=$TmM_2" >> /tmp/NR_LastRep & #DBG_lagcalc
+    M1=$(($TmC_0 - $TmM_0)) #DBG_marktime
+    # /bin/echo -e "export M1L=$M1" >> /tmp/NR_LastRep & #DBG_geoexec
+    M2=$(($TmM_0 - $TmM_2)) #DBG_marktime
+    MR=$(($M1 + $M2)) #DBG_marktime
+    # /bin/echo -e "# DBG MR=$MR\t M1=$M1\t M2=$M2" >> /tmp/NR_LastRep & #DBG_marktime
+    # G1=$(($TmG_1 - $TmG_0)) #DBG_genrep
+    # G2=$(($TmG_2 - $TmG_1)) #DBG_genrep
+    # G3=$(($TmS_0 - $TmG_2)) #DBG_genrep
+    GR=$(($TmS_0 - $TmG_0)) #DBG_genrep
+    # /bin/echo -e "# DBG GR=$GR\t G1=$G1\t G2=$G2\t G3=$G3" >> /tmp/NR_LastRep & #DBG_genrep
+    # C1=$(($TmC_1 - $TmC_0)) #DBG_calcmain
+    # C2=$(($TmC_2 - $TmC_1)) #DBG_calcmain
+    # C3=$(($TmC_3 - $TmC_2)) #DBG_calcmain
+    CR=$(($TmC_3 - $TmC_0)) #DBG_calcmain
+    # /bin/echo -e "# DBG CR=$CR\t C1=$C1\t C2=$C2\t C3=$C3\t C4=$C4" >> /tmp/NR_LastRep & #DBG_lagcalc
+    # S1=$(($TmS_1 - $TmS_0)) #DBG_secrtsend
+    # S2a=$(($TmS_2b - $TmS_2a)) #DBG_secrtsend
+    # S2b=$(($TmS_2c - $TmS_2b)) #DBG_secrtsend
+    # S2c=$(($TmS_2d - $TmS_2c)) #DBG_secrtsend
+    # S2d=$(($TmS_2e - $TmS_2d)) #DBG_secrtsend
+    S2=$(($TmS_2z - $TmS_2a)) #DBG_secrtsend
+    if [ "$S2" == 0 ]; then S2="999+" ;fi #DBG_secrtsend
+    SR=$(($TmL_0 - $TmS_0)) #DBG_secrtsend
+    # /bin/echo -e "# DBG TmS_1=$TmS_1 \tTmS_2z=$TmS_2z" >> /tmp/NR_LastRep & #DBG_lagcalc
+    # /bin/echo -e "# DBG SR=$SR\t S1=$S1\t S2=$S2" >> /tmp/NR_LastRep & #DBG_secrtsend
+    # XR=$(($TmX_1 - $TmM_S - $M1L - 100)) #DBG_geoexec
+    # /bin/echo -e "# DBG TmC_0=$TmC_0\n# DBG TmX_1=$TmX_1" >> /tmp/NR_LastRep & #DBG_lagcalc
+    # ER=$((($TmE_3 - $TmE_0 ) / 3)) #DBG_lagcalc
+    # /bin/echo -e "# DBG XR=$XR\tER=$ER\tAR=$AR" >> /tmp/NR_LastRep & #DBG_lagcalc
+    TmL_1=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
+    LR=$(($TmL_1 - $TmL_0))
+    /bin/echo -e "$HOSTNAME\t MR=$MR\t= $M1+$M2\t CR=$CR\t GR=$GR\t SR=$SR\t S2=$S2\t LR=$LR\tAR=$AR\tCPU=$CPULoad IO=$IOIndex\t"`/bin/date +%s` >> /tmp/NR_DBG_lag.log
+    # /bin/echo -e "export LR=$LR" >> /tmp/NR_LastRep & #DBG_lagcalc
+    # /bin/echo -e "# DBG TmL_1=$TmL_1\n# DBG TmL_0=$TmL_0" >> /tmp/NR_LastRep & #DBG_lagcalc
+    # /bin/echo -e "export TmR_1=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep #DBG_reallenth
+}
+
+
+# Main payload sequence
+payload()
+{
+    cpuiotick #M1
+    calcmain #CR
+                # TmG_0=$[$(/bin/date +%s%N)/1000000] #DBG_genrep
+    unirep > $localsitrep #GR
+                # TmS_0=$[$(/bin/date +%s%N)/1000000] #DBG_secrtsend
+    /bin/echo -e "$endline" $HOSTNAME >> $localsitrep #S1
+    /bin/mv $localsitrep /tmp/rt.sitrep.unirep.$HOSTNAME #S1
+                # TmS_1=$[$(/bin/date +%s%N)/1000000] #DBG_secrtsend
+    secrtsend & #S2
+                # TmL_0=$[$(/bin/date +%s%N)/1000000] #DBG_lagcalc
+    # lagcalc & #LR for latency debug
 }
 
 # Main function loop
 step=1 #Execution time interval, MUST UNDER 3600!!!
 darwinawards &
-/bin/echo -n > /tmp/nodereplag.log
+# /bin/echo -n > /tmp/NR_DBG_lag.log &  #DBG_lagcalc
 for (( i = 0; i < 3600; i=(i+step) ))
 do
-    TickT0=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
-    cputick
-    iotick
+        TmM_0=$[$(/bin/date +%s%N)/1000000] # !!! Used by $AR calc !!!
+    payload &
+    geoexec & #XR
     sleep $step
-    TockT0=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
-    cputock
-    iotock
-    TockT_=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
-    localsitrep=/tmp/lsr.rt.sitrep.unirep
-    unirep.loadrep > $localsitrep
-    TockT1=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
-    unirep.imgonrep >> $localsitrep
-    TockT2=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
-    unirep.ulscrep >> $localsitrep
-    TockT3=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
-    /bin/echo -e "$endline" $hostname >> $localsitrep
-    /bin/mv $localsitrep /tmp/rt.sitrep.unirep.$hostname
-    TockT4=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
-    secrtsend &
-    TockT5=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
-    geoexec
-    TockTE1=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
-    TockTE2=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
-    TockTE3=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
-    TockTEnd=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
-    M1=`/bin/echo -e " $TockT0 - $TickT0 - 1000 " | /usr/bin/bc`
-    M2=`/bin/echo -e " $TockT_ - $TockT0 " | /usr/bin/bc`
-    MR=`/bin/echo -e " $TockT_ - $TickT0- 1000 " | /usr/bin/bc`
-    G1=`/bin/echo -e " $TockT1 - $TockT_ " | /usr/bin/bc`
-    G2=`/bin/echo -e " $TockT2 - $TockT1 " | /usr/bin/bc`
-    G3=`/bin/echo -e " $TockT3 - $TockT2 " | /usr/bin/bc`
-    GR=`/bin/echo -e " $TockT3 - $TockT_ " | /usr/bin/bc`
-    S1=`/bin/echo -e " $TockT4 - $TockT3 " | /usr/bin/bc`
-    S2=`/bin/echo -e " $TockT5 - $TockT4 " | /usr/bin/bc`
-    SR=`/bin/echo -e " $TockT5 - $TockT3 " | /usr/bin/bc`
-    XR=`/bin/echo -e " $TockTE1 - $TockT5 " | /usr/bin/bc`
-    ER=`/bin/echo -e " $TockTEnd / 3 - $TockTE1 / 3 " | /usr/bin/bc`
-    FR=`/bin/echo -e " $TockTEnd - $TickT0 - 1000 " | /usr/bin/bc`
-    /bin/echo -e "$hostname\t MR=$MR\t= $M1 + $M2\t GR=$GR\t=$G1 + $G2 + $G3\t\tSR=$SR\t=$S1+$S2\t\tXR=$XR\tER=$ER\tFR=$FR\tCPU=$CPULoad IO=$IOIndex\t"`/bin/date +%s` >> /tmp/nodereplag.log
-    /bin/echo $FR > /tmp/FR
+        # /bin/echo -e "export TmM_2=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep #DBG_marktime
+    cpuiotock #M1
 done
 exit 0
