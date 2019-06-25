@@ -161,7 +161,10 @@ calcmain()
 
 unirep()
 {
-    /bin/echo -e "$HOSTNAME\tlog=load\t$LoadIndex\t$PerfIndex\tLoad_C=$LoadIndex\tPerf_R=$PerfIndex\tCPU=$CPULoad IO=$IOIndex\tUSERC=$UserCount AR=$AR\t"`/bin/date +%s`
+    if [ -n "$LoadIndex" -a -n "$PerfIndex" ]
+    then
+        /bin/echo -e "$HOSTNAME\tlog=load\t$LoadIndex\t$PerfIndex\tLoad_C=$LoadIndex\tPerf_R=$PerfIndex\tCPU=$CPULoad IO=$IOIndex\tUSERC=$UserCount AR=$AR\t"`/bin/date +%s`
+    fi
     MarkT=`/bin/date +%s`
     /bin/echo "$infomount" | /bin/grep ".img " |  /usr/bin/awk '{print $1"\t"$3}' | /usr/bin/sort -k 2 | /bin/sed "s/^/$HOSTNAME\tlog=imgon\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
     /bin/echo "$infowho" | /bin/grep -v 'root\|unknown' | /usr/bin/awk -F "[()]" '{print $1"\t"$2}' | /usr/bin/awk '{print $3"_"$4"\t"$1"\t\t"$5}' | /bin/sed "s/head-sh-01.*/head-sh-01/g" | /usr/bin/sort -k 2 | /usr/bin/uniq -f 1 | /bin/sed "s/^/$HOSTNAME\tlog=ulsc\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
@@ -179,7 +182,7 @@ secrtsend()
         RepLag=$((`/bin/date +%s`-${CheckLineL2:(-10)}))
         # /bin/echo -e "export TmS_2b=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend
         # /bin/echo -e "# DBG RepLag=$RepLag   loglatency=$loglatency" >> /tmp/NR_LastRep & #DBG_secrtsend
-        if [ "$CheckLineL1"  == "$endline $HOSTNAME" -a "$CheckLineL2"  != "$endline $HOSTNAME" -a "$RepLag" -lt "$loglatency" -a -n "$LoadIndex" -a -n "$PerfIndex" ]
+        if [ "$CheckLineL1"  == "$endline $HOSTNAME" -a "$CheckLineL2"  != "$endline $HOSTNAME" -a "$RepLag" -lt "$loglatency" ]
         then
             REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/tmp/" '{print $2}'`
             # /bin/echo -e "export TmS_2c=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend
