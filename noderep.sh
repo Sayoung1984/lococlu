@@ -173,7 +173,7 @@ unirep()
 # Secure Realtime Text Copy v3, check text integrity, then push real time text to NFS at this last step, with endline and lag check
 secrtsend()
 {
-    TmS_2a=$[$(/bin/date +%s%N)/1000000]       #lagcalc basic
+    TmS_2a=$[$(/bin/date +%s%N)/1000000] #DBG_secrtsend       #lagcalc basic
     /bin/echo -e "export TmS_2a=$TmS_2a" >> /tmp/NR_LastRep & #DBG_secrtsend       #lagcalc basic
     for REPLX in `/bin/ls /tmp/rt.* 2>/dev/null`
     do
@@ -195,8 +195,8 @@ secrtsend()
             /bin/rm -f $REPLX
         fi
     done
-    /bin/echo -e "export TmS_2z=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend       #lagcalc basic
-    /bin/echo -e "export TmR_1=$TmS_2z" >> /tmp/NR_LastRep & #DBG_reallenth       #lagcalc basic
+    TmS_2z=$[$(/bin/date +%s%N)/1000000] #DBG_secrtsend       #lagcalc basic
+    /bin/echo -e "export TmS_2z=$TmS_2z\nexport TmR_1=$TmS_2z" >> /tmp/NR_LastRep & #DBG_secrtsend #DBG_reallenth       #lagcalc basic
 }
 
 # General Operation Executor v3, run command in tickets with checkline as root, and with lag check
@@ -265,7 +265,7 @@ lagcalc()
     # /bin/echo -e "# DBG XR=$XR\tER=$ER\tAR=$AR" >> /tmp/NR_LastRep & #DBG_lagcalc
     TmL_1=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
     LR=$(($TmL_1 - $TmL_0))
-    /bin/echo -e "$HOSTNAME\t MR=$MR\t= $M1+$M2\t CR=$CR\t GR=$GR\t SR=$SR\t S2=$S2\t LR=$LR\tAR=$AR\tRR=$RR\tCPU=$CPULoad IO=$IOIndex\t"`/bin/date +%s` >> /tmp/NR_DBG_lag.log
+    /bin/echo -e "$HOSTNAME\t MR=$MR\t= $M1+$M2\t CR=$CR\t GR=$GR\t SR=$SR\t S2=$S2\t LR=$LR\tRR=$RR\tAR=$AR\tCPU=$CPULoad IO=$IOIndex\t"`/bin/date +%s` >> /tmp/NR_DBG_lag.log
     # /bin/echo -e "export LR=$LR" >> /tmp/NR_LastRep & #DBG_lagcalc
     # /bin/echo -e "# DBG TmL_1=$TmL_1\n# DBG TmL_0=$TmL_0" >> /tmp/NR_LastRep & #DBG_lagcalc
     /bin/echo -e "export TmR_1=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_reallenth       #lagcalc basic
