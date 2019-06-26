@@ -253,16 +253,16 @@ terminator()
 
     /bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$execnode << "MAINFUNC"
     # Ticket of terminate user session and umount user images
-    # echo -e "$(hostname)" >> /tmp/DBG_terminator #DBG
+    # echo -e "$(hostname)" > /tmp/DBG_terminator #DBG
     umountuser()
     {
         UmountInfo=`COLUMNS=512 /bin/lsblk | /bin/grep -v snap | /bin/grep loop | /bin/grep "$KILLUSER" | /usr/bin/awk '{print $NF"\t"$1}' | /usr/bin/sort`
         # echo -e "UmountInfo=\n$UmountInfo\t$(hostname)" >> /tmp/DBG_terminator #DBG
         # COLUMNS=512 /bin/lsblk >> /tmp/DBG_terminator #DBG
-        for UML in $UmountInfo
+        for UML in "$UmountInfo"
         do
-            UMP=`/bin/echo -e $UML | /usr/bin/awk '{print $1}'`
-            UMD=`/bin/echo -e $UML | /usr/bin/awk '{print $2}'`
+            UMP=`/bin/echo -e "$UML" | /usr/bin/awk '{print $1}'`
+            UMD=`/bin/echo -e "$UML" | /usr/bin/awk '{print $2}'`
             # echo -e "UMP=$UMP\nUMD=$UMD\t$(hostname)" >> /tmp/DBG_terminator #DBG
             /usr/sbin/service smbd restart
             /usr/sbin/service nmbd restart
@@ -274,20 +274,18 @@ terminator()
         done
     }
 
-    /usr/bin/pkill -u $KILLUSER
-    killlist=`/bin/ps -aux | /bin/grep $KILLUSER | /bin/grep -v /bin/grep | /usr/bin/awk '{print $2}'`
+    # /usr/bin/pkill -u $KILLUSER
+    killlist=`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep $KILLUSER | /usr/bin/awk '{print $2}'`
+    # echo -e "killlist=\n`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep $KILLUSER`" >> /tmp/DBG_terminator #DBG
     while [ -n "$killlist" ]
     do
         for killthd in $killlist
         do
-            {
             /bin/kill -9 $killthd
-            }&
         done
-        sleep 0.5
-        killlist=`/bin/ps -aux | /bin/grep $KILLUSER | /bin/grep -v /bin/grep`
+        killlist=`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep $KILLUSER | /usr/bin/awk '{print $2}'`
     done
-    echo -e "$KILLUSER killed\t$(hostname)" >> /tmp/DBG_terminator #DBG
+    # echo -e "$KILLUSER killed\t$(hostname)" >> /tmp/DBG_terminator #DBG
 
     umountuser
     UmountList=`COLUMNS=512 /bin/mount | /bin/egrep "(\.\.|\/)$KILLUSER\.img" | /bin/grep "$MOUNTROOT" | /usr/bin/awk '{print $3}' | /usr/bin/sort -r 2>/dev/null`

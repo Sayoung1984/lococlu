@@ -51,6 +51,8 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.6.2b
+* bugfix terminator() suicide issue fixed.
 ## v0.6.2a
 * bugfix on geoexec(), no time check needed on this module.
 * Added multiple tickets concurrent execution funciton to geoexec()
