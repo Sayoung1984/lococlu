@@ -31,14 +31,11 @@ source $lococlu/lcc.conf
 HOSTNAME=`/bin/hostname`
 
 # For Ubuntu 1.04=+, filter local snap loop devices
-SNAP=`/bin/lsblk | grep "loop.* /snap/" |  awk '{printf $1 "|"}' | sed 's/[|]$//g'`
+SNAP=`/bin/lsblk | /bin/grep "loop.* /snap/" |  /usr/bin/awk '{printf $1 "|"}' | /bin/sed 's/[|]$//g'`
 if [ ! -n "$SNAP" ]
 then
     SNAP="No Snap Loop Device!"
 fi
-
-# Checkpath for geoexec
-HTKT=$opstmp/secrt.ticket.geoexec.$HOSTNAME
 
 # Output target for unirep
 localsitrep=/tmp/lsr.rt.sitrep.unirep
@@ -114,7 +111,7 @@ calcmain()
     #
     # /bin/cat /tmp/NR_LastRep > /tmp/NR_LastRep2
     eval $(/usr/bin/sort /tmp/NR_LastRep)
-    # CKUserCount=`/bin/grep " UserCount=" /tmp/NR_LastRep | awk -F "=" '{print $2}'`
+    # CKUserCount=`/bin/grep " UserCount=" /tmp/NR_LastRep | /usr/bin/awk -F "=" '{print $2}'`
     # TmC_1=$[$(/bin/date +%s%N)/1000000] #DBG_calcmain
     #
     # TimeTable=`/bin/cat /tmp/NR_LastRep | /bin/grep "export Tm" | /usr/bin/sort -r`
@@ -202,25 +199,28 @@ secrtsend()
 # General Operation Executor v3, run command in tickets with checkline as root, and with lag check
 geoexec()
 {
-    # /bin/ls $opstmp/secrt.ticket.geoexec.* 2>/dev/null
-    /bin/ls $HTKT 2>/dev/null
+    # Checkpath for geoexec
+    HTKT=`/bin/ls $opstmp/secrt.geoexec.*.$HOSTNAME 2>/dev/null`
     if [ -f "$HTKT" ]
     then
-        exectime=`/bin/date +%Y-%m%d-%H%M-%S`
-        TicketTail=`/usr/bin/tail -n 1 $HTKT`
-        TicketTail2=`/usr/bin/tail -n 2 $HTKT | /usr/bin/head -n 1`
-        TicketLag=$((`/bin/date +%s`-${TicketTail2:(-10)}))
-        if [ "$endline $HOSTNAME" == "$TicketTail" -a "$endline $HOSTNAME" != "$TicketTail2" -a "$TicketLag" -lt 30 ]
-        then
-            # echo -e "#DBG\n TicketTail=$TicketTail\n TicketTail2=$TicketTail2" >> $HTKT
-            /bin/mv $HTKT /var/log/ticket.$exectime.sh
-            /bin/chmod a+x /var/log/ticket.$exectime.sh
-            /var/log/ticket.$exectime.sh
-            /bin/mv /var/log/ticket.$exectime.sh /var/log/done.$exectime.sh
-            # cp /var/log/done.$exectime.sh $opstmp/../dbgtmp #DBG
-        else
-            /bin/mv $HTKT /var/log/dropped.$exectime.sh
-        fi
+        for TgtTicket in `/bin/echo "$HTKT"`
+        do
+            LTN=`/bin/echo $TgtTicket | /bin/sed 's/^.*.geoexec/lcctkt/g'`
+            extm=`/bin/date +%y%m%d-%H%M%S`
+            TktTail=`/usr/bin/tail -n 1 $TgtTicket`
+            TktTail2=`/usr/bin/tail -n 2 $TgtTicket | /usr/bin/head -n 1`
+            if [ "$endline $HOSTNAME" == "$TktTail" -a "$endline $HOSTNAME" != "$TktTail2" ]
+            then
+                # echo -e "#DBG\n TktTail=$TktTail\n TktTail2=$TktTail2" >> $HTKT
+                /bin/mv $TgtTicket /var/log/$LTN.$extm.sh
+                /bin/chmod a+x /var/log/$LTN.$extm.sh
+                /var/log/$LTN.$extm.sh
+                /bin/mv /var/log/$LTN.$extm.sh /var/log/done.$LTN.$extm.sh
+                # cp /var/log/done.$extm.sh $opstmp/../dbgtmp #DBG
+            else
+                /bin/mv $TgtTicket /var/log/dropped.$LTN.$extm.sh
+            fi
+        done
     fi
     # /bin/echo -e "export TmX_1=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_geoexec
 }

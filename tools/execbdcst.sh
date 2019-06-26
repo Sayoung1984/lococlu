@@ -16,13 +16,12 @@ secrtsend_execbd()
 {
   for REPLX in `/bin/ls /tmp/rt.* 2>/dev/null`
   do
-    CheckLineL1=`/usr/bin/tac $REPLX | sed -n '1p'`
-    CheckLineL2=`/usr/bin/tac $REPLX | sed -n '2p'`
+    CheckLineL1=`/usr/bin/tac $REPLX | /bin/sed -n '1p'`
+    CheckLineL2=`/usr/bin/tac $REPLX | /bin/sed -n '2p'`
     if [ "$CheckLineL1"  == "$endline $execnode" -a "$CheckLineL2"  != "$endline $execnode" ]
     then
-      REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/tmp/" '{print $2}'`
-      /bin/mv $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
-      /bin/chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
+      REPLXNAME=`/bin/echo $REPLX | /bin/sed 's/^\/tmp\///g'`
+      /bin/mv $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"` && /bin/chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
     else
       # /bin/mv $REPLX.fail  #DBG
       /bin/rm $REPLX
@@ -129,11 +128,11 @@ IFS=$'\n' ARR=($execlist)
 for execnode in `printf '%s\n' "${ARR[@]}"`
 do
   # echo -e "#DBG_Main3 $execnode"
-  echo -e "#! /bin/bash\n#Ticket sent from $HOSTNAME\n" > /tmp/draft.rt.ticket.geoexec.$execnode
-  chmod a+x /tmp/draft.rt.ticket.geoexec.$execnode
-  printf '%s\n' "${USER_CMD[@]}" >> /tmp/draft.rt.ticket.geoexec.$execnode
-	echo -e "\n$endline $execnode" >> /tmp/draft.rt.ticket.geoexec.$execnode
-  mv /tmp/draft.rt.ticket.geoexec.$execnode /tmp/rt.ticket.geoexec.$execnode
+  echo -e "#! /bin/bash\n#Ticket sent from $HOSTNAME\n" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
+  chmod a+x /tmp/draft.rt.geoexec.$LOGNAME.$execnode
+  printf '%s\n' "${USER_CMD[@]}" >> /tmp/draft.rt.geoexec.$LOGNAME.$execnode
+	echo -e "\n$endline $execnode" >> /tmp/draft.rt.geoexec.$LOGNAME.$execnode
+  mv /tmp/draft.rt.geoexec.$LOGNAME.$execnode /tmp/rt.geoexec.$LOGNAME.$execnode
   secrtsend_execbd
   echo -e "Ticket to $execnode sent..."
 done

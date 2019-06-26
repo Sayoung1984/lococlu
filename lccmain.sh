@@ -53,8 +53,8 @@ secrtsend_execbd()
 {
   for REPLX in `/bin/ls /tmp/rt.* 2>/dev/null`
   do
-    CheckLineL1=`/usr/bin/tac $REPLX | sed -n '1p'`
-    CheckLineL2=`/usr/bin/tac $REPLX | sed -n '2p'`
+    CheckLineL1=`/usr/bin/tac $REPLX | /bin/sed -n '1p'`
+    CheckLineL2=`/usr/bin/tac $REPLX | /bin/sed -n '2p'`
     if [ "$CheckLineL1"  == "$endline $execnode" -a "$CheckLineL2"  != "$endline $execnode" ]
     then
       REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/tmp/" '{print $2}'`
@@ -122,9 +122,9 @@ mkrootimg()
     execnode=$MKIMGOPRNODE
     # /bin/echo -e "#DBG_mkrootimg_in var input \n  MKIMGUSER=$MKIMGUSER\n FreeNode=$FreeNode\n MKIMGOPRNODE=$MKIMGOPRNODE\n dskinitsz=$dskinitsz"
 
-    /bin/echo -e "#! /bin/bash\nMKIMGUSER=\"$MKIMGUSER\"\ndskinitsz=\"$dskinitsz\"" > /tmp/draft.rt.ticket.geoexec.$MKIMGOPRNODE
+    /bin/echo -e "#! /bin/bash\nMKIMGUSER=\"$MKIMGUSER\"\ndskinitsz=\"$dskinitsz\"" > /tmp/draft.rt.geoexec.$LOGNAME.$MKIMGOPRNODE
 
-    /bin/cat >> /tmp/draft.rt.ticket.geoexec.$MKIMGOPRNODE << "MAINFUNC"
+    /bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$MKIMGOPRNODE << "MAINFUNC"
     # Ticket of make user image
 
     # Subfunc of make disk infant, now for /images/vol**
@@ -167,16 +167,15 @@ mkrootimg()
     chkrootimg=`/usr/bin/find /images/vol*/*.img -type f | /bin/egrep "\/$MKIMGUSER\.img$" 2>/dev/null`
     if [ -n "$chkrootimg" ]
     then
-    /bin/echo -e "Got mkrootimg conflict for $MKIMGUSER, image file found at $chkrootimg, time `/bin/date +%Y-%m%d-%H%M-%S`" > /var/log/fail.mkrootimg
+    /bin/echo -e "Got mkrootimg conflict for $MKIMGUSER, image file found at $chkrootimg, time `/bin/date +%Y-%m%d-%H%M-%S`" >> /var/log/fail.mkrootimg
     else
     selvol
     /bin/mv $SelVol/diskinfant $SelVol/$MKIMGUSER.img
     fi
     mkdskinfant
-
 MAINFUNC
-  /bin/echo -e "$endline $FreeNode" >> /tmp/draft.rt.ticket.geoexec.$MKIMGOPRNODE
-  /bin/mv /tmp/draft.rt.ticket.geoexec.$MKIMGOPRNODE /tmp/rt.ticket.geoexec.$MKIMGOPRNODE
+  /bin/echo -e "$endline $FreeNode" >> /tmp/draft.rt.geoexec.$LOGNAME.$MKIMGOPRNODE
+  /bin/mv /tmp/draft.rt.geoexec.$LOGNAME.$MKIMGOPRNODE /tmp/rt.geoexec.$LOGNAME.$MKIMGOPRNODE
   secrtsend_execbd
   /bin/echo -e "Creating image on $FreeNode...\c"
   /bin/sleep $loglatency
@@ -200,9 +199,9 @@ mountcmd()
   execnode=$MOUNTOPRNODE
   # /bin/echo -e "#DBG_mountcmd_in var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$MOUNTUSER\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
 
-  /bin/echo -e "#! /bin/bash\nMOUNTROOT=\"$MOUNTROOT\"\nMOUNTUSER=\"$LOGNAME\"" > /tmp/draft.rt.ticket.geoexec.$MOUNTOPRNODE
+  /bin/echo -e "#! /bin/bash\nMOUNTROOT=\"$MOUNTROOT\"\nMOUNTUSER=\"$LOGNAME\"" > /tmp/draft.rt.geoexec.$LOGNAME.$MOUNTOPRNODE
 
-  /bin/cat >> /tmp/draft.rt.ticket.geoexec.$MOUNTOPRNODE << "MAINFUNC"
+  /bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$MOUNTOPRNODE << "MAINFUNC"
   # Ticket of mount user image
   ImgList=`/usr/bin/find /images/vol*/*.img -type f | /bin/egrep "(\.\.|\/)$MOUNTUSER\.img$" | /usr/bin/sort -r 2>/dev/null`
   for IMG in $ImgList
@@ -221,12 +220,11 @@ mountcmd()
       umask 0002 $MTP
       # /bin/echo -e `id -u $MOUNTUSER`:`id -g $MOUNTUSER` $MTP #>>/root/mntdbg #DBG
   done
-
 MAINFUNC
   # /bin/echo -e "#DBG_mountcmd_run1 var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
-  /bin/echo -e "$endline $FreeNode" >> /tmp/draft.rt.ticket.geoexec.$MOUNTOPRNODE
+  /bin/echo -e "$endline $FreeNode" >> /tmp/draft.rt.geoexec.$LOGNAME.$MOUNTOPRNODE
   # /bin/echo -e "#DBG_mountcmd_run2 var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
-  /bin/mv /tmp/draft.rt.ticket.geoexec.$MOUNTOPRNODE /tmp/rt.ticket.geoexec.$MOUNTOPRNODE
+  /bin/mv /tmp/draft.rt.geoexec.$LOGNAME.$MOUNTOPRNODE /tmp/rt.geoexec.$LOGNAME.$MOUNTOPRNODE
   # /bin/echo -e "#DBG_mountcmd_run3 var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
   secrtsend_execbd
   /bin/echo -e "Mounting images on $FreeNode...\c"
@@ -251,9 +249,9 @@ terminator()
     # /bin/echo -e "#DBG_terminator_in var input \n MOUNTROOT=$MOUNTROOT \n KILLUSER=$LOGNAME\n ImgList=\n$ImgList"
     for execnode in $MountNode
     do
-    /bin/echo -e "#! /bin/bash\nCOLUMNS=512\nMOUNTROOT=\"$MOUNTROOT\"\nKILLUSER=\"$LOGNAME\"" > /tmp/draft.rt.ticket.geoexec.$execnode
+    /bin/echo -e "#! /bin/bash\nCOLUMNS=512\nMOUNTROOT=\"$MOUNTROOT\"\nKILLUSER=\"$LOGNAME\"" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
 
-    /bin/cat >> /tmp/draft.rt.ticket.geoexec.$execnode << "MAINFUNC"
+    /bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$execnode << "MAINFUNC"
     # Ticket of terminate user session and umount user images
     # echo -e "$(hostname)" >> /tmp/DBG_terminator #DBG
     umountuser()
@@ -277,7 +275,7 @@ terminator()
     }
 
     /usr/bin/pkill -u $KILLUSER
-    killlist=`/bin/ps -aux | /bin/grep $KILLUSER | /bin/grep -v grep | /usr/bin/awk '{print $2}'`
+    killlist=`/bin/ps -aux | /bin/grep $KILLUSER | /bin/grep -v /bin/grep | /usr/bin/awk '{print $2}'`
     while [ -n "$killlist" ]
     do
         for killthd in $killlist
@@ -287,7 +285,7 @@ terminator()
             }&
         done
         sleep 0.5
-        killlist=`/bin/ps -aux | /bin/grep $KILLUSER | /bin/grep -v grep`
+        killlist=`/bin/ps -aux | /bin/grep $KILLUSER | /bin/grep -v /bin/grep`
     done
     echo -e "$KILLUSER killed\t$(hostname)" >> /tmp/DBG_terminator #DBG
 
@@ -301,8 +299,8 @@ terminator()
     done
 MAINFUNC
 
-  /bin/echo -e "$endline $execnode" >> /tmp/draft.rt.ticket.geoexec.$execnode
-  /bin/mv /tmp/draft.rt.ticket.geoexec.$execnode /tmp/rt.ticket.geoexec.$execnode
+  /bin/echo -e "$endline $execnode" >> /tmp/draft.rt.geoexec.$LOGNAME.$execnode
+  /bin/mv /tmp/draft.rt.geoexec.$LOGNAME.$execnode /tmp/rt.geoexec.$LOGNAME.$execnode
   secrtsend_execbd
   /bin/echo -e "Kill request sent...\c"
   /bin/sleep $loglatency

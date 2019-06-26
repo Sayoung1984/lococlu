@@ -51,6 +51,10 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.6.2a
+* bugfix on geoexec(), no time check needed on this module.
+* Added multiple tickets concurrent execution funciton to geoexec()
+* bugfix on lccmain draft ticket conflict, add $LOGNAME behind drafts.
 ## v0.6.2
 * noderep.sh high performance revision block 2, with execute sequence structure renewed and dedicated performance debug module added.
 ## v0.6.1
