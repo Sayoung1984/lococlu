@@ -51,6 +51,12 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.6.3
+* Improved noderep output under heavy load and high NFS latency.
+* Added experimental tee bypass output debug method for unirep() of noderep.
+* Added noderep sitrep output line count debug tool DBG_RepLengthCheck.
+* More accurate text transform process for mountcmd() of lccmain.sh
+* Better performance for image list process of lccmain.sh
 ## v0.6.2b
 * bugfix terminator() suicide issue fixed.
 ## v0.6.2a
