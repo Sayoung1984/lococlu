@@ -14,7 +14,7 @@ source $lococlu/lcc.conf
 # Check text integrity, then drop real time text to NFS at this last step, with endline
 secrtsend_execbd()
 {
-	for REPLX in `/bin/ls /tmp/rt.* 2>/dev/null`
+	for REPLX in `/bin/ls /tmp/rt.geoexec.* 2>/dev/null`
 	do
 	CheckLineL1=`/usr/bin/tail -n 1 $REPLX`
 	CheckLineL2=`/usr/bin/tail -n 2 $REPLX | /usr/bin/head -n 1`

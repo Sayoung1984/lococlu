@@ -51,13 +51,13 @@ fi
 # /bin/sed -i '$d' $REPLX # To cat last line, on receive side
 secrtsend_execbd()
 {
-for REPLX in `/bin/ls /tmp/rt.* 2>/dev/null`
+for REPLX in `/bin/ls /tmp/rt.geoexec.* 2>/dev/null`
 do
 	CheckLineL1=`/usr/bin/tail -n 1 $REPLX`
 	CheckLineL2=`/usr/bin/tail -n 2 $REPLX | /usr/bin/head -n 1`
 	if [ "$CheckLineL1" == "$endline $execnode" -a "$CheckLineL2" != "$endline $execnode" ]
 	then
-		REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/tmp/" '{print $2}'`
+		REPLXNAME=`/bin/echo $REPLX | /bin/sed 's/^\/tmp\///g'`
 		/bin/mv $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
 		/bin/chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
 	else
@@ -203,6 +203,19 @@ mountcmd()
 
 	/bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$MOUNTOPRNODE << "MAINFUNC"
 	# Ticket of mount user image
+
+	# Make full 64 loop devices
+	for i in {8..63}
+	do
+		if [ -e /dev/loop$i ]
+		then
+			continue
+		fi
+		mknod /dev/loop$i b 7 $i
+		chown --reference=/dev/loop0 /dev/loop$i
+		chmod --reference=/dev/loop0 /dev/loop$i
+	done
+
 	ImgList=`/bin/ls /images/vol0*/*.img | /bin/egrep "(\.\.|\/)$MOUNTUSER\.img$" | /usr/bin/sort -r 2>/dev/null`
 	for IMG in $ImgList
 	do
@@ -507,35 +520,35 @@ then
 	/bin/echo -e "Your current node is under heavy load, switch node? Y/N\n"
 	while true
 	do
-	read USER_CHO
-	case $USER_CHO in
-	Y|y|YES|Yes|yes)
-		/bin/echo -e "\n*** Switching node WILL KILL ALL OF YOU CURRENT SESSIONS ***\n"
-		/bin/echo -e "Input YES (exactly in uppercase) to confirm again, or anything else to quit.\n"
-		read USER_CFM
-		if [ "$USER_CFM" == "YES" ]
-		then
-			terminator
-			selectfree
-			mountlist
-			secmount
-			LaunchNode=$FreeNode
-			secpatch
-		else
-			/bin/rm -f $opstmp/launchlock.$LOGNAME
-			/bin/echo -e "\nDropping you out now, please try connect again."
-			exit
-		fi
-	;;
-	N|n|NO|No|no)
-		/bin/echo -e "\nPatching you through to $MountNode under heavy load now, you can always switch node with new logins.\n"
-		LaunchNode=$MountNode
-		secpatch
-	;;
-	*)
-		/bin/echo -e "\nInvalid choice, please tell me Yes or No.\n"
-	;;
-	esac
+		read USER_CHO
+		case $USER_CHO in
+			Y|y|YES|Yes|yes)
+				/bin/echo -e "\n*** Switching node WILL KILL ALL OF YOU CURRENT SESSIONS ***\n"
+				/bin/echo -e "Input YES (exactly in uppercase) to confirm again, or anything else to quit.\n"
+				read USER_CFM
+				if [ "$USER_CFM" == "YES" ]
+				then
+					terminator
+					selectfree
+					mountlist
+					secmount
+					LaunchNode=$FreeNode
+					secpatch
+				else
+					/bin/rm -f $opstmp/launchlock.$LOGNAME
+					/bin/echo -e "\nDropping you out now, please try connect again."
+					exit
+				fi
+			;;
+			N|n|NO|No|no)
+				/bin/echo -e "\nPatching you through to $MountNode under heavy load now, you can always switch node with new logins.\n"
+				LaunchNode=$MountNode
+				secpatch
+			;;
+			*)
+				/bin/echo -e "\nInvalid choice, please tell me Yes or No.\n"
+			;;
+		esac
 	done
 else
 	/bin/echo -e "Node not busy...\n"

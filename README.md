@@ -51,6 +51,10 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.6.4
+* Added loop device quantity patch to mountcmd()
+* Added user eject tool: usereject.sh
+* Renewed geoexec ticket name rules for secrtsend() and geoexec() modules on lccmain.sh, noderep.sh, imgdel.sh and execbdcst.sh to avoid user ticket conflict.
 ## v0.6.3
 * Improved noderep output under heavy load and high NFS latency.
 * Added experimental tee bypass output debug method for unirep() of noderep.
@@ -84,7 +88,7 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 ## v0.5.3a
 * Added Jenkins image delete tool
 ## v0.5.3
-* Added image delete tool
+* Added image delete tool: imgdel.sh
 * More robust image unmount operations.
 ## v0.5.2a
 * Most details provided by dskusg.sh

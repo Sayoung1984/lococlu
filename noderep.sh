@@ -180,7 +180,7 @@ secrtsend()
 		# /bin/echo -e "# DBG RepLag=$RepLag   loglatency=$loglatency" >> /tmp/NR_LastRep & #DBG_secrtsend
 		if [ "$CheckLineL1"  == "$endline $HOSTNAME" -a "$CheckLineL2"  != "$endline $HOSTNAME" -a "$RepLag" -lt "$loglatency" ]
 		then
-			REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/tmp/" '{print $2}'`
+			REPLXNAME=`/bin/echo $REPLX | /bin/sed 's/^\/tmp\///g'`
 			# /bin/echo -e "export TmS_2c=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend
 			/bin/cp $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
 			# /bin/echo -e "export TmS_2d=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend
@@ -290,7 +290,7 @@ payload()
 # Main function loop
 step=1 #Execution time interval, MUST UNDER 3600!!!
 darwinawards &
-# /bin/echo -n > /tmp/NR_DBG_lag.log &  #DBG_lagcalc
+/bin/echo -n > /tmp/NR_DBG_lag.log &  #DBG_lagcalc
 # /bin/echo -n > $opstmp/DBG_unirep.$HOSTNAME #DBG_unirep
 for (( i = 0; i < 3600; i=(i+step) ))
 do

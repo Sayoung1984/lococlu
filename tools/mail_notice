@@ -1,6 +1,6 @@
 From: China-SW-EC <china-sw-ec.tx@qti.qualcomm.com>
-To: zivin@qti.qualcomm.com,chn.afbf.notice@qti.qualcomm.com
-Subject: AFBF branch deletion for zivin
+To: guodhu@qti.qualcomm.com,chn.afbf.notice@qti.qualcomm.com
+Subject: AFBF branch deletion for guodhu
 Reply-To: China-SW-EC <china-sw-ec.tx@qti.qualcomm.com>
 MIME-Version: 1.0
 Content-Type: text/html
@@ -8,15 +8,15 @@ Content-Disposition: inline
 <html>
 <body>
 <pre style="font: monospace">
-Hello Ziwei,
+Hello Guodong,
 
 Thanks for using Android Fast Build Farm, aka AFBF. 
 
-killlist is LA.UM.7.1-20190617223707..zivin.img
+killlist is LA.AU.0.0.1-20190626162855..guodhu.img
 Found -i option
-value=LA.UM.7.1-20190617223707..zivin.img
+value=LA.AU.0.0.1-20190626162855..guodhu.img
 
-Deleteing images on node-sh-03...
+Deleteing images on node-sh-01...
 
 Deleteing complete, please check.
 
