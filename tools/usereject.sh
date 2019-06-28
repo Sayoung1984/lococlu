@@ -161,15 +161,18 @@ MountInfo_CL=`/bin/echo -e "$MountInfo"| /usr/bin/wc -l`
 ImageInfo=`/bin/ls /images/vol0*/*.img | /bin/egrep "(\.\.|\/)$LOGNAME\.img$" | /usr/bin/sort -r 2>/dev/null`
 ImageInfo_CL=`/bin/echo -e "$ImageInfo"| /usr/bin/wc -l`
 
-/bin/echo -e "RTinfo:\n$RTinfo\n"
-/bin/echo -e "LogNode\t$LogNode_CL\n$LogNode\n"
-/bin/echo -e "MountNode\t$MountNode_CL\n$MountNode\n"
-/bin/echo -e "AllNode\n$AllNode\n"
-/bin/echo -e "MountInfo\t$MountInfo_CL\n$MountInfo\n"
-/bin/echo -e "ImageInfo\t$ImageInfo_CL\n$ImageInfo\n"
+# /bin/echo -e "RTinfo:\n$RTinfo\n" #DBG
+# /bin/echo -e "LogNode\t$LogNode_CL\n$LogNode\n" #DBG
+# /bin/echo -e "MountNode\t$MountNode_CL\n$MountNode\n" #DBG
+# /bin/echo -e "AllNode\n$AllNode\n" #DBG
+# /bin/echo -e "MountInfo\t$MountInfo_CL\n$MountInfo\n" #DBG
+# /bin/echo -e "ImageInfo\t$ImageInfo_CL\n$ImageInfo\n" #DBG
 
 if [ "$LogNode" != "$MountNode" -o "$MountNode_CL" != 1 -o "$MountInfo_CL" -gt "$ImageInfo_CL" ]
 then
-	/bin/echo -e "\n!!! Warning !!!\nAbnormal user status found!\n\nUser session on:\n$LogNode\n\nFound image:\n$ImageInfo\n\nImage mount stat:\n$MountInfo"
-	terminator &
+	/bin/echo -e "\n!!! Warning !!!\nAbnormal user status found!\n\nInitiating auto ejection...\n\nFound user session on:\n$LogNode\n\nFound user image:\n$ImageInfo\n\nMount stat:\n$MountInfo\n\n"
+	AllNode=`/bin/echo -e "$AllNode" | /bin/grep -v $(hostname)`
+	terminator
+	AllNode=`hostname`
+	terminator
 fi
