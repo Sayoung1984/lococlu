@@ -294,7 +294,7 @@ terminator()
 	do
 		for killthd in $killlist
 		do
-			/bin/kill -9 $killthd
+			/bin/kill -9 $killthd 2>/dev/null
 		done
 		killlist=`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep $KILLUSER | /usr/bin/awk '{print $2}'`
 	done

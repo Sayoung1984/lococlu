@@ -105,16 +105,15 @@ do
 		done
 	}
 
-	# /usr/bin/pkill -u $KILLUSER
 	killlist=`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep $KILLUSER | /usr/bin/awk '{print $2}'`
-	# echo -e "killlist=\n`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt.|usereject" | /bin/grep $KILLUSER`" >> /tmp/DBG_terminator #DBG
+	# echo -e "killlist=\n`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep $KILLUSER`" >> /tmp/DBG_terminator #DBG
 	while [ -n "$killlist" ]
 	do
 		for killthd in $killlist
 		do
-			/bin/kill -9 $killthd
+			/bin/kill -9 $killthd 2>/dev/null
 		done
-		killlist=`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt.|usereject" | /bin/grep $KILLUSER | /usr/bin/awk '{print $2}'`
+		killlist=`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep $KILLUSER | /usr/bin/awk '{print $2}'`
 	done
 	# echo -e "$KILLUSER killed\t$(hostname)" >> /tmp/DBG_terminator #DBG
 
@@ -144,7 +143,7 @@ MAINFUNC
 done
 }
 
-/bin/echo -e "\nSpooling user emergency eject tool..."
+/bin/echo -e "\nSpooling emergency eject tool..."
 RTinfo=`/bin/cat $opstmp/secrt.sitrep.unirep.* 2>/dev/null | /bin/grep "$LOGNAME"`
 
 LogNode=`/bin/echo -e "$RTinfo" | /bin/grep "log=ulsc" | /usr/bin/awk '{print $1}'`
@@ -170,9 +169,21 @@ ImageInfo_CL=`/bin/echo -e "$ImageInfo"| /usr/bin/wc -l`
 
 if [ "$LogNode" != "$MountNode" -o "$MountNode_CL" != 1 -o "$MountInfo_CL" -gt "$ImageInfo_CL" ]
 then
-	/bin/echo -e "\n!!! Warning !!!\nAbnormal user status found!\n\nInitiating auto ejection...\n\nFound user session on:\n$LogNode\n\nFound user image:\n$ImageInfo\n\nMount stat:\n$MountInfo\n\n"
+	/bin/echo -e "\n!!! Warning !!!\nAbnormal user status found!\n\nInitiating auto ejection...\n\n" #Found user session on:\n$LogNode\n\nFound user image:\n$ImageInfo\n\nMount stat:\n$MountInfo\n\n"
+
+	if [ "$MountNode_CL" != 1 ]
+	then
+		/bin/echo -e "User images mounted to multiple nodes!"
+	fi
+
+
+
 	AllNode=`/bin/echo -e "$AllNode" | /bin/grep -v $(hostname)`
-	terminator
+	if [ -n "$AllNode" ]
+	then
+		terminator
+		sleep 3
+	fi
 	AllNode=`hostname`
 	terminator
 fi
