@@ -30,7 +30,7 @@ source $lococlu/lcc.conf
 
 HOSTNAME=`/bin/hostname`
 
-# For Ubuntu 1.04=+, filter local snap loop devices
+# For Ubuntu 16.04=+, filter local snap loop devices
 SNAP=`/bin/lsblk | /bin/grep "loop.* /snap/" |  /usr/bin/awk '{printf $1 "|"}' | /bin/sed 's/[|]$//g'`
 if [ ! -n "$SNAP" ]
 then

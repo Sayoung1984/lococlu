@@ -32,24 +32,25 @@ do
 done
 MOUNTROOT=`/bin/echo $MOUNTROOT | /bin/sed '/\/$/!  s/^.*$/&\//'`
 
-# Secure Realtime Text Send v2, check text integrity, then drop real time text to NFS at this last step, with endline
+# Secure Realtime Text Copy v4, execbd variant with target node $execnode signature in tickets' name and checklines
+# Added $LOGNAME check to avoid user ops conflict
 # /bin/sed -i '$d' $REPLX # To cat last line, on receive side
-secrtsend()
+secrtsend_execbd()
 {
-    for REPLX in `/bin/ls /var/log/rt.*`
-    do
-      CheckLineL1=`/usr/bin/tac $REPLX | /bin/sed -n '1p'`
-      CheckLineL2=`/usr/bin/tac $REPLX | /bin/sed -n '2p'`
-      if [ "$CheckLineL1"  == "$endline `/bin/hostname`" -a "$CheckLineL2"  != "$endline `/bin/hostname`" ]
-      then
-        REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/var/log/" '{print $2}'`
-        /bin/cp $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
-        /bin/chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
-      else
-        # /bin/mv $REPLX.fail  #DBG
-        /bin/rm $REPLX
-      fi
-    done
+for REPLX in `/bin/ls /tmp/rt.geoexec.$LOGNAME.* 2>/dev/null`
+do
+	CheckLineL1=`/usr/bin/tail -n 1 $REPLX`
+	CheckLineL2=`/usr/bin/tail -n 2 $REPLX | /usr/bin/head -n 1`
+	if [ "$CheckLineL1" == "$endline $execnode" -a "$CheckLineL2" != "$endline $execnode" ]
+	then
+		REPLXNAME=`/bin/echo $REPLX | /bin/sed 's/^\/tmp\///g'`
+		/bin/mv $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
+		/bin/chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
+	else
+		# /bin/mv $REPLX.fail  #DBG
+		/bin/rm $REPLX
+	fi
+done
 }
 
 
@@ -60,57 +61,58 @@ secrtsend()
 # 3. rm items of $TgtHitList
 delimg()
 {
-    TGTUSER=`/bin/echo -e $TgtHitList |/usr/bin/awk  -F ".img" '{print $NR}' |/usr/bin/awk  -F "." '{print $NF}'`
-    TGTNode=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep log=imgon | /bin/grep /$TGTUSER.img |/usr/bin/awk  '{print $NR}'`
-    # /bin/echo -e "TGTUSER=$TGTUSER; TGTNode=$TGTNode; \nTgtHitList=$TgtHitList"
-    if [ ! -n "$TGTNode" ]
-    then
-        TGTNode=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep load | /usr/bin/sort -r -k 11 | /usr/bin/head -n 1 |/usr/bin/awk  '{print $NR}'`
-    fi
-    /bin/echo -e "#! /bin/bash\nMOUNTROOT=\"$MOUNTROOT\"\nTGTUSER=\"$TGTUSER\"\nTGTNode=\"$TGTNode\"\nTgtHitList=\"$TgtHitList\"" > $opstmp/draft.rt.ticket.geoexec
-    /bin/cat >> $opstmp/draft.rt.ticket.geoexec << "MAINFUNC"
-    # Ticket of delete user code image
-    for TGTIMG in $TgtHitList
-    do
-        TGTIMGPATH=`/usr/bin/find /images/vol00/*.img -type f | /bin/grep $TGTIMG$`
-        MountPath=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep log=imgon | /bin/grep $TGTIMG |/usr/bin/awk  '{print $4}'`
-        if [ -n $MountPath ];
-        then
-            LoopDev=`/sbin/losetup -a | /bin/grep $MountPath |/usr/bin/awk  -F ":" '{print $NR}'`
-            while [ -n "$MountPath" ]
-            do
-              /usr/sbin/service smbd restart
-              /usr/sbin/service nmbd restart
-              /bin/umount -l $MountPath
-              /bin/sleep 1
-              MountPath=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep log=imgon | /bin/grep $TGTIMG |/usr/bin/awk  '{print $4}'`
-            done
-            /usr/sbin/service smbd restart
-            /usr/sbin/service nmbd restart
-            /bin/rm -f /dev/$LoopDev
-            /bin/rm -fr $MountPath &
-        fi
-        /bin/rm -f $TGTIMGPATH &
-    done
+	TGTUSER=`/bin/echo -e $TgtHitList |/usr/bin/awk  -F ".img" '{print $NR}' |/usr/bin/awk  -F "." '{print $NF}'`
+	TGTNode=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep "log=imgon" | /bin/grep /$TGTUSER.img |/usr/bin/awk  '{print $1}'`
+	# /bin/echo -e "TGTUSER=$TGTUSER; TGTNode=$TGTNode; \nTgtHitList=$TgtHitList"
+	if [ ! -n "$TGTNode" ]
+	then
+		TGTNode=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep "log=load" | /usr/bin/sort -r -k 11 | /usr/bin/head -n 1 |/usr/bin/awk  '{print $1}'`
+	fi
+	execnode=$TGTNode
+	/bin/echo -e "#! /bin/bash\nMOUNTROOT=\"$MOUNTROOT\"\nTGTUSER=\"$TGTUSER\"\nTGTNode=\"$TGTNode\"\nTgtHitList=\"$TgtHitList\"" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
+	/bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$execnode << "MAINFUNC"
+	# Ticket of delete user code image
+	for TGTIMG in $TgtHitList
+	do
+		TGTIMGPATH=`/bin/ls /images/vol0*/*.img 2>/dev/null | /bin/grep $TGTIMG$`
+		MountPath=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep log=imgon | /bin/grep $TGTIMG |/usr/bin/awk  '{print $4}'`
+		if [ -n $MountPath ];
+		then
+			LoopDev=`/sbin/losetup -a | /bin/grep $MountPath |/usr/bin/awk  -F ":" '{print $NR}'`
+			while [ -n "$MountPath" ]
+			do
+				/usr/sbin/service smbd restart
+				/usr/sbin/service nmbd restart
+				/bin/umount -l $MountPath
+				/bin/sleep 1
+				MountPath=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep log=imgon | /bin/grep $TGTIMG |/usr/bin/awk  '{print $4}'`
+			done
+			/usr/sbin/service smbd restart
+			/usr/sbin/service nmbd restart
+			# /bin/rm -f /dev/$LoopDev
+			/bin/rm -fr $MountPath &
+		fi
+		/bin/rm -f $TGTIMGPATH &
+	done
 
 MAINFUNC
-/bin/echo -e "$endline $TGTNode" >> $opstmp/draft.rt.ticket.geoexec
-/bin/chmod 666 $opstmp/draft.rt.ticket.geoexec
-/bin/mv $opstmp/draft.rt.ticket.geoexec $opstmp/secrt.ticket.geoexec.$TGTNode
+/bin/echo -e "$endline $TGTNode" >> /tmp/draft.rt.geoexec.$LOGNAME.$execnode
+/bin/mv /tmp/draft.rt.geoexec.$LOGNAME.$execnode /tmp/rt.geoexec.$LOGNAME.$execnode
+secrtsend_execbd
 
 LongTgtHitList=`/bin/echo  \($TgtHitList\) | tr " " "|"`
 /bin/echo -e "\nDeleteing images on $TGTNode...\c"
 /bin/sleep 1
-delcheck=`/usr/bin/find /images/vol00/*.img -type f 2>/dev/null | /bin/grep "\.\.$LOGNAME\.img$" | /bin/egrep "$LongTgtHitList"`
+delcheck=`/bin/ls /images/vol0*/*.img 2>/dev/null | /bin/grep "\.\.$LOGNAME\.img$" | /bin/egrep "$LongTgtHitList"`
 while [ -n "$delcheck" ]
 do
     /bin/echo -n .
-    delcheck=`/usr/bin/find /images/vol00/*.img -type f 2>/dev/null | /bin/grep "\.\.$LOGNAME\.img$" | /bin/egrep "$LongTgtHitList"`
+    delcheck=`/bin/ls /images/vol0*/*.img 2>/dev/null | /bin/grep "\.\.$LOGNAME\.img$" | /bin/egrep "$LongTgtHitList"`
     # /bin/echo $delcheck
     /bin/sleep 1
 done
-/bin/echo -e "\n\nDeleteing complete, please check."
-    # /bin/cat $opstmp/draft.rt.ticket.geoexec
+/bin/echo -e "\n\nImage deleted, please check."
+    # /bin/cat /tmp/draft.rt.geoexec.$LOGNAME.$execnode
 }
 
 # The Silence mode without warning
@@ -120,7 +122,7 @@ do
     -i)
         /bin/echo "Found -i option"
         /bin/echo -e "value=$2"
-        TgtHitList=`/bin/echo  -e "$2"`
+        TgtHitList=`/bin/echo -e "$2"`
         shift
         delimg
         exit

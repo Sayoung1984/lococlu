@@ -1,8 +1,9 @@
 #! /bin/bash
 
-# Execute Broadcaster v2
+# Execute Broadcaster v3
 # Send multiple line commands as Bash scripts to all live nodes running noderep deamon.
-# The noderep deamon will execute command with root permission
+# The noderep deamon will execute command with root permission.
+# Needs root permission to run this tool.
 
 COLUMNS=300
 endline="###---###---###---###---###"
@@ -10,12 +11,13 @@ opstmp=/receptionist/opstmp
 lococlu=/receptionist/lococlu
 source $lococlu/lcc.conf
 
-# Secure Realtime Text Copy v3, execbd variant with target node $execnode signature in tickets' name and checklines
-# Check text integrity, then drop real time text to NFS at this last step, with endline
+# Secure Realtime Text Copy v4, execbd variant with target node $execnode signature in tickets' name and checklines
+# Added $LOGNAME check to avoid user ops conflict
+# /bin/sed -i '$d' $REPLX # To cat last line, on receive side
 secrtsend_execbd()
 {
-	for REPLX in `/bin/ls /tmp/rt.* 2>/dev/null`
-	do
+for REPLX in `/bin/ls /tmp/rt.geoexec.$LOGNAME.* 2>/dev/null`
+do
 	CheckLineL1=`/usr/bin/tail -n 1 $REPLX`
 	CheckLineL2=`/usr/bin/tail -n 2 $REPLX | /usr/bin/head -n 1`
 	if [ "$CheckLineL1" == "$endline $execnode" -a "$CheckLineL2" != "$endline $execnode" ]
@@ -24,10 +26,10 @@ secrtsend_execbd()
 		/bin/mv $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
 		/bin/chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
 	else
-		# /bin/mv $REPLX.fail #DBG
+		# /bin/mv $REPLX.fail  #DBG
 		/bin/rm $REPLX
 	fi
-	done
+done
 }
 
 # Main0, root permission check

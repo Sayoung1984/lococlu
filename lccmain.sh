@@ -1,4 +1,6 @@
 #! /bin/bash
+# LCC main function, works only when users dialing in.
+
 COLUMNS=512
 endline="###---###---###---###---###"
 loglatency=3
@@ -47,17 +49,18 @@ then
 fi
 
 
-# Secure Realtime Text Copy v3, execbd variant with target node $execnode signature in tickets' name and checklines
+# Secure Realtime Text Copy v4, execbd variant with target node $execnode signature in tickets' name and checklines
+# Added $LOGNAME check to avoid user ops conflict
 # /bin/sed -i '$d' $REPLX # To cat last line, on receive side
 secrtsend_execbd()
 {
-for REPLX in `/bin/ls /tmp/rt.* 2>/dev/null`
+for REPLX in `/bin/ls /tmp/rt.geoexec.$LOGNAME.* 2>/dev/null`
 do
 	CheckLineL1=`/usr/bin/tail -n 1 $REPLX`
 	CheckLineL2=`/usr/bin/tail -n 2 $REPLX | /usr/bin/head -n 1`
 	if [ "$CheckLineL1" == "$endline $execnode" -a "$CheckLineL2" != "$endline $execnode" ]
 	then
-		REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/tmp/" '{print $2}'`
+		REPLXNAME=`/bin/echo $REPLX | /bin/sed 's/^\/tmp\///g'`
 		/bin/mv $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
 		/bin/chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
 	else
@@ -102,13 +105,16 @@ selectfree()
 mountlist()
 {
 	MountList=`/bin/cat $opstmp/secrt.sitrep.unirep.* 2>/dev/null | /bin/grep "log=imgon" | /bin/egrep "(\.\.|\/)$LOGNAME\.img"`
-	MountList_node=`/bin/echo -e "$MountList" | /usr/bin/head -n 1 | /usr/bin/awk -F " " '{print $NR}'`
-	MountList_img=`/bin/echo -e "$MountList" | /usr/bin/awk -F " " '{print $3}'`
-	MountList_mntp=`/bin/echo -e "$MountList" | /usr/bin/awk -F " " '{print $4}'`
-	MountList_lag=`/usr/bin/expr $(/bin/date +%s) - $(/bin/echo -e "$MountList" | /usr/bin/head -n 1 | /usr/bin/awk -F " " '{print $NF}') 2>/dev/null`
-#	$lococlu/tools/UCIL.sh &
-	# /bin/echo -e "#DBG_mountlist MountList family:\t$MountList\n#DBG_mountlist MountList_node =\t$MountList_node"
-	# /bin/echo -e "#DBG_mountlist MountList_img =\t$MountList_img\n#DBG_mountlist MountList_mntp =\t$MountList_mntp"
+	if [ -n "$MountList" ]
+	then
+		MountList_node=`/bin/echo -e "$MountList" | /usr/bin/head -n 1 | /usr/bin/awk '{print $1}'`
+		MountList_img=`/bin/echo -e "$MountList" | /usr/bin/awk '{print $3}'`
+		MountList_mntp=`/bin/echo -e "$MountList" | /usr/bin/awk '{print $4}'`
+		MountList_lag=`/bin/echo $(( $(/bin/date +%s) - $(/bin/echo -e "$MountList" | /bin/sed '2,$d; s/^.*\t//g') )) 2>/dev/null`
+	fi
+	# $lococlu/tools/UCIL.sh &
+	# /bin/echo -e "#DBG_mountlist MountList family:\n$MountList\n#DBG_mountlist MountList_node:\n$MountList_node"
+	# /bin/echo -e "#DBG_mountlist MountList_img:\n$MountList_img\n#DBG_mountlist MountList_mntp:\n$MountList_mntp"
 	# /bin/echo -e "#DBG_mountlist MountList_lag =\t$MountList_lag\n#DBG_mountlist Log latency =\t$loglatency\n\n"
 }
 
@@ -126,7 +132,6 @@ mkrootimg()
 
 	/bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$MKIMGOPRNODE << "MAINFUNC"
 	# Ticket of make user image
-
 	# Subfunc of make disk infant, now for /images/vol**
 	mkdskinfant()
 	{
@@ -143,7 +148,6 @@ mkrootimg()
 			fi
 		done
 	}
-
 	# Subfunc of sort image volumes in quota usage, and output $SelVol
 	selvol()
 	{
@@ -161,7 +165,6 @@ mkrootimg()
 	)
 	/bin/echo SelVol=$SelVol
 	}
-
 	# Make root image main functions below
 	mkdskinfant
 	chkrootimg=`/bin/ls /images/vol0*/*.img | /bin/egrep "\/$MKIMGUSER\.img$" 2>/dev/null`
@@ -203,12 +206,46 @@ mountcmd()
 
 	/bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$MOUNTOPRNODE << "MAINFUNC"
 	# Ticket of mount user image
+	/bin/echo > /tmp/mntdbg.$MOUNTUSER #DBG
+
+	# # Clean up unmounted loop devices
+	# # /bin/cat /proc/self/mounts | /bin/grep "/dev/loop" >> /tmp/mntdbg.$MOUNTUSER #DBG
+	# for i in {8..255};
+	# do
+	# 	loopdev=`/bin/cat /proc/self/mounts | /bin/grep "/dev/loop$i "`
+	# 	if [ -n "$loopdev" ]
+	# 	then
+	# 		/bin/echo "Kept $loopdev" >> /tmp/mntdbg.$MOUNTUSER #DBG
+	# 	else
+	# 		if [ -e /dev/loop$i ]
+	# 		then
+	# 			/bin/rm -f /dev/loop$i 2>/dev/null
+	# 			/bin/echo "Removed /dev/loop$i" >> /tmp/mntdbg.$MOUNTUSER #DBG
+	# 		else
+	# 			/bin/echo "No /dev/loop$i" >> /tmp/mntdbg.$MOUNTUSER #DBG
+	# 		fi
+	# 	fi
+	# done
+
+	# # Make full 64 loop devices
+	# for i in {8..63}
+	# do
+	# 	if [ -e /dev/loop$i ]
+	# 	then
+	# 		continue
+	# 	fi
+	# 	mknod /dev/loop$i b 7 $i
+	# 	chown --reference=/dev/loop0 /dev/loop$i
+	# 	chmod --reference=/dev/loop0 /dev/loop$i
+	# done
+
 	ImgList=`/bin/ls /images/vol0*/*.img | /bin/egrep "(\.\.|\/)$MOUNTUSER\.img$" | /usr/bin/sort -r 2>/dev/null`
+	/bin/echo -e "`/bin/date +%s`\tImgList:\n$ImgList\n" >> /tmp/mntdbg.$MOUNTUSER #DBG
 	for IMG in $ImgList
 	do
 		MP=`/bin/echo -e "$IMG" | /bin/sed 's/^\/images\/vol[0-9][0-9]\///g' | /bin/sed 's/\img$/./g' | /bin/sed 's/\.\./\//g' | /usr/bin/awk -F "/" '{for(i=NF;i>0;i--)printf("%s",$i"/");printf"\n"}' | /bin/sed 's/^\///g'`
 		MTP=`/bin/echo -n "$MOUNTROOT";/bin/echo $MP`
-		# /bin/echo -e "IMG=$IMG\nMTP=$MTP" #>> /root/mntdbg #DBG
+		/bin/echo -e "IMG=$IMG\nMTP=$MTP" >> /tmp/mntdbg.$MOUNTUSER #DBG
 		if [ ! -d $MTP ]
 		then
 			/bin/mkdir -p $MTP 2>/dev/null
@@ -218,7 +255,7 @@ mountcmd()
 		/bin/chown `id -u $MOUNTUSER`:`id -g $MOUNTUSER` $MTP
 		/bin/chmod g+w $MTP
 		umask 0002 $MTP
-		# /bin/echo -e `id -u $MOUNTUSER`:`id -g $MOUNTUSER` $MTP #>>/root/mntdbg #DBG
+		/bin/echo -e "`id -u $MOUNTUSER`:`id -g $MOUNTUSER`\t$MTP\n" >> /tmp/mntdbg.$MOUNTUSER #DBG
 	done
 MAINFUNC
 	# /bin/echo -e "#DBG_mountcmd_run1 var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
@@ -269,11 +306,10 @@ terminator()
 			# echo -e "SMB service restarted\t$(hostname)" >> /tmp/DBG_terminator #DBG
 			/bin/umount -l $UMP
 			# echo -e "$UMP unmounted\t$(hostname)" >> /tmp/DBG_terminator #DBG
-			/bin/rm -f /dev/$UMD &
+			# /bin/rm -f /dev/$UMD &
 			# echo -e "$UMD deleted\t$(hostname)" >> /tmp/DBG_terminator #DBG
 		done
 	}
-
 	# /usr/bin/pkill -u $KILLUSER
 	killlist=`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep $KILLUSER | /usr/bin/awk '{print $2}'`
 	# echo -e "killlist=\n`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep $KILLUSER`" >> /tmp/DBG_terminator #DBG
@@ -281,12 +317,11 @@ terminator()
 	do
 		for killthd in $killlist
 		do
-			/bin/kill -9 $killthd
+			/bin/kill -9 $killthd 2>/dev/null
 		done
 		killlist=`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep $KILLUSER | /usr/bin/awk '{print $2}'`
 	done
 	# echo -e "$KILLUSER killed\t$(hostname)" >> /tmp/DBG_terminator #DBG
-
 	umountuser
 	UmountList=`COLUMNS=512 /bin/mount | /bin/egrep "(\.\.|\/)$KILLUSER\.img" | /bin/grep "$MOUNTROOT" | /usr/bin/awk '{print $3}' | /usr/bin/sort -r 2>/dev/null`
 	while [ -n "$UmountList" ]
@@ -507,35 +542,35 @@ then
 	/bin/echo -e "Your current node is under heavy load, switch node? Y/N\n"
 	while true
 	do
-	read USER_CHO
-	case $USER_CHO in
-	Y|y|YES|Yes|yes)
-		/bin/echo -e "\n*** Switching node WILL KILL ALL OF YOU CURRENT SESSIONS ***\n"
-		/bin/echo -e "Input YES (exactly in uppercase) to confirm again, or anything else to quit.\n"
-		read USER_CFM
-		if [ "$USER_CFM" == "YES" ]
-		then
-			terminator
-			selectfree
-			mountlist
-			secmount
-			LaunchNode=$FreeNode
-			secpatch
-		else
-			/bin/rm -f $opstmp/launchlock.$LOGNAME
-			/bin/echo -e "\nDropping you out now, please try connect again."
-			exit
-		fi
-	;;
-	N|n|NO|No|no)
-		/bin/echo -e "\nPatching you through to $MountNode under heavy load now, you can always switch node with new logins.\n"
-		LaunchNode=$MountNode
-		secpatch
-	;;
-	*)
-		/bin/echo -e "\nInvalid choice, please tell me Yes or No.\n"
-	;;
-	esac
+		read USER_CHO
+		case $USER_CHO in
+			Y|y|YES|Yes|yes)
+				/bin/echo -e "\n*** Switching node WILL KILL ALL OF YOU CURRENT SESSIONS ***\n"
+				/bin/echo -e "Input YES (exactly in uppercase) to confirm again, or anything else to quit.\n"
+				read USER_CFM
+				if [ "$USER_CFM" == "YES" ]
+				then
+					terminator
+					selectfree
+					mountlist
+					secmount
+					LaunchNode=$FreeNode
+					secpatch
+				else
+					/bin/rm -f $opstmp/launchlock.$LOGNAME
+					/bin/echo -e "\nDropping you out now, please try connect again."
+					exit
+				fi
+			;;
+			N|n|NO|No|no)
+				/bin/echo -e "\nPatching you through to $MountNode under heavy load now, you can always switch node with new logins.\n"
+				LaunchNode=$MountNode
+				secpatch
+			;;
+			*)
+				/bin/echo -e "\nInvalid choice, please tell me Yes or No.\n"
+			;;
+		esac
 	done
 else
 	/bin/echo -e "Node not busy...\n"
