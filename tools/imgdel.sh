@@ -74,7 +74,7 @@ delimg()
 	# Ticket of delete user code image
 	for TGTIMG in $TgtHitList
 	do
-		TGTIMGPATH=`/bin/ls /images/vol0*/*.img 2>/dev/null | /bin/grep $TGTIMG$`
+		TGTIMGPATH=`/bin/ls /images/vol*/*.img 2>/dev/null | /bin/grep $TGTIMG$`
 		MountPath=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep log=imgon | /bin/grep $TGTIMG |/usr/bin/awk  '{print $4}'`
 		if [ -n $MountPath ];
 		then
@@ -103,11 +103,11 @@ secrtsend_execbd
 LongTgtHitList=`/bin/echo  \($TgtHitList\) | tr " " "|"`
 /bin/echo -e "\nDeleteing images on $TGTNode...\c"
 /bin/sleep 1
-delcheck=`/bin/ls /images/vol0*/*.img 2>/dev/null | /bin/grep "\.\.$LOGNAME\.img$" | /bin/egrep "$LongTgtHitList"`
+delcheck=`/bin/ls /images/vol*/*.img 2>/dev/null | /bin/grep "\.\.$LOGNAME\.img$" | /bin/egrep "$LongTgtHitList"`
 while [ -n "$delcheck" ]
 do
     /bin/echo -n .
-    delcheck=`/bin/ls /images/vol0*/*.img 2>/dev/null | /bin/grep "\.\.$LOGNAME\.img$" | /bin/egrep "$LongTgtHitList"`
+    delcheck=`/bin/ls /images/vol*/*.img 2>/dev/null | /bin/grep "\.\.$LOGNAME\.img$" | /bin/egrep "$LongTgtHitList"`
     # /bin/echo $delcheck
     /bin/sleep 1
 done

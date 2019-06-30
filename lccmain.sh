@@ -167,7 +167,7 @@ mkrootimg()
 	}
 	# Make root image main functions below
 	mkdskinfant
-	chkrootimg=`/bin/ls /images/vol0*/*.img | /bin/egrep "\/$MKIMGUSER\.img$" 2>/dev/null`
+	chkrootimg=`/bin/ls /images/vol*/*.img | /bin/egrep "\/$MKIMGUSER\.img$" 2>/dev/null`
 	if [ -n "$chkrootimg" ]
 	then
 	/bin/echo -e "Got mkrootimg conflict for $MKIMGUSER, image file found at $chkrootimg, time `/bin/date +%Y-%m%d-%H%M-%S`" >> /var/log/fail.mkrootimg
@@ -182,11 +182,11 @@ MAINFUNC
 	secrtsend_execbd
 	/bin/echo -e "Creating image on $FreeNode...\c"
 	/bin/sleep $loglatency
-	RootImg=`/bin/ls /images/vol0*/*.img | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
+	RootImg=`/bin/ls /images/vol*/*.img | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
 	while [ ! -n "$RootImg" ]
 	do
 		/bin/echo -n .
-		RootImg=`/bin/ls /images/vol0*/*.img | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
+		RootImg=`/bin/ls /images/vol*/*.img | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
 		/bin/sleep $loglatency
 	done
 	/bin/echo
@@ -239,7 +239,7 @@ mountcmd()
 	# 	chmod --reference=/dev/loop0 /dev/loop$i
 	# done
 
-	ImgList=`/bin/ls /images/vol0*/*.img | /bin/egrep "(\.\.|\/)$MOUNTUSER\.img$" | /usr/bin/sort -r 2>/dev/null`
+	ImgList=`/bin/ls /images/vol*/*.img | /bin/egrep "(\.\.|\/)$MOUNTUSER\.img$" | /usr/bin/sort -r 2>/dev/null`
 	/bin/echo -e "`/bin/date +%s`\tImgList:\n$ImgList\n" >> /tmp/mntdbg.$MOUNTUSER #DBG
 	for IMG in $ImgList
 	do
@@ -252,10 +252,10 @@ mountcmd()
 		fi
 		/bin/mount -o loop $IMG $MTP 2>/dev/null
 		/bin/sleep 0.2
-		/bin/chown `id -u $MOUNTUSER`:`id -g $MOUNTUSER` $MTP
+		/bin/chown `/usr/bin/id -u $MOUNTUSER`:`/usr/bin/id -g $MOUNTUSER` $MTP
 		/bin/chmod g+w $MTP
 		umask 0002 $MTP
-		/bin/echo -e "`id -u $MOUNTUSER`:`id -g $MOUNTUSER`\t$MTP\n" >> /tmp/mntdbg.$MOUNTUSER #DBG
+		/bin/echo -e "`/usr/bin/id -u $MOUNTUSER`:`/usr/bin/id -g $MOUNTUSER`\t$MTP\n" >> /tmp/mntdbg.$MOUNTUSER #DBG
 	done
 MAINFUNC
 	# /bin/echo -e "#DBG_mountcmd_run1 var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
@@ -361,17 +361,17 @@ secmount()
 	# echo -e "1 FreeNode=$FreeNode" #DBG_secmount
 	# chkusrimg
 	/bin/echo -e "Checking your workspace image...\n"
-	RootImg=`/bin/ls /images/vol0*/*.img | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
+	RootImg=`/bin/ls /images/vol*/*.img | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
 	# /bin/echo -e "#DBG_Main1   First Check, ImgList =\n$ImgList"
 	if [ ! -n "$RootImg" ]
 	then
 		/bin/sleep $loglatency
-		RootImg=`/bin/ls /images/vol0*/*.img | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
+		RootImg=`/bin/ls /images/vol*/*.img | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
 		# /bin/echo -e "#DBG_Main1   Double check, ImgList =\n$ImgList"
 		if [ ! -n "$RootImg" ]
 		then
 			/bin/sleep $loglatency
-			RootImg=`/bin/ls /images/vol0*/*.img | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
+			RootImg=`/bin/ls /images/vol*/*.img | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
 			# /bin/echo -e "#DBG_Main1   Treble Check, ImgList =\n$ImgList"
 			if [ ! -n "$RootImg" ]
 			then
@@ -381,14 +381,14 @@ secmount()
 				do
 					/bin/echo -ne "."
 					/bin/sleep 1
-					RootImg=`/bin/ls /images/vol0*/*.img | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
+					RootImg=`/bin/ls /images/vol*/*.img | /bin/egrep "\/$LOGNAME\.img$" 2>/dev/null`
 					# /bin/echo -e "#DBG_Main1   Loop Check, ImgList =\n$ImgList"
 				done
 				/bin/echo
 			fi
 		fi
 	fi
-	ImgList=`/bin/ls /images/vol0*/*.img | /bin/egrep "(\.\.|\/)$LOGNAME\.img$" | /usr/bin/sort -r 2>/dev/null`
+	ImgList=`/bin/ls /images/vol*/*.img | /bin/egrep "(\.\.|\/)$LOGNAME\.img$" | /usr/bin/sort -r 2>/dev/null`
 	# $lococlu/tools/UCIL.sh &
 	/bin/echo -e "\nFound your image:\n$ImgList\n"
 
