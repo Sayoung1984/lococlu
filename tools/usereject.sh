@@ -154,7 +154,7 @@ done
 /bin/echo -e "\nSpooling user eject tool...\n"
 RTinfo=`/bin/cat $opstmp/secrt.sitrep.unirep.* 2>/dev/null | /bin/grep "$LOGNAME"`
 
-LogNode=`/bin/echo -e "$RTinfo" | /bin/grep "log=ulsc" | /usr/bin/awk '{print $1}'`
+LogNode=`/bin/echo -e "$RTinfo" | /bin/grep "log=ulsc" | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
 LogNode_CL=`/bin/echo -e "$LogNode"| /usr/bin/wc -l`
 
 MountNode=`/bin/echo -e "$RTinfo" | /bin/grep "log=imgon" | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
@@ -212,6 +212,8 @@ ImageInfo_CL=`/bin/echo -e "$ImageInfo"| /usr/bin/wc -l`
 # fi
 #
 
+/bin/echo -e "Sleep 5 seconds to avoid mount/unmount command collision..."
+/usr/bin/sleep 5
 
 if [ "$LogNode_CL" != 1 ]
 then

@@ -51,6 +51,8 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.6.5a
+* Minor bugfix on geoexec(), mountcmd() and usereject main function.
 ## v0.6.5
 * Renewed secrtsend_execbd() to avoid user conflict.
 * Fully functioning user eject tool.

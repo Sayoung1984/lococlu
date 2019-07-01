@@ -206,7 +206,7 @@ mountcmd()
 
 	/bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$MOUNTOPRNODE << "MAINFUNC"
 	# Ticket of mount user image
-	/bin/echo > /tmp/mntdbg.$MOUNTUSER #DBG
+	# /bin/echo > /tmp/mntdbg.$MOUNTUSER #DBG
 
 	# # Clean up unmounted loop devices
 	# # /bin/cat /proc/self/mounts | /bin/grep "/dev/loop" >> /tmp/mntdbg.$MOUNTUSER #DBG
@@ -240,22 +240,26 @@ mountcmd()
 	# done
 
 	ImgList=`/bin/ls /images/vol*/*.img | /bin/egrep "(\.\.|\/)$MOUNTUSER\.img$" | /usr/bin/sort -r 2>/dev/null`
-	/bin/echo -e "`/bin/date +%s`\tImgList:\n$ImgList\n" >> /tmp/mntdbg.$MOUNTUSER #DBG
+	MUID=`/usr/bin/id -u $MOUNTUSER`
+	MGID=`/usr/bin/id -g $MOUNTUSER`
+	# /bin/echo -e "`/bin/date +%s`\tMUID:MGID= $MUID:$MGID\nImgList:\n$ImgList\n" >> /tmp/mntdbg.$MOUNTUSER #DBG
+
 	for IMG in $ImgList
 	do
 		MP=`/bin/echo -e "$IMG" | /bin/sed 's/^\/images\/vol[0-9][0-9]\///g' | /bin/sed 's/\img$/./g' | /bin/sed 's/\.\./\//g' | /usr/bin/awk -F "/" '{for(i=NF;i>0;i--)printf("%s",$i"/");printf"\n"}' | /bin/sed 's/^\///g'`
 		MTP=`/bin/echo -n "$MOUNTROOT";/bin/echo $MP`
-		/bin/echo -e "IMG=$IMG\nMTP=$MTP" >> /tmp/mntdbg.$MOUNTUSER #DBG
+		# /bin/echo -e "IMG=$IMG\nMTP=$MTP" >> /tmp/mntdbg.$MOUNTUSER #DBG
 		if [ ! -d $MTP ]
 		then
 			/bin/mkdir -p $MTP 2>/dev/null
 		fi
 		/bin/mount -o loop $IMG $MTP 2>/dev/null
 		/bin/sleep 0.2
-		/bin/chown `/usr/bin/id -u $MOUNTUSER`:`/usr/bin/id -g $MOUNTUSER` $MTP
+		/bin/chown $MUID:$MGID $MTP
 		/bin/chmod g+w $MTP
 		umask 0002 $MTP
-		/bin/echo -e "`/usr/bin/id -u $MOUNTUSER`:`/usr/bin/id -g $MOUNTUSER`\t$MTP\n" >> /tmp/mntdbg.$MOUNTUSER #DBG
+		# /bin/ls -l $MTP >> /tmp/mntdbg.$MOUNTUSER #DBG
+		# echo -e "\n" >> /tmp/mntdbg.$MOUNTUSER #DBG
 	done
 MAINFUNC
 	# /bin/echo -e "#DBG_mountcmd_run1 var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$LOGNAME\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
@@ -452,10 +456,10 @@ secpatch()
 	else
 		# /bin/echo -e "\n#DBG_secpatch_t Got UID: $LOGNAME\n your image:\n$ImgList\n mounted on:\n $IMGoN_MP\n of $LaunchNode\n"
 		/bin/rm -f $opstmp/launchlock.$LOGNAME
-		/bin/echo -e "\nPatching you through now...\n"
+		/bin/echo -e "\nPatching you through to $LaunchNode now...\n"
 		/bin/echo -e "Your workspace is now at $MOUNTROOT$LOGNAME/\n"
 		# /bin/echo -e "#DBG_secpatch_t Congrats!!! All good !!! Drill interrupted!!!\n\nPress any key to exit" && read KEY && /bin/rm -f $opstmp/launchlock.$LOGNAME && exit
-		exec /usr/bin/ssh $LOGNAME@$LaunchNode
+		/usr/bin/ssh $LOGNAME@$LaunchNode
 	fi
 }
 

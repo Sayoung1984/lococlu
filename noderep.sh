@@ -200,22 +200,25 @@ geoexec()
 {
 	# Checkpath for geoexec
 	HTKT=`/bin/ls $opstmp/secrt.geoexec.*.$HOSTNAME 2>/dev/null`
-	if [ -f "$HTKT" ]
+	# echo "$HTKT" > /tmp/DBG_geoexec.log #DBG_geoexec
+	if [ -n "$HTKT" ]
 	then
 		for TgtTicket in `/bin/echo "$HTKT"`
 		do
+			# echo "$TgtTicket" >> /tmp/DBG_geoexec.log #DBG_geoexec
 			LTN=`/bin/echo $TgtTicket | /bin/sed 's/^.*.geoexec/lcctkt/g'`
+			# echo "$LTN" >> /tmp/DBG_geoexec.log #DBG_geoexec
 			extm=`/bin/date +%y%m%d-%H%M%S`
 			TktTail=`/usr/bin/tail -n 1 $TgtTicket`
 			TktTail2=`/usr/bin/tail -n 2 $TgtTicket | /usr/bin/head -n 1`
 			if [ "$endline $HOSTNAME" == "$TktTail" -a "$endline $HOSTNAME" != "$TktTail2" ]
 			then
-				# echo -e "#DBG\n TktTail=$TktTail\n TktTail2=$TktTail2" >> $HTKT
+				# echo -e "#DBG\n TktTail=$TktTail\n TktTail2=$TktTail2" >> $HTKT #DBG_geoexec
 				/bin/mv $TgtTicket /var/log/$LTN.$extm.sh
 				/bin/chmod a+x /var/log/$LTN.$extm.sh
 				/var/log/$LTN.$extm.sh
 				/bin/mv /var/log/$LTN.$extm.sh /var/log/done.$LTN.$extm.sh
-				# cp /var/log/done.$extm.sh $opstmp/../dbgtmp #DBG
+				# cp /var/log/done.$extm.sh $opstmp/../dbgtmp #DBG_geoexec
 			else
 				/bin/mv $TgtTicket /var/log/dropped.$LTN.$extm.sh
 			fi
