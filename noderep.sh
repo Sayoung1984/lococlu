@@ -30,7 +30,7 @@ source $lococlu/lcc.conf
 
 HOSTNAME=`/bin/hostname`
 
-# For Ubuntu 16.04=+, filter local snap loop devices
+# For Ubuntu 1.04=+, filter local snap loop devices
 SNAP=`/bin/lsblk | /bin/grep "loop.* /snap/" |  /usr/bin/awk '{printf $1 "|"}' | /bin/sed 's/[|]$//g'`
 if [ ! -n "$SNAP" ]
 then
@@ -156,7 +156,7 @@ unirep()
 {
 	MarkT=`/bin/date +%s`
 	/bin/mount | /bin/grep ".img " |  /usr/bin/awk '{print $1"\t"$3}' | /usr/bin/sort -k 2 | /bin/sed "s/^/$HOSTNAME\tlog=imgon\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
-	/usr/bin/who | /bin/grep -v -vE "root|unknown" | /usr/bin/awk -F "[()]" '{print $1"\t"$2}' | /usr/bin/awk '{print $3"_"$4"\t"$1"\t\t"$5}' | /bin/sed "s/head-sh-01.*/head-sh-01/g" | /usr/bin/sort -k 2 | /usr/bin/uniq -f 1 | /bin/sed "s/^/$HOSTNAME\tlog=ulsc\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
+	/usr/bin/who | /bin/grep -v -vE "root|unknown" | /usr/bin/awk -F "[()]" '{print $1"\t"$2}' | /usr/bin/awk '{print $3"_"$4"\t"$1"\t\t"$5}' | /usr/bin/awk -F ".ap.|:S" '{print $1}' | /usr/bin/sort -k 2 -u | /bin/sed "s/^/$HOSTNAME\tlog=ulsc\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
 
 	if [ -n "$LoadIndex" -a -n "$PerfIndex" ]
 	then
@@ -180,7 +180,7 @@ secrtsend()
 		# /bin/echo -e "# DBG RepLag=$RepLag   loglatency=$loglatency" >> /tmp/NR_LastRep & #DBG_secrtsend
 		if [ "$CheckLineL1"  == "$endline $HOSTNAME" -a "$CheckLineL2"  != "$endline $HOSTNAME" -a "$RepLag" -lt "$loglatency" ]
 		then
-			REPLXNAME=`/bin/echo $REPLX | /usr/bin/awk -F "/tmp/" '{print $2}'`
+			REPLXNAME=`/bin/echo $REPLX | /bin/sed 's/^\/tmp\///g'`
 			# /bin/echo -e "export TmS_2c=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend
 			/bin/cp $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
 			# /bin/echo -e "export TmS_2d=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend
@@ -290,7 +290,7 @@ payload()
 # Main function loop
 step=1 #Execution time interval, MUST UNDER 3600!!!
 darwinawards &
-# /bin/echo -n > /tmp/NR_DBG_lag.log &  #DBG_lagcalc
+/bin/echo -n > /tmp/NR_DBG_lag.log &  #DBG_lagcalc
 # /bin/echo -n > $opstmp/DBG_unirep.$HOSTNAME #DBG_unirep
 for (( i = 0; i < 3600; i=(i+step) ))
 do
