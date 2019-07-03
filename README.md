@@ -51,6 +51,8 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.7.0
+* Added user login screen bypass log function tee_out() for lccmain.sh 
 ## v0.6.5b
 * Minor bugfix on secrtsend_sitrep() of noderep.sh, fixed the geoexec and sitrep send conflict.
 ## v0.6.5a
