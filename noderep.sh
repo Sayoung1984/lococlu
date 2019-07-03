@@ -38,7 +38,7 @@ then
 fi
 
 # Output target for unirep
-localsitrep=/tmp/lsr.rt.sitrep.unirep
+localsitrep=/tmp/draft.rt.sitrep.unirep
 
 # Fixed parameters for CPU info
 LOGICORE=`nproc --all`
@@ -167,32 +167,55 @@ unirep()
 }
 
 # Secure Realtime Text Copy v3, check text integrity, then push real time text to NFS at this last step, with endline and lag check
-secrtsend()
+secrtsend_sitrep()
 {
-	TmS_2a=$[$(/bin/date +%s%N)/1000000] #DBG_secrtsend	   #lagcalc basic
-	/bin/echo -e "export TmS_2a=$TmS_2a" >> /tmp/NR_LastRep & #DBG_secrtsend	   #lagcalc basic
-	for REPLX in `/bin/ls /tmp/rt.* 2>/dev/null`
-	do
+	TmS_2a=$[$(/bin/date +%s%N)/1000000] #DBG_secrtsend_sitrep	   #lagcalc basic
+	/bin/echo -e "export TmS_2a=$TmS_2a" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep	   #lagcalc basic
+	if [ -f "/tmp/rt.sitrep.unirep.$HOSTNAME" ]
+	then
+		REPLX=/tmp/rt.sitrep.unirep.$HOSTNAME
 		CheckLineL1=`/usr/bin/tail -n 1 $REPLX`
 		CheckLineL2=`/usr/bin/tail -n 2 $REPLX | /usr/bin/head -n 1`
-		RepLag=$((`/bin/date +%s`-${CheckLineL2:(-10)}))
-		# /bin/echo -e "export TmS_2b=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend
-		# /bin/echo -e "# DBG RepLag=$RepLag   loglatency=$loglatency" >> /tmp/NR_LastRep & #DBG_secrtsend
+		RepLag=$((`/bin/date +%s`-${CheckLineL2:(-10)})) 2>/dev/null
+		# /bin/echo -e "export TmS_2b=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
+		# /bin/echo -e "# DBG RepLag=$RepLag   loglatency=$loglatency" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
 		if [ "$CheckLineL1"  == "$endline $HOSTNAME" -a "$CheckLineL2"  != "$endline $HOSTNAME" -a "$RepLag" -lt "$loglatency" ]
 		then
-			REPLXNAME=`/bin/echo $REPLX | /bin/sed 's/^\/tmp\///g'`
-			# /bin/echo -e "export TmS_2c=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend
-			/bin/cp $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
-			# /bin/echo -e "export TmS_2d=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend
-			/bin/chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
-			# /bin/echo -e "export TmS_2e=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend
+			FREPNAME=`/bin/echo $REPLX | /bin/sed 's/^\/tmp\//sec/g'`
+			# /bin/echo -e "export TmS_2c=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
+			/bin/cp $REPLX `/bin/echo -e "$opstmp/$FREPNAME"`
+			# /bin/echo -e "export TmS_2d=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
+			/bin/chmod 666 `/bin/echo -e "$opstmp/$FREPNAME"`
+			# /bin/echo -e "export TmS_2e=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
 		else
 			# /bin/mv $REPLX.fail  #DBG
 			/bin/rm -f $REPLX
 		fi
-	done
-	TmS_2z=$[$(/bin/date +%s%N)/1000000] #DBG_secrtsend	   #lagcalc basic
-	/bin/echo -e "export TmS_2z=$TmS_2z\nexport TmR_1=$TmS_2z" >> /tmp/NR_LastRep & #DBG_secrtsend #DBG_reallenth	   #lagcalc basic
+	fi
+
+
+	# for REPLX in `/bin/ls /tmp/rt.sitrep.* 2>/dev/null`
+	# do
+	# 	CheckLineL1=`/usr/bin/tail -n 1 $REPLX`
+	# 	CheckLineL2=`/usr/bin/tail -n 2 $REPLX | /usr/bin/head -n 1`
+	# 	RepLag=$((`/bin/date +%s`-${CheckLineL2:(-10)}))
+	# 	# /bin/echo -e "export TmS_2b=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
+	# 	# /bin/echo -e "# DBG RepLag=$RepLag   loglatency=$loglatency" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
+	# 	if [ "$CheckLineL1"  == "$endline $HOSTNAME" -a "$CheckLineL2"  != "$endline $HOSTNAME" -a "$RepLag" -lt "$loglatency" ]
+	# 	then
+	# 		FREPNAME=`/bin/echo $REPLX | /bin/sed 's/^\/tmp\///g'`
+	# 		# /bin/echo -e "export TmS_2c=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
+	# 		/bin/cp $REPLX `/bin/echo -e "$opstmp/sec$FREPNAME"`
+	# 		# /bin/echo -e "export TmS_2d=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
+	# 		/bin/chmod 666 `/bin/echo -e "$opstmp/sec$FREPNAME"`
+	# 		# /bin/echo -e "export TmS_2e=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
+	# 	else
+	# 		# /bin/mv $REPLX.fail  #DBG
+	# 		/bin/rm -f $REPLX
+	# 	fi
+	# done
+	TmS_2z=$[$(/bin/date +%s%N)/1000000] #DBG_secrtsend_sitrep	   #lagcalc basic
+	/bin/echo -e "export TmS_2z=$TmS_2z\nexport TmR_1=$TmS_2z" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep #DBG_reallenth	   #lagcalc basic
 }
 
 # General Operation Executor v3, run command in tickets with checkline as root, and with lag check
@@ -251,16 +274,16 @@ lagcalc()
 	# C3=$(($TmC_3 - $TmC_2)) #DBG_calcmain
 	CR=$(($TmC_3 - $TmC_0)) #DBG_calcmain
 	# /bin/echo -e "# DBG CR=$CR\t C1=$C1\t C2=$C2\t C3=$C3\t C4=$C4" >> /tmp/NR_LastRep & #DBG_lagcalc
-	# S1=$(($TmS_1 - $TmS_0)) #DBG_secrtsend
-	# S2a=$(($TmS_2b - $TmS_2a)) #DBG_secrtsend
-	# S2b=$(($TmS_2c - $TmS_2b)) #DBG_secrtsend
-	# S2c=$(($TmS_2d - $TmS_2c)) #DBG_secrtsend
-	# S2d=$(($TmS_2e - $TmS_2d)) #DBG_secrtsend
-	S2=$((${TmS_2z:-$TmS_2a} - $TmS_2a)) #DBG_secrtsend
-	if [ "$S2" == 0 ]; then S2="999+" ;fi #DBG_secrtsend
-	SR=$(($TmL_0 - $TmS_0)) #DBG_secrtsend
+	# S1=$(($TmS_1 - $TmS_0)) #DBG_secrtsend_sitrep
+	# S2a=$(($TmS_2b - $TmS_2a)) #DBG_secrtsend_sitrep
+	# S2b=$(($TmS_2c - $TmS_2b)) #DBG_secrtsend_sitrep
+	# S2c=$(($TmS_2d - $TmS_2c)) #DBG_secrtsend_sitrep
+	# S2d=$(($TmS_2e - $TmS_2d)) #DBG_secrtsend_sitrep
+	S2=$((${TmS_2z:-$TmS_2a} - $TmS_2a)) #DBG_secrtsend_sitrep
+	if [ "$S2" == 0 ]; then S2="999+" ;fi #DBG_secrtsend_sitrep
+	SR=$(($TmL_0 - $TmS_0)) #DBG_secrtsend_sitrep
 	# /bin/echo -e "# DBG TmS_1=$TmS_1 \tTmS_2z=$TmS_2z" >> /tmp/NR_LastRep & #DBG_lagcalc
-	# /bin/echo -e "# DBG SR=$SR\t S1=$S1\t S2=$S2" >> /tmp/NR_LastRep & #DBG_secrtsend
+	# /bin/echo -e "# DBG SR=$SR\t S1=$S1\t S2=$S2" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
 	# XR=$(($TmX_1 - $TmM_0)) #DBG_geoexec
 	# /bin/echo -e "# DBG TmC_0=$TmC_0\n# DBG TmX_1=$TmX_1" >> /tmp/NR_LastRep & #DBG_lagcalc
 	# ER=$((($TmE_3 - $TmE_0 ) / 3)) #DBG_lagcalc
@@ -282,10 +305,10 @@ payload()
 				TmG_0=$[$(/bin/date +%s%N)/1000000] #DBG_genrep	   #lagcalc basic
 	unirep > $localsitrep #GR
 	# unirep | tee $localsitrep | grep =load | wc -l >> $opstmp/DBG_unirep.$HOSTNAME #DBG_unirep
-				TmS_0=$[$(/bin/date +%s%N)/1000000] #DBG_secrtsend	   #lagcalc basic
+				TmS_0=$[$(/bin/date +%s%N)/1000000] #DBG_secrtsend_sitrep	   #lagcalc basic
 	/bin/mv $localsitrep /tmp/rt.sitrep.unirep.$HOSTNAME #S1
-				# TmS_1=$[$(/bin/date +%s%N)/1000000] #DBG_secrtsend
-	secrtsend & #S2
+				# TmS_1=$[$(/bin/date +%s%N)/1000000] #DBG_secrtsend_sitrep
+	secrtsend_sitrep & #S2
 				TmL_0=$[$(/bin/date +%s%N)/1000000] #DBG_lagcalc	   #lagcalc basic
 	lagcalc & #LR for latency debug	   #lagcalc basic
 }
