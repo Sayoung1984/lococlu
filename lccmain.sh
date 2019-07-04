@@ -457,7 +457,7 @@ secpatch()
 		# /bin/echo -e "\n#DBG_secpatch_t Got UID: $LOGNAME\n your image:\n$ImgList\n mounted on:\n $IMGoN_MP\n of $LaunchNode\n"
 		/bin/rm -f $opstmp/launchlock.$LOGNAME
 		/bin/echo -e "\nPatching you through to $LaunchNode now...\n"
-		/bin/echo -e "Your workspace is now at $MOUNTROOT$LOGNAME/\n"
+		/bin/echo -e "Your workspace is now at "$MOUNTROOT$LOGNAME'/, Samba share path: \\\\'$LaunchNode'\\workspace\\'$LOGNAME"\n"
 		# /bin/echo -e "#DBG_secpatch_t Congrats!!! All good !!! Drill interrupted!!!\n\nPress any key to exit" && read KEY && /bin/rm -f $opstmp/launchlock.$LOGNAME && exit
 		/usr/bin/ssh $LOGNAME@$LaunchNode
 	fi
@@ -475,16 +475,16 @@ tee_filter()
 output=/tmp/lcclog.`/bin/date +%y%m%d-%H%M%S`.$LOGNAME
 # output=/tmp/lcclog.$LOGNAME
 echo -e "\n`/bin/date +%Y-%m%d-%H%M-%S`\t User= $LOGNAME\n">$output
-# i=1
+i=0
 while read line
 do
-    # echo -en "line$i\t" >> $output; i=$(($i+1))
-
+	i=$(($i+1))
+    # echo -en "line$i\t" >> $output
 	echo $line >> $output
-    if [ -n "`echo $line | grep '^Last login'`" ]
+    if [ -n "`echo $line | grep '^Last login'`" -o "$i" -gt 200 ]
     then
 		/bin/echo -e "\nUser got into the target node.\n\n" >> $output
-		# output=/dev/null
+		output=/dev/null
 		tee_passthrough
     fi
 done
