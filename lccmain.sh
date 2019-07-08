@@ -472,8 +472,8 @@ tee_out()
 
 tee_filter()
 {
-output=/tmp/lcclog.`/bin/date +%y%m%d-%H%M%S`.$LOGNAME
-# output=/tmp/lcclog.$LOGNAME
+output=/var/log/lcc/lcclog.`/bin/date +%y%m%d-%H%M%S`.$LOGNAME
+# output=/var/log/lcc/lcclog.$LOGNAME
 echo -e "\n`/bin/date +%Y-%m%d-%H%M-%S`\t User= $LOGNAME\n">$output
 i=0
 while read line
@@ -492,7 +492,7 @@ done
 
 tee_passthrough()
 {
- # ls -l /dev/fd/ >> /tmp/lcclog.$LOGNAME
+ # ls -l /dev/fd/ >> /var/log/lcc/lcclog.$LOGNAME
  /bin/cat > printf
 }
 

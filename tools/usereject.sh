@@ -168,52 +168,16 @@ MountInfo_CL=`/bin/echo -e "$MountInfo"| /usr/bin/wc -l`
 ImageInfo=`/bin/ls /images/vol*/*.img | /bin/egrep "(\.\.|\/)$LOGNAME\.img$" | /usr/bin/sort -r 2>/dev/null`
 ImageInfo_CL=`/bin/echo -e "$ImageInfo"| /usr/bin/wc -l`
 
-# /bin/echo -e "RTinfo:\n$RTinfo\n" #DBG
-# /bin/echo -e "LogNode\t$LogNode_CL\n$LogNode\n" #DBG
-# /bin/echo -e "MountNode\t$MountNode_CL\n$MountNode\n" #DBG
-# /bin/echo -e "InvoNode\n$InvoNode\n" #DBG
-# /bin/echo -e "MountInfo\t$MountInfo_CL\n$MountInfo\n" #DBG
-# /bin/echo -e "ImageInfo\t$ImageInfo_CL\n$ImageInfo\n" #DBG
-# mountlist #DBG
 
-# if [ "$LogNode" != "$MountNode" -o "$MountNode_CL" != 1 -o "$MountInfo_CL" -gt "$ImageInfo_CL" ]
-# then
-#
-#
-# 	if [ "$LogNode_CL" != 1 ]
-# 	then
-# 		/bin/echo -e "User connected to multiple nodes!\n\nFound sessions on:\n$LogNode"
-# 	fi
-#
-# 	if [ "$MountNode_CL" != 1 ]
-# 	then
-# 		/bin/echo -e "User images mounted to multiple nodes!\n\nFound image mounted on:\n$MountNode"
-# 	fi
-#
-# 	if [ "$LogNode" != "$MountNode" ]
-# 	then
-# 		/bin/echo -e "User connected to a wrong node!\n\nFound sessions on:\n$LogNode\nFound image mounted on:\n$MountNode"
-# 	fi
-#
-# 	if [ "$MountInfo_CL" -gt "$ImageInfo_CL" ]
-# 	then
-# 		/bin/echo -e "Found image redundant mount!\n\nMount stat:\n$MountInfo"
-# 	fi
-#
-#
-# 	InvoNode=`/bin/echo -e "$InvoNode" | /bin/grep -v $(hostname)`
-# 	if [ -n "$InvoNode" ]
-# 	then
-# 		terminator
-# 		sleep 3
-# 	fi
-# 	InvoNode=`hostname`
-# 	terminator
-# fi
-#
-
-/bin/echo -e "Sleep 5 seconds to avoid mount/unmount command collision..."
-/usr/bin/sleep 5
+/bin/echo -en "Wait 5 seconds to avoid possible mount/unmount command collision."
+i=0
+while [ "$i" -lt 5 ]
+do
+	/usr/bin/sleep 1
+	/bin/echo -en "."
+	i=$(($i+1))
+done
+/bin/echo -e "\n\n"
 
 if [ "$LogNode_CL" != 1 ]
 then
