@@ -21,12 +21,12 @@ echo $$ >$pidpath
 
 COLUMNS=512
 endline="###---###---###---###---###"
-opstmp=/receptionist/opstmp
-lococlu=/receptionist/lococlu
-source $lococlu/lcc.conf
+opstmp=/LCC/opstmp
+lococlu=/LCC/bin
+source /LCC/bin/lcc.conf
 
 # /bin/echo -e "#DBG_lcc.conf \nCOLUMNS=$COLUMNS\nendline=$endline\nopstmp=$opstmp\nlococlu=$lococlu\ndskinitsz=$dskinitsz\n#\n" > /root/DBG_lcc.conf
-# /bin/cat $lococlu/lcc.conf >> /root/DBG_lcc.conf #DBG
+# /bin/cat /LCC/bin/lcc.conf >> /root/DBG_lcc.conf #DBG
 
 HOSTNAME=`/bin/hostname`
 
@@ -38,7 +38,7 @@ then
 fi
 
 # Output target for unirep
-localsitrep=/tmp/draft.rt.sitrep.unirep
+localsitrep=/tmp/draft.rt.sitrep
 
 # Fixed parameters for CPU info
 LOGICORE=`nproc --all`
@@ -171,9 +171,9 @@ secrtsend_sitrep()
 {
 	TmS_2a=$[$(/bin/date +%s%N)/1000000] #DBG_secrtsend_sitrep	   #lagcalc basic
 	/bin/echo -e "export TmS_2a=$TmS_2a" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep	   #lagcalc basic
-	if [ -f "/tmp/rt.sitrep.unirep.$HOSTNAME" ]
+	if [ -f "/tmp/rt.sitrep.$HOSTNAME" ]
 	then
-		REPLX=/tmp/rt.sitrep.unirep.$HOSTNAME
+		REPLX=/tmp/rt.sitrep.$HOSTNAME
 		CheckLineL1=`/usr/bin/tail -n 1 $REPLX`
 		CheckLineL2=`/usr/bin/tail -n 2 $REPLX | /usr/bin/head -n 1`
 		RepLag=$((`/bin/date +%s`-${CheckLineL2:(-10)})) 2>/dev/null
@@ -306,7 +306,7 @@ payload()
 	unirep > $localsitrep #GR
 	# unirep | tee $localsitrep | grep =load | wc -l >> $opstmp/DBG_unirep.$HOSTNAME #DBG_unirep
 				TmS_0=$[$(/bin/date +%s%N)/1000000] #DBG_secrtsend_sitrep	   #lagcalc basic
-	/bin/mv $localsitrep /tmp/rt.sitrep.unirep.$HOSTNAME #S1
+	/bin/mv $localsitrep /tmp/rt.sitrep.$HOSTNAME #S1
 				# TmS_1=$[$(/bin/date +%s%N)/1000000] #DBG_secrtsend_sitrep
 	secrtsend_sitrep & #S2
 				TmL_0=$[$(/bin/date +%s%N)/1000000] #DBG_lagcalc	   #lagcalc basic

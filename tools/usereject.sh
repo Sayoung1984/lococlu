@@ -7,10 +7,9 @@
 COLUMNS=512
 endline="###---###---###---###---###"
 loglatency=3
-opstmp=/receptionist/opstmp
-lococlu=/receptionist/lococlu
-dskinitsz=500
-source $lococlu/lcc.conf
+opstmp=/LCC/opstmp
+lococlu=/LCC/bin
+source /LCC/bin/lcc.conf
 # /bin/echo -e "#DBG_lcc.conf \nCOLUMNS=$COLUMNS\nendline=$endline\nopstmp=$opstmp\nlococlu=$lococlu\ndskinitsz=$dskinitsz\n#\n" > /root/DBG_lcc.conf
 # /bin/cat $lococlu/lcc.conf >> /root/DBG_lcc.conf
 
@@ -66,13 +65,18 @@ done
 
 mountlist()
 {
-	MountList=`/bin/cat $opstmp/secrt.sitrep.unirep.* 2>/dev/null | /bin/grep "log=imgon" | /bin/egrep "(\.\.|\/)$LOGNAME\.img"`
+	MountList=`/bin/cat $opstmp/secrt.sitrep.* 2>/dev/null | /bin/grep "log=imgon" | /bin/egrep "(\.\.|\/)$LOGNAME\.img"`
 	if [ -n "$MountList" ]
 	then
 		MountList_node=`/bin/echo -e "$MountList" | /usr/bin/head -n 1 | /usr/bin/awk '{print $1}'`
 		MountList_img=`/bin/echo -e "$MountList" | /usr/bin/awk '{print $3}'`
 		MountList_mntp=`/bin/echo -e "$MountList" | /usr/bin/awk '{print $4}'`
 		MountList_lag=`/bin/echo $(( $(/bin/date +%s) - $(/bin/echo -e "$MountList" | /bin/sed '2,$d; s/^.*\t//g') )) 2>/dev/null`
+	else
+		unset MountList_node
+		unset MountList_img
+		unset MountList_mntp
+		unset MountList_lag
 	fi
 	# /bin/echo -e "#DBG_mountlist MountList family:\n$MountList\n#DBG_mountlist MountList_node:\n$MountList_node"
 	# /bin/echo -e "#DBG_mountlist MountList_img:\n$MountList_img\n#DBG_mountlist MountList_mntp:\n$MountList_mntp"
@@ -88,7 +92,7 @@ KILLUSER=$LOGNAME
 # /bin/echo -e "#DBG_terminator_in var input \n MOUNTROOT=$MOUNTROOT \n KILLUSER=$LOGNAME\n ImgList=\n$ImgList"
 for execnode in $InvoNode
 do
-	/bin/echo -e "#! /bin/bash\nsource /etc/environment\nCOLUMNS=512\nMOUNTROOT=\"$MOUNTROOT\"\nKILLUSER=\"$LOGNAME\"" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
+	/bin/echo -e "#! /bin/bash\nsource /etc/environment\nsource /LCC/bin/lcc.conf\nCOLUMNS=512\nMOUNTROOT=\"$MOUNTROOT\"\nKILLUSER=\"$LOGNAME\"" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
 
 	/bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$execnode << "MAINFUNC"
 	# Ticket of terminate user session and umount user images
@@ -148,11 +152,12 @@ MAINFUNC
 		/bin/sleep $loglatency
 	done
 	/bin/echo -e "\nSeems you are now terminated on $execnode\n"
+	unset execnode
 done
 }
 
 /bin/echo -e "\nSpooling user eject tool...\n"
-RTinfo=`/bin/cat $opstmp/secrt.sitrep.unirep.* 2>/dev/null | /bin/grep "$LOGNAME"`
+RTinfo=`/bin/cat $opstmp/secrt.sitrep.* 2>/dev/null | /bin/grep "$LOGNAME"`
 
 LogNode=`/bin/echo -e "$RTinfo" | /bin/grep "log=ulsc" | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
 LogNode_CL=`/bin/echo -e "$LogNode"| /usr/bin/wc -l`
@@ -192,7 +197,7 @@ elif [ "$MountInfo_CL" -gt "$ImageInfo_CL" ]
 then
 	/bin/echo -e "Found image redundant mount!\n\nMount stat:\n$MountInfo"
 else
-	/bin/echo -e "\nInitiating user eject tool now...\n\nThis tool will:\n\t1. Kill all of your LCC sessions \n\t2. Unmount all of your workspace images.\n\nContinue? Y/N" &
+	/bin/echo -e "\nInitiating user eject tool now...\n\nThis tool will:\n\t* Kill all of your LCC sessions \n\t* Unmount all of your workspace images.\n\nContinue? Y/N" &
 	while true
 	do
 		read USER_CHO

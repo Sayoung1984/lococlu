@@ -42,7 +42,7 @@ mail_body(){
 cat << EOF
 Hello$user_full_name,
 
-Thanks for using Android Fast Build Farm, aka AFBF. 
+Thanks for using Android Fast Build Farm, aka AFBF.
 
 EOF
 }
@@ -65,7 +65,7 @@ NOTICE=chn.afbf.notice@qti.qualcomm.com
 
 mail_users="${BUILD_USER}@qti.qualcomm.com,$NOTICE"
 
-dir=/receptionist/lococlu/tools
+dir=/LCC/bin/tools
 MAIL_OUT=$dir/mail_notice
 
 mail_header > ${MAIL_OUT}
@@ -87,7 +87,7 @@ do
 done
 Tgtlist=$(for item in ${killlist[@]}; do echo $item; done)
 # echo -e "!!!KABOOOOM!!! $Tgtlist !!!KABOOOOM!!!"
-/receptionist/lococlu/tools/imgdel.sh -i "$Tgtlist" >> $MAIL_OUT
+/LCC/bin/tools/imgdel.sh -i "$Tgtlist" >> $MAIL_OUT
 cat $MAIL_OUT
 
 mail_footer >> ${MAIL_OUT}

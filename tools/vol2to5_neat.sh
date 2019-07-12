@@ -1,5 +1,12 @@
 #! /bin/bash
 
+COLUMNS=512
+endline="###---###---###---###---###"
+loglatency=3
+opstmp=/LCC/opstmp
+lococlu=/LCC/bin
+source /LCC/bin/lcc.conf
+
 namelist()
 {
 	ls /images/vol02 | grep ".img" | awk -F ".img" '{print $1}'
@@ -9,8 +16,8 @@ for tgt in $(namelist)
 do
 	{
 	node=
-	loginStd=`cat /receptionist/opstmp/secrt.sitrep.unirep.* | grep "=ulsc" | grep $tgt`
-	mountStd=`cat /receptionist/opstmp/secrt.sitrep.unirep.* | grep "=imgon" | grep $tgt`
+	loginStd=`cat $opstmp/secrt.sitrep.* | grep "=ulsc" | grep $tgt`
+	mountStd=`cat $opstmp/secrt.sitrep.* | grep "=imgon" | grep $tgt`
 	if [ -n "$loginStd" ]
 	then
 		node=`echo -e $loginStd | awk '{print $1}'`

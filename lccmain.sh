@@ -4,12 +4,12 @@
 COLUMNS=512
 endline="###---###---###---###---###"
 loglatency=3
-opstmp=/receptionist/opstmp
-lococlu=/receptionist/lococlu
+opstmp=/LCC/opstmp
+lococlu=/LCC/bin
 dskinitsz=500
-source $lococlu/lcc.conf
+source /LCC/bin/lcc.conf
 # /bin/echo -e "#DBG_lcc.conf \nCOLUMNS=$COLUMNS\nendline=$endline\nopstmp=$opstmp\nlococlu=$lococlu\ndskinitsz=$dskinitsz\n#\n" > /root/DBG_lcc.conf
-# /bin/cat $lococlu/lcc.conf >> /root/DBG_lcc.conf
+# /bin/cat /LCC/bin/lcc.conf >> /root/DBG_lcc.conf
 
 # /bin/echo -e "#DBG You're been hosted by the receptionist\n"
 # /bin/echo -e "#DBG Your login UID is $LOGNAME\n"
@@ -74,7 +74,7 @@ done
 # Subfunction to get node in lowest load, output $NodeLine family
 listfree()
 {
-	NodeLine=`/bin/cat $opstmp/secrt.sitrep.unirep.* 2>/dev/null | /bin/grep "log=load" | /usr/bin/sort -n -t$'\t' -k 3 | /usr/bin/head -n 1`
+	NodeLine=`/bin/cat $opstmp/secrt.sitrep.* 2>/dev/null | /bin/grep "log=load" | /usr/bin/sort -n -t$'\t' -k 3 | /usr/bin/head -n 1`
 	NodeLine_Name=`/bin/echo $NodeLine | /usr/bin/awk '{print $NR}'`
 	NodeLine_lag=`/usr/bin/expr $(/bin/date +%s) - $(/bin/echo -e "$NodeLine" | /usr/bin/awk -F " " '{print $NF}') 2>/dev/null`
 	# /bin/echo -e "\n#DBG_listfree NodeLine_Name = $NodeLine_Name\n#DBG_listfree NodeLine_Load = $NodeLine_Load"
@@ -104,13 +104,18 @@ selectfree()
 # Subfunction to check Image mount info, output $MountList family
 mountlist()
 {
-	MountList=`/bin/cat $opstmp/secrt.sitrep.unirep.* 2>/dev/null | /bin/grep "log=imgon" | /bin/egrep "(\.\.|\/)$LOGNAME\.img"`
+	MountList=`/bin/cat $opstmp/secrt.sitrep.* 2>/dev/null | /bin/grep "log=imgon" | /bin/egrep "(\.\.|\/)$LOGNAME\.img"`
 	if [ -n "$MountList" ]
 	then
 		MountList_node=`/bin/echo -e "$MountList" | /usr/bin/head -n 1 | /usr/bin/awk '{print $1}'`
 		MountList_img=`/bin/echo -e "$MountList" | /usr/bin/awk '{print $3}'`
 		MountList_mntp=`/bin/echo -e "$MountList" | /usr/bin/awk '{print $4}'`
 		MountList_lag=`/bin/echo $(( $(/bin/date +%s) - $(/bin/echo -e "$MountList" | /bin/sed '2,$d; s/^.*\t//g') )) 2>/dev/null`
+	else
+		unset MountList_node
+		unset MountList_img
+		unset MountList_mntp
+		unset MountList_lag
 	fi
 	# $lococlu/tools/UCIL.sh &
 	# /bin/echo -e "#DBG_mountlist MountList family:\n$MountList\n#DBG_mountlist MountList_node:\n$MountList_node"
@@ -128,7 +133,7 @@ mkrootimg()
 	execnode=$MKIMGOPRNODE
 	# /bin/echo -e "#DBG_mkrootimg_in var input \n  MKIMGUSER=$MKIMGUSER\n FreeNode=$FreeNode\n MKIMGOPRNODE=$MKIMGOPRNODE\n dskinitsz=$dskinitsz"
 
-	/bin/echo -e "#! /bin/bash\nsource /etc/environment\nMKIMGUSER=\"$MKIMGUSER\"\ndskinitsz=\"$dskinitsz\"" > /tmp/draft.rt.geoexec.$LOGNAME.$MKIMGOPRNODE
+	/bin/echo -e "#! /bin/bash\nsource /etc/environment\nsource /LCC/bin/lcc.conf\nMKIMGUSER=\"$MKIMGUSER\"\ndskinitsz=\"$dskinitsz\"" > /tmp/draft.rt.geoexec.$LOGNAME.$MKIMGOPRNODE
 
 	/bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$MKIMGOPRNODE << "MAINFUNC"
 	# Ticket of make user image
@@ -202,7 +207,7 @@ mountcmd()
 	execnode=$MOUNTOPRNODE
 	# /bin/echo -e "#DBG_mountcmd_in var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$MOUNTUSER\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
 
-	/bin/echo -e "#! /bin/bash\nsource /etc/environment\nMOUNTROOT=\"$MOUNTROOT\"\nMOUNTUSER=\"$LOGNAME\"" > /tmp/draft.rt.geoexec.$LOGNAME.$MOUNTOPRNODE
+	/bin/echo -e "#! /bin/bash\nsource /etc/environment\nsource /LCC/bin/lcc.conf\nMOUNTROOT=\"$MOUNTROOT\"\nMOUNTUSER=\"$LOGNAME\"" > /tmp/draft.rt.geoexec.$LOGNAME.$MOUNTOPRNODE
 
 	/bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$MOUNTOPRNODE << "MAINFUNC"
 	# Ticket of mount user image
@@ -290,7 +295,7 @@ terminator()
 	# /bin/echo -e "#DBG_terminator_in var input \n MOUNTROOT=$MOUNTROOT \n KILLUSER=$LOGNAME\n ImgList=\n$ImgList"
 	for execnode in $MountNode
 	do
-	/bin/echo -e "#! /bin/bash\nsource /etc/environment\nCOLUMNS=512\nMOUNTROOT=\"$MOUNTROOT\"\nKILLUSER=\"$LOGNAME\"" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
+	/bin/echo -e "#! /bin/bash\nsource /etc/environment\nsource /LCC/bin/lcc.conf\nCOLUMNS=512\nMOUNTROOT=\"$MOUNTROOT\"\nKILLUSER=\"$LOGNAME\"" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
 
 	/bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$execnode << "MAINFUNC"
 	# Ticket of terminate user session and umount user images
@@ -349,7 +354,7 @@ MAINFUNC
 		/bin/sleep $loglatency
 	done
 	/bin/echo -e "\nSeems you are now terminated on $execnode\n"
-	execnode=""
+	unset execnode
 	# /bin/echo -e "#DBG_terminator_out MountList =\n$MountList\nexecnode unset as \"$execnode\""
 done
 }
@@ -545,6 +550,7 @@ then
 	LaunchNode=$FreeNode
 	# /bin/echo -e "#DBG_Main1_a_run_2 LaunchNode=$LaunchNode\n MountList = $MountList"
 	secpatch
+	exit
 elif [ "$loglatency" -lt "$MountList_lag" ]
 then
 	# /bin/echo -e "#DBG_Main1_b_in MountList = $MountList"
@@ -564,14 +570,14 @@ then
 fi
 MountNode=$MountList_node
 IMGoN_MP=$MountList_mntp
-/bin/echo -e "\nImages mounted on:\n$(/bin/cat $opstmp/secrt.sitrep.unirep.* 2>/dev/null | /bin/grep "log=imgon" | /bin/egrep "(\.\.|\/)$LOGNAME\.img" | /usr/bin/awk '{print $1"\t"$4}')"
+/bin/echo -e "\nImages mounted on:\n$(/bin/cat $opstmp/secrt.sitrep.* 2>/dev/null | /bin/grep "log=imgon" | /bin/egrep "(\.\.|\/)$LOGNAME\.img" | /usr/bin/awk '{print $1"\t"$4}')"
 secmount
 
 # Check /bin/cpU usage of $MountNode, if over 80% ask if change node, else patch through
-MountNodeLoad=`/bin/cat $opstmp/secrt.sitrep.unirep.$MountNode 2>/dev/null | /bin/grep "log=load" | /usr/bin/awk '{print $4}'`
+MountNodeLoad=`/bin/cat $opstmp/secrt.sitrep.$MountNode 2>/dev/null | /bin/grep "log=load" | /usr/bin/awk '{print $4}'`
 while [ ! -n "$MountNodeLoad" ]
 do
-	MountNodeLoad=`/bin/cat $opstmp/secrt.sitrep.unirep.$MountNode 2>/dev/null | /bin/grep "log=load" | /usr/bin/awk '{print $4}'`
+	MountNodeLoad=`/bin/cat $opstmp/secrt.sitrep.$MountNode 2>/dev/null | /bin/grep "log=load" | /usr/bin/awk '{print $4}'`
 	/bin/sleep $loglatency
 done
 # /bin/echo -e "#DBG_checkload MountNodeLoad = $MountNodeLoad %\n"
@@ -595,6 +601,7 @@ then
 					secmount
 					LaunchNode=$FreeNode
 					secpatch
+					exit
 				else
 					/bin/rm -f $opstmp/launchlock.$LOGNAME
 					/bin/echo -e "\nDropping you out now, please try connect again."
@@ -605,6 +612,7 @@ then
 				/bin/echo -e "\nPatching you through to $MountNode under heavy load now, you can always switch node with new logins.\n"
 				LaunchNode=$MountNode
 				secpatch
+				exit
 			;;
 			*)
 				/bin/echo -e "\nInvalid choice, please tell me Yes or No.\n"
@@ -615,7 +623,8 @@ else
 	/bin/echo -e "Node not busy...\n"
 	LaunchNode=$MountNode
 	secpatch
+	exit
 fi
 }
 
-main_out | tee_out
+main_out | tee_out #comment tee_out out to disable lcclog

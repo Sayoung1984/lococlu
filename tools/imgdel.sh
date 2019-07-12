@@ -1,13 +1,13 @@
 #! /bin/bash
 # Tool of user self service code images deleter
 # Or run with -u parameter like:
-# /receptionist/lococlu/tools/imgdel.sh -i "$TgtHitList"
+# /LCC/bin/tools/imgdel.sh -i "$TgtHitList"
 
 COLUMNS=512
 endline="###---###---###---###---###"
-opstmp=/receptionist/opstmp
-lococlu=/receptionist/lococlu
-source $lococlu/lcc.conf
+opstmp=/LCC/opstmp
+lococlu=/LCC/bin
+source /LCC/bin/lcc.conf
 
 # Define the globle IMGoN mount root $MOUNTROOT
 CURDOM=`/bin/hostname -d`
@@ -62,20 +62,20 @@ done
 delimg()
 {
 	TGTUSER=`/bin/echo -e $TgtHitList |/usr/bin/awk  -F ".img" '{print $NR}' |/usr/bin/awk  -F "." '{print $NF}'`
-	TGTNode=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep "log=imgon" | /bin/grep /$TGTUSER.img |/usr/bin/awk  '{print $1}'`
+	TGTNode=`/bin/cat $opstmp/secrt.sitrep.* | /bin/grep "log=imgon" | /bin/grep /$TGTUSER.img |/usr/bin/awk  '{print $1}'`
 	# /bin/echo -e "TGTUSER=$TGTUSER; TGTNode=$TGTNode; \nTgtHitList=$TgtHitList"
 	if [ ! -n "$TGTNode" ]
 	then
-		TGTNode=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep "log=load" | /usr/bin/sort -r -k 11 | /usr/bin/head -n 1 |/usr/bin/awk  '{print $1}'`
+		TGTNode=`/bin/cat $opstmp/secrt.sitrep.* | /bin/grep "log=load" | /usr/bin/sort -r -k 11 | /usr/bin/head -n 1 |/usr/bin/awk  '{print $1}'`
 	fi
 	execnode=$TGTNode
-	/bin/echo -e "#! /bin/bash\nsource /etc/environment\nMOUNTROOT=\"$MOUNTROOT\"\nTGTUSER=\"$TGTUSER\"\nTGTNode=\"$TGTNode\"\nTgtHitList=\"$TgtHitList\"" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
+	/bin/echo -e "#! /bin/bash\nsource /etc/environment\nopstmp=/LCC/opstmp\nsource /LCC/bin/lcc.conf\nMOUNTROOT=\"$MOUNTROOT\"\nTGTUSER=\"$TGTUSER\"\nTGTNode=\"$TGTNode\"\nTgtHitList=\"$TgtHitList\"" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
 	/bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$execnode << "MAINFUNC"
 	# Ticket of delete user code image
 	for TGTIMG in $TgtHitList
 	do
 		TGTIMGPATH=`/bin/ls /images/vol*/*.img 2>/dev/null | /bin/grep $TGTIMG$`
-		MountPath=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep log=imgon | /bin/grep $TGTIMG |/usr/bin/awk  '{print $4}'`
+		MountPath=`/bin/cat $opstmp/secrt.sitrep.* | /bin/grep log=imgon | /bin/grep $TGTIMG |/usr/bin/awk  '{print $4}'`
 		if [ -n $MountPath ];
 		then
 			LoopDev=`/sbin/losetup -a | /bin/grep $MountPath |/usr/bin/awk  -F ":" '{print $NR}'`
@@ -85,7 +85,7 @@ delimg()
 				/usr/sbin/service nmbd restart
 				/bin/umount -l $MountPath
 				/bin/sleep 1
-				MountPath=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep log=imgon | /bin/grep $TGTIMG |/usr/bin/awk  '{print $4}'`
+				MountPath=`/bin/cat $opstmp/secrt.sitrep.* | /bin/grep log=imgon | /bin/grep $TGTIMG |/usr/bin/awk  '{print $4}'`
 			done
 			/usr/sbin/service smbd restart
 			/usr/sbin/service nmbd restart
@@ -163,14 +163,14 @@ read -ra wtitem <<< $(for CODEIMG in `ls -lahs /images/vol* | /bin/grep -E "\.\.
 do
     /bin/echo -en $CODEIMG
     /bin/echo -en "\t\t"
-    MTNODE=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep $CODEIMG |/usr/bin/awk  '{printf $1}'`
+    MTNODE=`/bin/cat $opstmp/secrt.sitrep.* | /bin/grep $CODEIMG |/usr/bin/awk  '{printf $1}'`
     if [ -n "$MTNODE" ]
     then
         /bin/echo -en $MTNODE
     else
         /bin/echo -en Unmount!
     fi
-#    /bin/echo -en `/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep $CODEIMG |/usr/bin/awk  '{printf $1}'`
+#    /bin/echo -en `/bin/cat $opstmp/secrt.sitrep.* | /bin/grep $CODEIMG |/usr/bin/awk  '{printf $1}'`
     /bin/echo -e "\t\t"OFF
 done)
 # /bin/echo ${wtitem[@]}

@@ -7,9 +7,9 @@
 
 COLUMNS=300
 endline="###---###---###---###---###"
-opstmp=/receptionist/opstmp
-lococlu=/receptionist/lococlu
-source $lococlu/lcc.conf
+opstmp=/LCC/opstmp
+lococlu=/LCC/bin
+source /LCC/bin/lcc.conf
 
 # Secure Realtime Text Copy v4, execbd variant with target node $execnode signature in tickets' name and checklines
 # Added $LOGNAME check to avoid user ops conflict
@@ -44,7 +44,7 @@ else
 fi
 
 # Main1, list live nodes
-execlist=`cat $opstmp/secrt.sitrep.unirep.* 2>/dev/null | grep log=load | awk -F " " '{print $1}'`
+execlist=`cat $opstmp/secrt.sitrep.* 2>/dev/null | grep log=load | awk -F " " '{print $1}'`
 echo -e "Found nodes as below:"
 echo "$execlist"
 echo -e "Refresh node list? (Y/N) \c"
@@ -52,7 +52,7 @@ while true; do
 read USER_CHO
 	case $USER_CHO in
 		Y|y|YES|Yes|yes)
-			execlist=`cat $opstmp/secrt.sitrep.unirep.* 2>/dev/null | grep log=load | awk -F " " '{print $1}'`
+			execlist=`cat $opstmp/secrt.sitrep.* 2>/dev/null | grep log=load | awk -F " " '{print $1}'`
 			echo -e "Now the list are:"
 			echo "$execlist"
 			echo -e "Refresh again? (Y/N) \c"
@@ -131,7 +131,7 @@ IFS=$'\n' ARR=($execlist)
 for execnode in `printf '%s\n' "${ARR[@]}"`
 do
 	# echo -e "#DBG_Main3 $execnode"
-	echo -e "#! /bin/bash\nsource /etc/environment\n#Ticket sent from $HOSTNAME\n" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
+	echo -e "#! /bin/bash\nsource /etc/environment\nsource /LCC/bin/lcc.conf\n#Ticket sent from $HOSTNAME\n" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
 	chmod a+x /tmp/draft.rt.geoexec.$LOGNAME.$execnode
 	printf '%s\n' "${USER_CMD[@]}" >> /tmp/draft.rt.geoexec.$LOGNAME.$execnode
 	echo -e "\n$endline $execnode" >> /tmp/draft.rt.geoexec.$LOGNAME.$execnode

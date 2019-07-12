@@ -4,20 +4,21 @@ Low Coupling Cluster, based on Bash Scripts, designed for Raw Image over NFS str
 ## Getting Started
 Basic structure as below
 ```
-/receptionist/                 # Lococlu runtime folder, NFS mounted by all heads/nodes
-├── lococlu                    # Main functions folder
-│   ├── backstage.conf         # LCC bypass white list
+/LCC/                 # Lococlu runtime folder on head, NFS mounted by all nodes
+├── bin                    # Main functions folder
+│   ├── backstage.conf         # LCC bypass white list (ignored by git, a sample was provided instead)
 │   ├── lcc.conf               # Main config file (ignored by git, a sample was provided instead)
 │   ├── lccmain.sh             # Main function
 │   ├── noderep.sh             # Node deamon, run as cronjobs on nodes
 │   └── tools                  # Extra tools folder
 │       ├── autoballast.sh     # Burn cpu tool, make cpu workloads for debug
-│       ├── deploynode.sh      # Node deployment script, currently blank
+│       ├── deploynode.sh      # Node deployment script, currently not finished
 │       ├── dskbill.sh         # User team disk quota usage calculator
 │       ├── dskusg.sh          # NFS volume quota usage percentage calculator
 │       ├── imgdel.sh          # User code image delete tool
 │       ├── execbdcst.sh       # Execute Broadcaster, batch send commands to all live nodes
-│       └── mgrlist            # User team manager list for dskbill.sh
+│       ├── mgrlist            # User team manager list for dskbill.sh
+│       └── usereject          # User eject tool
 └── opstmp                     # Operation temp folder, set as 777, for node sitreps and session lock files
 └── dbgtmp                     # Debug temp folder (optional), set as 777, for geoexec tickets trace
 
@@ -51,6 +52,14 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.8.0
+* Moved $lococlu and $opstmp from NetApp to head local disk
+* Shorten the path of $lococlu and $opstmp from /receptionist/lococlu and /receptionist/opstmp to /LCC/bin and /LCC/opstmp
+* Full check of lcc.conf dependency
+* Shorten the sitrep name from secrt.sitrep.unirep.$HOSTNAME to secrt.sitrep.$HOSTNAME
+* secpatch clean exit update
+* mountlist() sub-variant auto clean up hotfix
+* minor image volumes list hotfix to support 10+ image volumes
 ## v0.7.0a
 * Added environment info update for geoexec tickets.
 ## v0.7.0

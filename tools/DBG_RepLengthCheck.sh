@@ -1,9 +1,9 @@
 #! /bin/bash
-# LCC debug tool of check sitrep line counts in every second. for ((i=0;i<3600;i=(i+1)));do cat /receptionist/opstmp/secrt.sitrep.unirep.muscle01 | grep imgon | wc -l ; sleep 1 ;done ###Check sitrep output line count
+# LCC debug tool of check sitrep line counts in every second. for ((i=0;i<3600;i=(i+1)));do cat /LCC/opstmp/secrt.sitrep.muscle01 | grep imgon | wc -l ; sleep 1 ;done ###Check sitrep output line count
 for ((i=0;i<3600;i=(i+1)))
 do
 	sleep 1
-	RepSnapShoot=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep -v "###"`
+	RepSnapShoot=`/bin/cat /LCC/opstmp/secrt.sitrep.* | /bin/grep -v "###"`
 
 	for CurrNode in `/bin/echo -e "$RepSnapShoot" | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
 	do
