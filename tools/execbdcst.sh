@@ -131,7 +131,7 @@ IFS=$'\n' ARR=($execlist)
 for execnode in `printf '%s\n' "${ARR[@]}"`
 do
 	# echo -e "#DBG_Main3 $execnode"
-	echo -e "#! /bin/bash\n#Ticket sent from $HOSTNAME\n" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
+	echo -e "#! /bin/bash\nsource /etc/environment\n#Ticket sent from $HOSTNAME\n" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
 	chmod a+x /tmp/draft.rt.geoexec.$LOGNAME.$execnode
 	printf '%s\n' "${USER_CMD[@]}" >> /tmp/draft.rt.geoexec.$LOGNAME.$execnode
 	echo -e "\n$endline $execnode" >> /tmp/draft.rt.geoexec.$LOGNAME.$execnode

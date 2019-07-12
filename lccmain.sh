@@ -128,7 +128,7 @@ mkrootimg()
 	execnode=$MKIMGOPRNODE
 	# /bin/echo -e "#DBG_mkrootimg_in var input \n  MKIMGUSER=$MKIMGUSER\n FreeNode=$FreeNode\n MKIMGOPRNODE=$MKIMGOPRNODE\n dskinitsz=$dskinitsz"
 
-	/bin/echo -e "#! /bin/bash\nMKIMGUSER=\"$MKIMGUSER\"\ndskinitsz=\"$dskinitsz\"" > /tmp/draft.rt.geoexec.$LOGNAME.$MKIMGOPRNODE
+	/bin/echo -e "#! /bin/bash\nsource /etc/environment\nMKIMGUSER=\"$MKIMGUSER\"\ndskinitsz=\"$dskinitsz\"" > /tmp/draft.rt.geoexec.$LOGNAME.$MKIMGOPRNODE
 
 	/bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$MKIMGOPRNODE << "MAINFUNC"
 	# Ticket of make user image
@@ -202,7 +202,7 @@ mountcmd()
 	execnode=$MOUNTOPRNODE
 	# /bin/echo -e "#DBG_mountcmd_in var input \n MOUNTROOT=$MOUNTROOT \n MOUNTUSER=$MOUNTUSER\n ImgList=\n$ImgList\n FreeNode=$FreeNode\n MOUNTOPRNODE=$MOUNTOPRNODE\n"
 
-	/bin/echo -e "#! /bin/bash\nMOUNTROOT=\"$MOUNTROOT\"\nMOUNTUSER=\"$LOGNAME\"" > /tmp/draft.rt.geoexec.$LOGNAME.$MOUNTOPRNODE
+	/bin/echo -e "#! /bin/bash\nsource /etc/environment\nMOUNTROOT=\"$MOUNTROOT\"\nMOUNTUSER=\"$LOGNAME\"" > /tmp/draft.rt.geoexec.$LOGNAME.$MOUNTOPRNODE
 
 	/bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$MOUNTOPRNODE << "MAINFUNC"
 	# Ticket of mount user image
@@ -290,7 +290,7 @@ terminator()
 	# /bin/echo -e "#DBG_terminator_in var input \n MOUNTROOT=$MOUNTROOT \n KILLUSER=$LOGNAME\n ImgList=\n$ImgList"
 	for execnode in $MountNode
 	do
-	/bin/echo -e "#! /bin/bash\nCOLUMNS=512\nMOUNTROOT=\"$MOUNTROOT\"\nKILLUSER=\"$LOGNAME\"" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
+	/bin/echo -e "#! /bin/bash\nsource /etc/environment\nCOLUMNS=512\nMOUNTROOT=\"$MOUNTROOT\"\nKILLUSER=\"$LOGNAME\"" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
 
 	/bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$execnode << "MAINFUNC"
 	# Ticket of terminate user session and umount user images
@@ -481,7 +481,7 @@ do
 	i=$(($i+1))
     # echo -en "line$i\t" >> $output
 	echo $line >> $output
-    if [ -n "`echo $line | grep '^Last login'`" -o "$i" -gt 200 ]
+    if [ -n "`echo $line | grep 'Last login'`" -o "$i" -gt 200 ]
     then
 		/bin/echo -e "\nUser got into the target node.\n\n" >> $output
 		output=/dev/null

@@ -69,7 +69,7 @@ delimg()
 		TGTNode=`/bin/cat /receptionist/opstmp/secrt.sitrep.unirep.* | /bin/grep "log=load" | /usr/bin/sort -r -k 11 | /usr/bin/head -n 1 |/usr/bin/awk  '{print $1}'`
 	fi
 	execnode=$TGTNode
-	/bin/echo -e "#! /bin/bash\nMOUNTROOT=\"$MOUNTROOT\"\nTGTUSER=\"$TGTUSER\"\nTGTNode=\"$TGTNode\"\nTgtHitList=\"$TgtHitList\"" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
+	/bin/echo -e "#! /bin/bash\nsource /etc/environment\nMOUNTROOT=\"$MOUNTROOT\"\nTGTUSER=\"$TGTUSER\"\nTGTNode=\"$TGTNode\"\nTgtHitList=\"$TgtHitList\"" > /tmp/draft.rt.geoexec.$LOGNAME.$execnode
 	/bin/cat >> /tmp/draft.rt.geoexec.$LOGNAME.$execnode << "MAINFUNC"
 	# Ticket of delete user code image
 	for TGTIMG in $TgtHitList
