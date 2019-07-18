@@ -4,8 +4,8 @@ Low Coupling Cluster, based on Bash Scripts, designed for Raw Image over NFS str
 ## Getting Started
 Basic structure as below
 ```
-/LCC/                 # Lococlu runtime folder on head, NFS mounted by all nodes
-├── bin                    # Main functions folder
+/LCC/                          # Lococlu runtime folder on head, NFS mounted by all nodes
+├── bin                        # Main functions folder
 │   ├── backstage.conf         # LCC bypass white list (ignored by git, a sample was provided instead)
 │   ├── lcc.conf               # Main config file (ignored by git, a sample was provided instead)
 │   ├── lccmain.sh             # Main function

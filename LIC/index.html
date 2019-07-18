@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>LCC Intel Center</title>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="/css/default.css">
+
+<script>
+function displayDate(){
+	document.getElementById("demo").innerHTML=Date();
+}
+</script>
+
+</head>
+
+<body>
+<div class="plant" >
+	<h1>LCC Intel Center</h1>
+	<div class="plant" >
+		<p>Cluster Detail</p>
+	</div>
+	<div class="plant" style="height:200px;width:30%;float:left;" >
+		<p>H1 Cluster overview</p>
+	</div>
+	<div class="plant" style="height:200px;flex:1;">
+		<!-- or width:calc(100%-30%); -->
+		<p>H2</p>
+		<p id="demo" >Click to show time</p>
+		<button type="button" onclick="displayDate()">Show time</button>
+	</div>
+</div>
+
+
+<div class="plant" >
+<div class="plant" >
+	<p>NX Node overview</p>
+</div>
+
+<div class="plant" >
+	<p>NX Node Detail</p>
+</div>
+</div>
+
+</body>
+
+</html>
