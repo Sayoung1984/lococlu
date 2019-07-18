@@ -213,37 +213,6 @@ mountcmd()
 	# Ticket of mount user image
 	# /bin/echo > /tmp/mntdbg.$MOUNTUSER #DBG
 
-	# # Clean up unmounted loop devices
-	# # /bin/cat /proc/self/mounts | /bin/grep "/dev/loop" >> /tmp/mntdbg.$MOUNTUSER #DBG
-	# for i in {8..255};
-	# do
-	# 	loopdev=`/bin/cat /proc/self/mounts | /bin/grep "/dev/loop$i "`
-	# 	if [ -n "$loopdev" ]
-	# 	then
-	# 		/bin/echo "Kept $loopdev" >> /tmp/mntdbg.$MOUNTUSER #DBG
-	# 	else
-	# 		if [ -e /dev/loop$i ]
-	# 		then
-	# 			/bin/rm -f /dev/loop$i 2>/dev/null
-	# 			/bin/echo "Removed /dev/loop$i" >> /tmp/mntdbg.$MOUNTUSER #DBG
-	# 		else
-	# 			/bin/echo "No /dev/loop$i" >> /tmp/mntdbg.$MOUNTUSER #DBG
-	# 		fi
-	# 	fi
-	# done
-
-	# # Make full 64 loop devices
-	# for i in {8..63}
-	# do
-	# 	if [ -e /dev/loop$i ]
-	# 	then
-	# 		continue
-	# 	fi
-	# 	mknod /dev/loop$i b 7 $i
-	# 	chown --reference=/dev/loop0 /dev/loop$i
-	# 	chmod --reference=/dev/loop0 /dev/loop$i
-	# done
-
 	ImgList=`/bin/ls /images/vol*/*.img | /bin/egrep "(\.\.|\/)$MOUNTUSER\.img$" | /usr/bin/sort -r 2>/dev/null`
 	MUID=`/usr/bin/id -u $MOUNTUSER`
 	MGID=`/usr/bin/id -g $MOUNTUSER`
@@ -320,7 +289,7 @@ terminator()
 		done
 	}
 	# /usr/bin/pkill -u $KILLUSER
-	killlist=`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep $KILLUSER | /usr/bin/awk '{print $2}'`
+	killlist=`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep -e "^$KILLUSER " | /usr/bin/awk '{print $2}'`
 	# echo -e "killlist=\n`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep $KILLUSER`" >> /tmp/DBG_terminator #DBG
 	while [ -n "$killlist" ]
 	do
@@ -328,7 +297,7 @@ terminator()
 		do
 			/bin/kill -9 $killthd 2>/dev/null
 		done
-		killlist=`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep $KILLUSER | /usr/bin/awk '{print $2}'`
+		killlist=`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep -e "^$KILLUSER " | /usr/bin/awk '{print $2}'`
 	done
 	# echo -e "$KILLUSER killed\t$(hostname)" >> /tmp/DBG_terminator #DBG
 	umountuser

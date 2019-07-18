@@ -117,7 +117,7 @@ do
 		done
 	}
 
-	killlist=`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep $KILLUSER | /usr/bin/awk '{print $2}'`
+	killlist=`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep -e "^$KILLUSER " | /usr/bin/awk '{print $2}'`
 	# echo -e "killlist=\n`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep $KILLUSER`" >> /tmp/DBG_terminator #DBG
 	while [ -n "$killlist" ]
 	do
@@ -125,7 +125,7 @@ do
 		do
 			/bin/kill -9 $killthd 2>/dev/null
 		done
-		killlist=`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep $KILLUSER | /usr/bin/awk '{print $2}'`
+		killlist=`/bin/ps -aux | /bin/grep -vE "/bin/grep|lcctkt." | /bin/grep -e "^$KILLUSER " | /usr/bin/awk '{print $2}'`
 	done
 	# echo -e "$KILLUSER killed\t$(hostname)" >> /tmp/DBG_terminator #DBG
 
