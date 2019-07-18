@@ -52,6 +52,8 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.8.0a
+* Fixed user name not precise matched issue on terminator() of lccmain.sh and usereject.sh
 ## v0.8.0
 * Moved $lococlu and $opstmp from NetApp to head local disk
 * Shorten the path of $lococlu and $opstmp from /receptionist/lococlu and /receptionist/opstmp to /LCC/bin and /LCC/opstmp
