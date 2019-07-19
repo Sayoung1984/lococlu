@@ -17,13 +17,35 @@ function displayDate(){
 </head>
 
 <body>
-<div class="plant" >
+<div class="plant" id="head" >
 	<h1>LCC Intel Center</h1>
 	<div class="plant" >
 		<p>Cluster Detail</p>
 	</div>
 	<div class="plant" style="height:200px;width:30%;float:left;" >
 		<p>H1 Cluster overview</p>
+
+		<iframe id="frmFile" src="/css/default.css" onload="LoadFile();" style="display: none;"></iframe>
+
+		<script type="text/javascript">
+
+		</script>
+
+		<script type="text/javascript">
+			function load(name) {
+				let xhr = new XMLHttpRequest(),
+					okStatus = document.location.protocol === "file:" ? 0 : 200;
+				xhr.open('GET', name, false);
+				xhr.overrideMimeType("text/html;charset=utf-8");//默认为utf-8
+				xhr.send(null);
+				return xhr.status === okStatus ? xhr.responseText : null;
+			}
+			let text = load("/css/default.css");
+			//console.log(text);		//输出到浏览器控制器中
+			document.write(text);		//打印在网页中
+		</script>
+
+
 	</div>
 	<div class="plant" style="height:200px;flex:1;">
 		<!-- or width:calc(100%-30%); -->
@@ -34,7 +56,7 @@ function displayDate(){
 </div>
 
 
-<div class="plant" >
+<div class="plant" id="node">
 <div class="plant" >
 	<p>NX Node overview</p>
 </div>
