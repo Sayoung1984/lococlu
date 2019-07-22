@@ -6,17 +6,22 @@
 <head>
 <title>LCC Intel Center</title>
 <meta charset="utf-8" />
+<script src="/js/default.js"></script>
+<script src="/js/node_modules/epoch-charting/dist/js/epoch.min.js"></script>
+<script src="/js/node_modules/d3/dist/d3.min.js"></script>
+<script src="/js/node_modules/shelljs/shell.js"></script>
 <link rel="stylesheet" type="text/css" href="/css/default.css">
+<link rel="stylesheet" type="text/css" href="/js/node_modules/epoch-charting/dist/css/epoch.min.css">
+
 
 <script>
+var head= "head-01";
 var nodecount = "4" ;
-
-
-function displayDate(){
-	document.getElementById("demo").innerHTML=Date();
-}
+var node01 = "node-01";
+var node02 = "node-02";
+var node03 = "node-03";
+var node04 = "node-04";
 </script>
-
 </head>
 
 <body>
@@ -25,32 +30,23 @@ function displayDate(){
 	<div class="plant" >
 		<p>Cluster Detail</p>
 	</div>
-	<div class="plant" style="height:200px;width:30%;float:left;" >
+	<div class="plant" style="width:30%;float:left;" >
 		<p>H1 Cluster overview</p>
-
-		<iframe id="frmFile" src="/css/default.css" onload="LoadFile();" style="display: none;"></iframe>
 
 		<script type="text/javascript">
 
 		</script>
 
 		<script type="text/javascript">
-			function load(name) {
-				let xhr = new XMLHttpRequest(),
-					okStatus = document.location.protocol === "file:" ? 0 : 200;
-				xhr.open('GET', name, false);
-				xhr.overrideMimeType("text/html;charset=utf-8");//默认为utf-8
-				xhr.send(null);
-				return xhr.status === okStatus ? xhr.responseText : null;
-			}
-			let text = load("/css/default.css");
+			//let text = load("/css/default.css");
+			//document.write(text);		//打印在网页中
 			//console.log(text);		//输出到浏览器控制器中
-			document.write(text);		//打印在网页中
+			document.write(load("/css/default.css"));
 		</script>
 
 
 	</div>
-	<div class="plant" style="height:200px;flex:1;">
+	<div class="plant" style="flex:1;">
 		<!-- or width:calc(100%-30%); -->
 		<p>H2</p>
 		<p id="demo" >Click to show time</p>
@@ -61,19 +57,28 @@ function displayDate(){
 <div class="plant" id="node" style="display: flex;">
 
 	<div class="node-flex" style="flex:1;">
-		
+		<script>
+			document.write(node01)
+			document.write(load("/tmp/secrt.sitrep.muscle01"));
+		</script>
 	</div>
 	
 	<div class="node-flex" style="flex:1;">
-		
+		<script>
+			document.write(node02)
+		</script>
 	</div>
 	
 	<div class="node-flex" style="flex:1;">
-		
+		<script>
+			document.write(node03)
+		</script>
 	</div>
 	
 	<div class="node-flex" style="flex:1;">
-		
+		<script>
+			document.write(node04)
+		</script>
 	</div>
 
 
@@ -89,6 +94,7 @@ function displayDate(){
 <div class="plant" >
 	<p>NX Node Detail</p>
 </div>
+
 
 
 
