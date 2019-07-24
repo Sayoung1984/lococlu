@@ -61,8 +61,8 @@ do
 	if [ "$CheckLineL1" == "$endline $execnode" -a "$CheckLineL2" != "$endline $execnode" ]
 	then
 		REPLXNAME=`/bin/echo $REPLX | /bin/sed 's/^\/tmp\///g'`
-		/bin/mv $REPLX `/bin/echo -e "$opstmp/sec$REPLXNAME"`
-		/bin/chmod 666 `/bin/echo -e "$opstmp/sec$REPLXNAME"`
+		/bin/mv $REPLX $opstmp/sec$REPLXNAME
+		/bin/chmod 666 $opstmp/sec$REPLXNAME
 	else
 		# /bin/mv $REPLX.fail  #DBG
 		/bin/rm $REPLX

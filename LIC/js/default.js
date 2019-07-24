@@ -2,6 +2,7 @@ function displayDate(){
 	document.getElementById("demo").innerHTML=Date();
 }
 
+
 function load(name) {
 	let xhr = new XMLHttpRequest(),
 		okStatus = document.location.protocol === "file:" ? 0 : 200;
@@ -9,20 +10,6 @@ function load(name) {
 	xhr.overrideMimeType("text/html;charset=utf-8");//默认为utf-8
 	xhr.send(null);
 	return xhr.status === okStatus ? xhr.responseText : null;
-}
-
-function readTextFile() {
-	// var x = document.getElementById("autoScroll").checked; //if autoscrool is checked
-	// if(x==true){
-	//  document.getElementById("result1").scrollTop = document.getElementById("textarea").scrollHeight; //autoscroll
-	// }
-// 
-$.ajax({
-dataType: "text",
-success : function (data) {
-		$("#result0").load(filePath);
-		}
-});
 }
 
 // window.onload=function () {
@@ -34,9 +21,9 @@ success : function (data) {
 //         //Odiv.className="Box";                    //div的class为Box
 //         Odiv.appendChild(Ospan);            //在div内创建一个span
 //         document.body.appendChild(Odiv);        //在body内创建一个div
-// 		
+//
 // 		var noApplicationRecord = document.getElementById('noApplicationRecord')
-// 
+//
 // //模拟数据
 // var data = [
 //     { business: '万达影院(万胜广场店)', count: '325', num: '20170012565863565656', time: '2017-10-12 16:30', license: '粤A88888' },
@@ -66,17 +53,17 @@ success : function (data) {
 //     }
 //     noApplicationRecord.innerHTML = html
 // }
-// 
+//
 //  window.onload = getnoApplicationData()
-//  
-//  
+//
+//
 //  <!DOCTYPE html>
 // <html>
 // <head lang="en">
 //     <meta charset="UTF-8">
 //     <title> 选项卡</title>
 //     <style type="text/css">
-//      /* CSS样式制作 */  
+//      /* CSS样式制作 */
 //      *{padding:0px; margin:0px;}
 //       a{ text-decoration:none; color:black;}
 //       a:hover{text-decoration:none; color:#336699;}
@@ -87,7 +74,7 @@ success : function (data) {
 //        #tab div{height:100px;width:250px; line-height:24px;border-top:none;  padding:1px; border:1px solid #336699;padding:10px;}
 //        .hide{display:none;}
 //     </style>
-// 
+//
 //     <script type="text/javascript">
 //     // JS实现选项卡切换
 //     window.onload = function(){
@@ -95,7 +82,7 @@ success : function (data) {
 //     var myUl = myTab.getElementsByTagName("ul")[0];//一个节点
 //     var myLi = myUl.getElementsByTagName("li");    //数组
 //     var myDiv = myTab.getElementsByTagName("div"); //数组
-// 
+//
 //     for(var i = 0; i<myLi.length;i++){
 //         myLi[i].index = i;
 //         myLi[i].onclick = function(){
@@ -109,7 +96,7 @@ success : function (data) {
 //       }
 //     }
 //     </script>
-// 
+//
 // </head>
 // <body>
 // <!-- HTML页面布局 -->
@@ -138,6 +125,6 @@ success : function (data) {
 //             <a href = "#">独家别墅280万 苏州桥2居优惠价248万</a><br/>
 //     </div>
 // </div>
-// 
+//
 // </body>
 // </html>

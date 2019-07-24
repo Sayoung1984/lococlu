@@ -1,33 +1,29 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
- "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
 <title>LCC Intel Center</title>
 <meta charset="utf-8" />
-<script rel="javascript" type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
-
-<script src="js/default.js"></script>
-<link rel="stylesheet" type="text/css" href="css/default.css">
-<!-- <script src="js/node_modules/epoch-charting/dist/js/epoch.min.js"></script>
-<script src="js/node_modules/d3/dist/d3.min.js"></script>
-<script src="js/node_modules/shelljs/shell.js"></script>
-<link rel="stylesheet" type="text/css" href="js/node_modules/epoch-charting/dist/css/epoch.min.css">
+<meta http-equiv="Cache-Control" content="no-store" />
+<link rel="stylesheet" type="text/css" href="/css/default.css">
+<script rel="javascript" type="text/javascript" src="/js/jquery.min.js"></script>
+<script language="JavaScript" type="text/javascript" src="/js/default.js"></script>
+<!-- <script src="/js/node_modules/epoch-charting/dist/js/epoch.min.js"></script>
+<script src="/js/node_modules/d3/dist/d3.min.js"></script>
+<script src="/js/node_modules/shelljs/shell.js"></script>
+<link rel="stylesheet" type="text/css" href="/js/node_modules/epoch-charting/dist/css/epoch.min.css">
  -->
 
-<script>
 
-		
-</script>
 
 <script>
-var head= "head-01";
-var nodecount = "4" ;
-var node01 = "node-01";
-var node02 = "node-02";
-var node03 = "node-03";
-var node04 = "node-04";
+var head_name= "head-01?";
+var node_count = "4" ;
+var node_name_01 = "node-01?";
+var node_name_02 = "node-02?";
+var node_name_03 = "node-03?";
+var node_name_04 = "node-04?";
 </script>
 </head>
 
@@ -44,11 +40,21 @@ var node04 = "node-04";
 
 		</script>
 		<p>Info: <output id="result0"></output></p>
-		<script type="text/javascript">
+		<script>
+		var filePath0 = "/css/default.css";
+		function readTextFile() {
+			$.ajax({
+				dataType: "text",
+				success : function (data) {
+					$("#result0").load(filePath0);
+					}
+			});
+		}
+		setInterval(readTextFile, 500);
 			// document.write(load("/css/default.css"));
-			var filePath = "/css/default.css"
-			setInterval(readTextFile, 1000);
-			
+
+
+//
 		</script>
 
 
@@ -60,35 +66,32 @@ var node04 = "node-04";
 		<p id="demo" >Click to show time</p>
 		<button type="button" onclick="displayDate()">Show time</button>
 		<div class="plant">
-		<p>计数： <output id="result"></output></p>
-		<button onclick="startWorker()">开始工作</button>
-		<button onclick="stopWorker()">停止工作</button>
-
-		<script>
-
-			var w;
-			function startWorker() {
-				if(typeof(Worker) !== "undefined") {
-					if(typeof(w) == "undefined") {
-						w = new Worker("/js/demo_workers.js");
+			<p>计数： <output id="result"></output></p>
+			<button onclick="startWorker()">开始工作</button>
+			<button onclick="stopWorker()">停止工作</button>
+			<script>
+				var w;
+				function startWorker() {
+					if(typeof(Worker) !== "undefined") {
+						if(typeof(w) == "undefined") {
+							w = new Worker("/js/demo_workers.js");
+						}
+						w.onmessage = function(event) {
+							document.getElementById("result").innerHTML = event.data;
+						};
+					} else {
+						document.getElementById("result").innerHTML = "抱歉，你的浏览器不支持 Web Workers...";
 					}
-					w.onmessage = function(event) {
-						document.getElementById("result").innerHTML = event.data;
-					};
-				} else {
-					document.getElementById("result").innerHTML = "抱歉，你的浏览器不支持 Web Workers...";
 				}
-			}
 
-			function stopWorker() {
-				w.terminate();
-				w = undefined;
-			}
+				function stopWorker() {
+					w.terminate();
+					w = undefined;
+				}
+				startWorker()
 
-			startWorker()
-
-			document.write(load("/tmp/info"))
-		</script>
+				document.write(load("/tmp/info"))
+			</script>
 		</div>
 	</div>
 </div>
@@ -97,54 +100,38 @@ var node04 = "node-04";
 
 	<div class="node-flex" style="flex:1;">
 		<script>
-			document.write(node01);
-			// document.write(load("/tmp/secrt.sitrep.testlab-sha1"));
+			document.write(node_name_01)
 		</script>
-			<div class="plant">
-			<p>Info: <output id="result1"></output></p>
-			</div>
-	
-			<script>
-	
-var filePath1 = "tmp/secrt.sitrep.testlab-sha1"
-	function readTextFile() {
-	    // var x = document.getElementById("autoScroll").checked; //if autoscrool is checked
-	    // if(x==true){
-	    //  document.getElementById("result1").scrollTop = document.getElementById("textarea").scrollHeight; //autoscroll
-	    // }
-	// 
-	$.ajax({
-	dataType: "text",
-	success : function (data) {
-			$("#result1").load(filePath1);
-			}
-	});
-	}
-	
-setInterval(readTextFile, 1000);
-		
-			
-		</script>
-		
+		<div class="plant">
+		<p>Info: <output id="result1"></output></p>
+		</div>
 
+		<script>
+		var filePath1 = "/tmp/secrt.sitrep.testlab-sha1";
+			function readTextFile() {
+		$.ajax({
+		dataType: "text",
+		success : function (data) {
+				$("#result1").load(filePath1);
+				}
+		});
+		}
+
+		setInterval(readTextFile, 500);
+		</script>
 	</div>
 
 	<div class="node-flex" style="flex:1;">
 		<script>
-			document.write(node02)
+			document.write(node_name_02)
 		</script>
 		<div class="plant">
 		<p>Info: <output id="result2"></output></p>
 		</div>
 
 		<script>
-		var filePath2 = "tmp/secrt.sitrep.testlab-sha2"
+		var filePath2 = "/tmp/secrt.sitrep.testlab-sha2";
 			function readTextFile() {
-		    // var x = document.getElementById("autoScroll").checked; //if autoscrool is checked
-		    // if(x==true){
-		    //  document.getElementById("result1").scrollTop = document.getElementById("textarea").scrollHeight; //autoscroll
-		    // }
-		// 
 		$.ajax({
 		dataType: "text",
 		success : function (data) {
@@ -152,37 +139,37 @@ setInterval(readTextFile, 1000);
 				}
 		});
 		}
-		
-		setInterval(readTextFile, 1000);
+
+		setInterval(readTextFile, 500);
 		</script>
 	</div>
 
 	<div class="node-flex" style="flex:1;">
 		<script>
-			document.write(node03)
+			document.write(node_name_03)
 		</script>
 		<div class="plant">
 		<p>Info: <output id="result3"></output></p>
 		</div>
 
 		<script>
-		var filePath3 = "tmp/secrt.sitrep.testlab-sha3"
+		var filePath3 = "/tmp/secrt.sitrep.testlab-sha3";
 		function readTextFile() {
 		$.ajax({
 		dataType: "text",
 		success : function (data) {
 			$("#result3").load(filePath3);
 			}
-		});	
+		});
 		}
-		
-		setInterval(readTextFile, 1000);
+
+		setInterval(readTextFile, 500);
 		</script>
 	</div>
 
 	<div class="node-flex" style="flex:1;">
 		<script>
-			document.write(node04)
+			document.write(node_name_04)
 		</script>
 	</div>
 

@@ -183,12 +183,10 @@ secrtsend_sitrep()
 		then
 			FREPNAME=`/bin/echo $REPLX | /bin/sed 's/^\/tmp\//sec/g'`
 			# /bin/echo -e "export TmS_2c=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
-			/bin/cp $REPLX `/bin/echo -e "$opstmp/$FREPNAME"`
+			/bin/cp $REPLX $opstmp/$FREPNAME
 			# /bin/echo -e "export TmS_2d=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
-			/bin/chmod 666 `/bin/echo -e "$opstmp/$FREPNAME"`
+			/bin/chmod 666 $opstmp/$FREPNAME
 			# /bin/echo -e "export TmS_2e=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
-			/bin/cp $REPLX $lococlu/LIC/tmp/$FREPNAME
-			/bin/chmod 666 $lococlu/LIC/tmp/$FREPNAME &
 		else
 			# /bin/mv $REPLX.fail  #DBG
 			/bin/rm -f $REPLX
