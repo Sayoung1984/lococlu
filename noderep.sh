@@ -185,7 +185,7 @@ secrtsend_sitrep()
 			# /bin/echo -e "export TmS_2c=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
 			/bin/cp $REPLX $opstmp/$FREPNAME
 			# /bin/echo -e "export TmS_2d=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
-			/bin/chmod 666 $opstmp/$FREPNAME
+			# /bin/chmod 666 $opstmp/$FREPNAME
 			# /bin/echo -e "export TmS_2e=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
 		else
 			# /bin/mv $REPLX.fail  #DBG
@@ -194,26 +194,6 @@ secrtsend_sitrep()
 	fi
 
 
-	# for REPLX in `/bin/ls /tmp/rt.sitrep.* 2>/dev/null`
-	# do
-	# 	CheckLineL1=`/usr/bin/tail -n 1 $REPLX`
-	# 	CheckLineL2=`/usr/bin/tail -n 2 $REPLX | /usr/bin/head -n 1`
-	# 	RepLag=$((`/bin/date +%s`-${CheckLineL2:(-10)}))
-	# 	# /bin/echo -e "export TmS_2b=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
-	# 	# /bin/echo -e "# DBG RepLag=$RepLag   loglatency=$loglatency" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
-	# 	if [ "$CheckLineL1"  == "$endline $HOSTNAME" -a "$CheckLineL2"  != "$endline $HOSTNAME" -a "$RepLag" -lt "$loglatency" ]
-	# 	then
-	# 		FREPNAME=`/bin/echo $REPLX | /bin/sed 's/^\/tmp\///g'`
-	# 		# /bin/echo -e "export TmS_2c=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
-	# 		/bin/cp $REPLX `/bin/echo -e "$opstmp/sec$FREPNAME"`
-	# 		# /bin/echo -e "export TmS_2d=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
-	# 		/bin/chmod 666 `/bin/echo -e "$opstmp/sec$FREPNAME"`
-	# 		# /bin/echo -e "export TmS_2e=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
-	# 	else
-	# 		# /bin/mv $REPLX.fail  #DBG
-	# 		/bin/rm -f $REPLX
-	# 	fi
-	# done
 	TmS_2z=$[$(/bin/date +%s%N)/1000000] #DBG_secrtsend_sitrep	   #lagcalc basic
 	/bin/echo -e "export TmS_2z=$TmS_2z\nexport TmR_1=$TmS_2z" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep #DBG_reallenth	   #lagcalc basic
 }
@@ -323,7 +303,7 @@ do
 		TmM_0=$[$(/bin/date +%s%N)/1000000] # !!! Used by $AR calc !!!
 	payload &
 	geoexec & #XR
-	sleep $step
+	/bin/sleep $step
 		/bin/echo -e "export TmM_2=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_marktime	   #lagcalc basic
 	cpuiotock #M1
 done

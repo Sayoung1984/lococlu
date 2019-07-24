@@ -7,8 +7,8 @@
 <meta charset="utf-8" />
 <meta http-equiv="Cache-Control" content="no-store" />
 <link rel="stylesheet" type="text/css" href="/css/default.css">
-<script rel="javascript" type="text/javascript" src="/js/jquery.min.js"></script>
-<script language="JavaScript" type="text/javascript" src="/js/default.js"></script>
+<script type="text/javascript" src="/js/jquery.min.js"></script>
+<script type="text/javascript" src="/js/default.js"></script>
 <!-- <script src="/js/node_modules/epoch-charting/dist/js/epoch.min.js"></script>
 <script src="/js/node_modules/d3/dist/d3.min.js"></script>
 <script src="/js/node_modules/shelljs/shell.js"></script>
@@ -20,10 +20,12 @@
 <script>
 var head_name= "head-01?";
 var node_count = "4" ;
-var node_name_01 = "node-01?";
-var node_name_02 = "node-02?";
-var node_name_03 = "node-03?";
-var node_name_04 = "node-04?";
+var node_name_1 = "node-01?";
+var node_name_2 = "node-02?";
+var node_name_3 = "node-03?";
+var node_name_4 = "node-04?";
+var lccinfo_file = "/tmp/lccinfo"
+setInterval(eval(load(lccinfo_file)), 500);
 </script>
 </head>
 
@@ -33,15 +35,18 @@ var node_name_04 = "node-04?";
 	<div class="plant" >
 		<p>Cluster Detail</p>
 	</div>
-	<div class="plant" style="width:30%;float:left;" >
+	<div class="plant" style="width:30%;min-height:250px;float:left;" >
 		<p>H1 Cluster overview</p>
-
-		<script type="text/javascript">
+		<script>
+// var var_str = load("/tmp/lccinfo");
 
 		</script>
-		<p>Info: <output id="result0"></output></p>
+		<p>Head name: 
+		<script type="text/javascript">document.writeln(head_name)</script>
+		</p>
+		<p><output id="result0"></output></p>
 		<script>
-		var filePath0 = "/css/default.css";
+		var filePath0 = "/tmp/lccrep_stack";
 		function readTextFile() {
 			$.ajax({
 				dataType: "text",
@@ -52,8 +57,6 @@ var node_name_04 = "node-04?";
 		}
 		setInterval(readTextFile, 500);
 			// document.write(load("/css/default.css"));
-
-
 //
 		</script>
 
@@ -90,7 +93,7 @@ var node_name_04 = "node-04?";
 				}
 				startWorker()
 
-				document.write(load("/tmp/lccinfo"))
+				document.write(node_count,head_name)
 			</script>
 		</div>
 	</div>
@@ -99,15 +102,17 @@ var node_name_04 = "node-04?";
 <div class="plant" id="node" style="display: flex;">
 
 	<div class="node-flex" style="flex:1;">
+		<div class="plant">
 		<script>
-			document.write(node_name_01)
+			document.writeln(node_name_1)
 		</script>
+		</div>
 		<div class="plant">
 		<p>Info: <output id="result1"></output></p>
 		</div>
 
 		<script>
-		var filePath1 = "/tmp/secrt.sitrep.testlab-sha1";
+		var filePath1 = "/tmp/secrt.sitrep.muscle01";
 			function readTextFile() {
 		$.ajax({
 		dataType: "text",
@@ -123,14 +128,14 @@ var node_name_04 = "node-04?";
 
 	<div class="node-flex" style="flex:1;">
 		<script>
-			document.write(node_name_02)
+			document.write(node_name_2)
 		</script>
 		<div class="plant">
 		<p>Info: <output id="result2"></output></p>
 		</div>
 
 		<script>
-		var filePath2 = "/tmp/secrt.sitrep.testlab-sha2";
+		var filePath2 = "/tmp/secrt.sitrep.muscle02";
 			function readTextFile() {
 		$.ajax({
 		dataType: "text",
@@ -146,14 +151,14 @@ var node_name_04 = "node-04?";
 
 	<div class="node-flex" style="flex:1;">
 		<script>
-			document.write(node_name_03)
+			document.write(node_name_3)
 		</script>
 		<div class="plant">
 		<p>Info: <output id="result3"></output></p>
 		</div>
 
 		<script>
-		var filePath3 = "/tmp/secrt.sitrep.testlab-sha3";
+		var filePath3 = "/tmp/secrt.sitrep.muscle03";
 		function readTextFile() {
 		$.ajax({
 		dataType: "text",
@@ -169,7 +174,7 @@ var node_name_04 = "node-04?";
 
 	<div class="node-flex" style="flex:1;">
 		<script>
-			document.write(node_name_04)
+			document.write(node_name_4)
 		</script>
 	</div>
 
