@@ -44,15 +44,15 @@ jumpto('overview')
 
 <div class="plant" id="overview" style="height:100vh;border-color:red">
 	<a href="#overview"></a>
-	
+
 	<div class="plant" id="head_overview" style="height:62%;" >
 			<div class="plant" style="width:38%;height:100%;float:left;" >
 				<p>H1 Cluster overview</p>
 				<script>
 		// var var_str = load("/tmp/lccinfo");
-		
+
 				</script>
-				<p>Head name: 
+				<p>Head name:
 				<script type="text/javascript">document.writeln(head_name)</script>
 				</p>
 				<p><output id="result0"></output></p>
@@ -70,13 +70,13 @@ jumpto('overview')
 					// document.write(load("/css/default.css"));
 		//
 				</script>
-		
-		
+
+
 			</div>
 			<div class="plant" style="flex:1;">
 				<!-- or width:calc(100%-30%); -->
 				<p>H2</p>
-		
+
 				<p id="demo" >Click to show time</p>
 				<button type="button" onclick="displayDate()">Show time</button>
 				<div class="plant">
@@ -97,13 +97,13 @@ jumpto('overview')
 								document.getElementById("result").innerHTML = "抱歉，你的浏览器不支持 Web Workers...";
 							}
 						}
-		
+
 						function stopWorker() {
 							w.terminate();
 							w = undefined;
 						}
 						startWorker()
-		
+
 						document.write(window.innerHeight)
 					</script>
 				</div>
@@ -121,7 +121,7 @@ jumpto('overview')
 			<div class="plant">
 				<p>Info: <output id="result1"></output></p>
 			</div>
-		
+
 			<script>
 				function readTextFile() {
 				var filePath = "/tmp/secrt.sitrep."+node_name_1;
@@ -132,11 +132,11 @@ jumpto('overview')
 						}
 				});
 				}
-				
+
 				setInterval(readTextFile, 500);
 			</script>
 		</div>
-	
+
 	<div class="node-flex" style="flex:1;">
 		<script>
 			document.write(node_name_2)
@@ -144,7 +144,7 @@ jumpto('overview')
 		<div class="plant">
 		<p>Info: <output id="result2"></output></p>
 		</div>
-	
+
 		<script>
 		function readTextFile() {
 				var filePath = "/tmp/secrt.sitrep."+node_name_2;
@@ -155,11 +155,11 @@ jumpto('overview')
 				}
 		});
 		}
-	
+
 		setInterval(readTextFile, 500);
 		</script>
 	</div>
-	
+
 	<div class="node-flex" style="flex:1;">
 		<script>
 			document.write(node_name_3)
@@ -167,7 +167,7 @@ jumpto('overview')
 		<div class="plant">
 		<p>Info: <output id="result3"></output></p>
 		</div>
-	
+
 		<script>
 		function readTextFile() {
 				var filePath = "/tmp/secrt.sitrep."+node_name_3;
@@ -178,11 +178,11 @@ jumpto('overview')
 				}
 		});
 		}
-	
+
 		setInterval(readTextFile, 500);
 		</script>
 	</div>
-	
+
 	<div class="node-flex" style="flex:1;">
 		<script>
 			document.write(node_name_4)
