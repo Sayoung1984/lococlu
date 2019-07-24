@@ -26,106 +26,117 @@ var node_name_3 = "node-03?";
 var node_name_4 = "node-04?";
 var lccinfo_file = "/tmp/lccinfo"
 setInterval(eval(load(lccinfo_file)), 500);
+function jumpto(anchor){
+    window.location.href = "#"+anchor;
+}
+jumpto('overview')
 </script>
 </head>
 
 <body>
-<div class="plant" id="head" >
+<div class="plant" id="head_detail">
 	<h1>LCC Intel Center</h1>
 	<div class="plant" >
+		<h2>Cluster Detail</h2>
 		<p>Cluster Detail</p>
-	</div>
-	<div class="plant" style="width:30%;min-height:250px;float:left;" >
-		<p>H1 Cluster overview</p>
-		<script>
-// var var_str = load("/tmp/lccinfo");
-
-		</script>
-		<p>Head name: 
-		<script type="text/javascript">document.writeln(head_name)</script>
-		</p>
-		<p><output id="result0"></output></p>
-		<script>
-		var filePath0 = "/tmp/lccrep_stack";
-		function readTextFile() {
-			$.ajax({
-				dataType: "text",
-				success : function (data) {
-					$("#result0").load(filePath0);
-					}
-			});
-		}
-		setInterval(readTextFile, 500);
-			// document.write(load("/css/default.css"));
-//
-		</script>
-
-
-	</div>
-	<div class="plant" style="flex:1;">
-		<!-- or width:calc(100%-30%); -->
-		<p>H2</p>
-
-		<p id="demo" >Click to show time</p>
-		<button type="button" onclick="displayDate()">Show time</button>
-		<div class="plant">
-			<p>计数： <output id="result"></output></p>
-			<button onclick="startWorker()">开始工作</button>
-			<button onclick="stopWorker()">停止工作</button>
-			<script>
-				var w;
-				function startWorker() {
-					if(typeof(Worker) !== "undefined") {
-						if(typeof(w) == "undefined") {
-							w = new Worker("/js/demo_workers.js");
-						}
-						w.onmessage = function(event) {
-							document.getElementById("result").innerHTML = event.data;
-						};
-					} else {
-						document.getElementById("result").innerHTML = "抱歉，你的浏览器不支持 Web Workers...";
-					}
-				}
-
-				function stopWorker() {
-					w.terminate();
-					w = undefined;
-				}
-				startWorker()
-
-				document.write(node_count,head_name)
-			</script>
-		</div>
 	</div>
 </div>
 
-<div class="plant" id="node" style="display: flex;">
-
-	<div class="node-flex" style="flex:1;">
-		<div class="plant">
-		<script>
-			document.writeln(node_name_1)
-		</script>
-		</div>
-		<div class="plant">
-		<p>Info: <output id="result1"></output></p>
-		</div>
-
-		<script>
-		var filePath1 = "/tmp/secrt.sitrep.muscle01";
-			function readTextFile() {
-		$.ajax({
-		dataType: "text",
-		success : function (data) {
-				$("#result1").load(filePath1);
+<div class="plant" id="overview" style="height:100vh;border-color:red">
+	<a href="#overview"></a>
+	
+	<div class="plant" id="head_overview" style="height:62%;" >
+			<div class="plant" style="width:38%;height:100%;float:left;" >
+				<p>H1 Cluster overview</p>
+				<script>
+		// var var_str = load("/tmp/lccinfo");
+		
+				</script>
+				<p>Head name: 
+				<script type="text/javascript">document.writeln(head_name)</script>
+				</p>
+				<p><output id="result0"></output></p>
+				<script>
+				function readTextFile() {
+					var filePath = "/tmp/lccrep_stack";
+					$.ajax({
+						dataType: "text",
+						success : function (data) {
+							$("#result0").load(filePath);
+							}
+					});
 				}
-		});
-		}
-
-		setInterval(readTextFile, 500);
-		</script>
+				setInterval(readTextFile, 500);
+					// document.write(load("/css/default.css"));
+		//
+				</script>
+		
+		
+			</div>
+			<div class="plant" style="flex:1;">
+				<!-- or width:calc(100%-30%); -->
+				<p>H2</p>
+		
+				<p id="demo" >Click to show time</p>
+				<button type="button" onclick="displayDate()">Show time</button>
+				<div class="plant">
+					<p>计数： <output id="result"></output></p>
+					<button onclick="startWorker()">开始工作</button>
+					<button onclick="stopWorker()">停止工作</button>
+					<script>
+						var w;
+						function startWorker() {
+							if(typeof(Worker) !== "undefined") {
+								if(typeof(w) == "undefined") {
+									w = new Worker("/js/demo_workers.js");
+								}
+								w.onmessage = function(event) {
+									document.getElementById("result").innerHTML = event.data;
+								};
+							} else {
+								document.getElementById("result").innerHTML = "抱歉，你的浏览器不支持 Web Workers...";
+							}
+						}
+		
+						function stopWorker() {
+							w.terminate();
+							w = undefined;
+						}
+						startWorker()
+		
+						document.write(window.innerHeight)
+					</script>
+				</div>
+			</div>
+			  <div class="spacer" style="clear: both;"></div>
 	</div>
 
+	<div class="plant" id="node_overview" style="display:flex;justify-content:space-around;height:38%">
+		<div class="node-flex" style="flex:1">
+			<div class="plant">
+				<script>
+					document.writeln(node_name_1)
+				</script>
+			</div>
+			<div class="plant">
+				<p>Info: <output id="result1"></output></p>
+			</div>
+		
+			<script>
+				function readTextFile() {
+				var filePath = "/tmp/secrt.sitrep."+node_name_1;
+				$.ajax({
+				dataType: "text",
+				success : function (data) {
+						$("#result1").load(filePath);
+						}
+				});
+				}
+				
+				setInterval(readTextFile, 500);
+			</script>
+		</div>
+	
 	<div class="node-flex" style="flex:1;">
 		<script>
 			document.write(node_name_2)
@@ -133,22 +144,22 @@ setInterval(eval(load(lccinfo_file)), 500);
 		<div class="plant">
 		<p>Info: <output id="result2"></output></p>
 		</div>
-
+	
 		<script>
-		var filePath2 = "/tmp/secrt.sitrep.muscle02";
-			function readTextFile() {
+		function readTextFile() {
+				var filePath = "/tmp/secrt.sitrep."+node_name_2;
 		$.ajax({
 		dataType: "text",
 		success : function (data) {
-				$("#result2").load(filePath2);
+				$("#result2").load(filePath);
 				}
 		});
 		}
-
+	
 		setInterval(readTextFile, 500);
 		</script>
 	</div>
-
+	
 	<div class="node-flex" style="flex:1;">
 		<script>
 			document.write(node_name_3)
@@ -156,44 +167,35 @@ setInterval(eval(load(lccinfo_file)), 500);
 		<div class="plant">
 		<p>Info: <output id="result3"></output></p>
 		</div>
-
+	
 		<script>
-		var filePath3 = "/tmp/secrt.sitrep.muscle03";
 		function readTextFile() {
+				var filePath = "/tmp/secrt.sitrep."+node_name_3;
 		$.ajax({
 		dataType: "text",
 		success : function (data) {
-			$("#result3").load(filePath3);
-			}
+				$("#result3").load(filePath);
+				}
 		});
 		}
-
+	
 		setInterval(readTextFile, 500);
 		</script>
 	</div>
-
+	
 	<div class="node-flex" style="flex:1;">
 		<script>
 			document.write(node_name_4)
 		</script>
 	</div>
 
-
-<!-- <div class="plant" id="node">
-<div class="plant" >
-	<p>NX Node overview</p>
+	</div>
 </div>
 
-
-</div> -->
-
-</div>
 <div class="plant" >
+	<h2>NX Node Detail</h2>
 	<p>NX Node Detail</p>
 </div>
-
-
-
 
 
 </body>
