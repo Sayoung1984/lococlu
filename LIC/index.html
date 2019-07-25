@@ -24,8 +24,7 @@ var node_name_1 = "node-01?";
 var node_name_2 = "node-02?";
 var node_name_3 = "node-03?";
 var node_name_4 = "node-04?";
-var lccinfo_file = "/tmp/lccinfo"var lccary_file = "/tmp/lccrep_ary"setInterval(eval(txtop(lccinfo_file)), 500);setInterval(eval(txtop(lccary_file)), 500);
-// setInterval(eval(txtop(lccary_file)), 500)
+var lccinfo_file = "/tmp/lccinfo"var lccary_file = "/tmp/lccrep_ary"setInterval(eval(txtop(lccinfo_file)), 500);// setInterval(eval(txtop(lccary_file)), 500)
 setInterval(wtjs(lccary_file), 500);
 // readvar(lccinfo_file)
 // readvar(lccary_file)
@@ -63,11 +62,11 @@ jumpto('overview')
 				</p>				<pre><output id="result0"></output></pre>
 				<p><output id="lcc_load"></output></p><!-- 				<p><output id="show_load"></output></p> -->
 				<script>
-				function txtid() {					$.ajax({						dataType: "text",						success : function (data) {							$("#result0").load("/tmp/lccrep_ary");							}					});					// console.log(txtid(rdtxt,writeid))				}
+				function txtid() {					$.ajax({						dataType: "text",						success : function (data) {							$("#result0").load(lccary_file);							}					});					// console.log(txtid(rdtxt,writeid))				}
 				setInterval(txtid, 500);
-				// document.write(txtop("/css/default.css"));				
-				// scpid("/js/source.js","lcc_load");
-								// document.write(lcc_load);
+				// document.write(txtop("/css/default.css"));
+				// scpid("/js/source.js","lcc_load");	// console.log(lcc_load);	// console.log(lcc_imgon);	// console.log(lcc_ulsc)
+				// document.write(lcc_load);
 				// document.write(lcc_imgon);
 				// document.write(lcc_ulsc);
 				</script>
