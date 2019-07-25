@@ -42,7 +42,7 @@ payload_lccinfo()
 	lccrep_ulsc=`/bin/echo -e "var lcc_ulsc = [\n\t['node_name', 'user', 'log_from', 'log_time', 'tmsp'],";\
 				/bin/echo "$lccrep_stack" | /bin/grep  "log=ulsc" | awk '{print "'\''"$1"'\''\t'\''" $4"'\''\t'\''" $5"'\''\t'\''"$3"'\''\t"$6}'  | /bin/sed "s/\t/ /g"  \
 				| /bin/sed "s/$/],/g; s/[ ][ ]*/\t/g; s/\t/, /g" | /bin/sed 's/^/\t[/g; $s/,$/\n];/g'`
-	/bin/echo -e "$lccrep_load\n$lccrep_imgon\n$lccrep_ulsc" > /tmp/lccrep_ary
+	/bin/echo -e "$lccrep_load\n$lccrep_imgon\n$lccrep_ulsc\n" > /tmp/lccrep_ary
 
 	node_names=`/bin/echo "$lccrep_stack" | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
 	node_count=`/bin/echo "$node_names" | /usr/bin/wc -l`

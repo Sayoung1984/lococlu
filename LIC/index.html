@@ -24,10 +24,9 @@ var node_name_1 = "node-01?";
 var node_name_2 = "node-02?";
 var node_name_3 = "node-03?";
 var node_name_4 = "node-04?";
-var lccinfo_file = "/tmp/lccinfo"
-var lccary_file = '/tmp/lccrep_ary'
-setInterval(eval(load(lccinfo_file)), 500);
-setInterval(eval(load(lccary_file)), 500);
+var lccinfo_file = "/tmp/lccinfo"var lccary_file = "/tmp/lccrep_ary"setInterval(eval(txtop(lccinfo_file)), 500);setInterval(eval(txtop(lccary_file)), 500);
+// setInterval(eval(txtop(lccary_file)), 500)
+setInterval(wtjs(lccary_file), 500);
 // readvar(lccinfo_file)
 // readvar(lccary_file)
 function jumpto(anchor){
@@ -53,39 +52,29 @@ jumpto('overview')
 			<div class="plant" style="width:38%;height:100%;float:left;" >
 				<p>H1 Cluster overview</p>
 				<script>
-		// var var_str = load("/tmp/lccinfo");
+		// var var_str = txtop("/tmp/lccinfo");
 
 				</script>
 				<p>Head name:
-				<script type="text/javascript">document.writeln(head_name)</script>
+				<script type="text/javascript">					setInterval(document.writeln(head_name), 500);				</script>
 				</p>
-				<!-- <p><output id="result0"></output></p> -->
-				<p><output id="show_load"></output></p>
+				<p>Node count:
+				<script type="text/javascript">					setInterval(document.writeln(node_count), 500);				</script>
+				</p>				<pre><output id="result0"></output></pre>
+				<p><output id="lcc_load"></output></p><!-- 				<p><output id="show_load"></output></p> -->
 				<script>
-				function readTextFile() {
-					var filePath = "/tmp/lccrep_ary";
-					$.ajax({
-						dataType: "text",
-						success : function (data) {
-							$("#result0").load(filePath);
-							}
-					});
-				}
-				setInterval(readTextFile, 500);
-					// document.write(load("/css/default.css"));
-				function showvar()
-				{
-					document.getElementById('show_load').value = lcc_load
-					setTimeout(showvar,500);
-				}
-				// document.write(lcc_load);
+				function txtid() {					$.ajax({						dataType: "text",						success : function (data) {							$("#result0").load("/tmp/lccrep_ary");							}					});					// console.log(txtid(rdtxt,writeid))				}
+				setInterval(txtid, 500);
+				// document.write(txtop("/css/default.css"));				
+				// scpid("/js/source.js","lcc_load");
+								// document.write(lcc_load);
 				// document.write(lcc_imgon);
 				// document.write(lcc_ulsc);
 				</script>
 
 
 			</div>
-			<div class="plant" style="flex:1;">
+			<div class="plant" style="flex:1;height:100%;">
 				<!-- or width:calc(100%-30%); -->
 				<p>H2</p>
 
@@ -93,31 +82,18 @@ jumpto('overview')
 				<button type="button" onclick="displayDate()">Show time</button>
 				<div class="plant">
 					<p>计数： <output id="result"></output></p>
-					<button onclick="startWorker()">开始工作</button>
+					<button onclick="scpid()">开始工作</button>
 					<button onclick="stopWorker()">停止工作</button>
 					<script>
-						var w;
-						function startWorker() {
-							if(typeof(Worker) !== "undefined") {
-								if(typeof(w) == "undefined") {
-									w = new Worker("/js/demo_workers.js");
-								}
-								w.onmessage = function(event) {
-									document.getElementById("result").innerHTML = event.data;
-								};
-							} else {
-								document.getElementById("result").innerHTML = "抱歉，你的浏览器不支持 Web Workers...";
-							}
-						}
+						
+						scpid("/js/demo_workers.js","result");
 
-						startWorker();
-
-						document.write(window.innerHeight);
+						setInterval(document.write(window.innerHeight),500);
 
 					</script>
 				</div>
 			</div>
-			  <div class="spacer" style="clear: both;"></div>
+			  <!-- <div class="spacer" style="clear: both;"></div> -->
 	</div>
 
 	<div class="plant" id="node_overview" style="display:flex;justify-content:space-around;height:38%">
@@ -132,7 +108,7 @@ jumpto('overview')
 			</div>
 
 			<script>
-				function readTextFile() {
+				function txtid() {
 				var filePath = "/tmp/secrt.sitrep."+node_name_1;
 				$.ajax({
 				dataType: "text",
@@ -142,7 +118,7 @@ jumpto('overview')
 				});
 				}
 
-				setInterval(readTextFile, 500);
+				setInterval(txtid, 500);
 			</script>
 		</div>
 
@@ -155,7 +131,7 @@ jumpto('overview')
 		</div>
 
 		<script>
-		function readTextFile() {
+		function txtid() {
 				var filePath = "/tmp/secrt.sitrep."+node_name_2;
 		$.ajax({
 		dataType: "text",
@@ -165,7 +141,7 @@ jumpto('overview')
 		});
 		}
 
-		setInterval(readTextFile, 500);
+		setInterval(txtid, 500);
 		</script>
 	</div>
 
@@ -178,7 +154,7 @@ jumpto('overview')
 		</div>
 
 		<script>
-		function readTextFile() {
+		function txtid() {
 				var filePath = "/tmp/secrt.sitrep."+node_name_3;
 		$.ajax({
 		dataType: "text",
@@ -188,7 +164,7 @@ jumpto('overview')
 		});
 		}
 
-		setInterval(readTextFile, 500);
+		setInterval(txtid, 500);
 		</script>
 	</div>
 
