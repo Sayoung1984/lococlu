@@ -12,6 +12,7 @@ function load(name) {
 	return xhr.status === okStatus ? xhr.responseText : null;
 }
 
+
 // window.onload=function () {
 //         var Odiv=document.createElement("div");             //创建一个div
 //         var Ospan=document.createElement("span");          //创建一个span

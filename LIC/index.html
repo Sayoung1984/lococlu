@@ -25,7 +25,11 @@ var node_name_2 = "node-02?";
 var node_name_3 = "node-03?";
 var node_name_4 = "node-04?";
 var lccinfo_file = "/tmp/lccinfo"
+var lccary_file = '/tmp/lccrep_ary'
 setInterval(eval(load(lccinfo_file)), 500);
+setInterval(eval(load(lccary_file)), 500);
+// readvar(lccinfo_file)
+// readvar(lccary_file)
 function jumpto(anchor){
     window.location.href = "#"+anchor;
 }
@@ -55,10 +59,11 @@ jumpto('overview')
 				<p>Head name:
 				<script type="text/javascript">document.writeln(head_name)</script>
 				</p>
-				<p><output id="result0"></output></p>
+				<!-- <p><output id="result0"></output></p> -->
+				<p><output id="show_load"></output></p>
 				<script>
 				function readTextFile() {
-					var filePath = "/tmp/lccrep_stack";
+					var filePath = "/tmp/lccrep_ary";
 					$.ajax({
 						dataType: "text",
 						success : function (data) {
@@ -68,7 +73,14 @@ jumpto('overview')
 				}
 				setInterval(readTextFile, 500);
 					// document.write(load("/css/default.css"));
-		//
+				function showvar()
+				{
+					document.getElementById('show_load').value = lcc_load
+					setTimeout(showvar,500);
+				}
+				// document.write(lcc_load);
+				// document.write(lcc_imgon);
+				// document.write(lcc_ulsc);
 				</script>
 
 
@@ -98,13 +110,10 @@ jumpto('overview')
 							}
 						}
 
-						function stopWorker() {
-							w.terminate();
-							w = undefined;
-						}
-						startWorker()
+						startWorker();
 
-						document.write(window.innerHeight)
+						document.write(window.innerHeight);
+
 					</script>
 				</div>
 			</div>
