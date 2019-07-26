@@ -53,12 +53,12 @@ payload_lccinfo()
 		/bin/echo -e "var node_name_$x = \"$node_name\";" >> /tmp/CR_lccinfo
 		x=$(($x+1))
 	done
-	/bin/cp /tmp/lccrep_ary $opstmp/lccrep_ary &
-	/bin/cp /tmp/CR_lccinfo $opstmp/lccinfo &
+	/bin/cp /tmp/lccrep_ary $opstmp/lccrep_ary
+	/bin/cp /tmp/CR_lccinfo $opstmp/lccinfo
 }
 
 # Main function loop
-step=0.1
+step=0.25
 while true
 do
 	payload_lccinfo

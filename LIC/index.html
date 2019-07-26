@@ -17,21 +17,19 @@
 
 
 
-<script>
-var head_name= "head-01?";
-var node_count = "4" ;
-var node_name_1 = "node-01?";
-var node_name_2 = "node-02?";
-var node_name_3 = "node-03?";
-var node_name_4 = "node-04?";
-var lccinfo_file = "/tmp/lccinfo"var lccary_file = "/tmp/lccrep_ary"setInterval(eval(txtop(lccinfo_file)), 500);// setInterval(eval(txtop(lccary_file)), 500)
-setInterval(wtjs(lccary_file), 500);
+<script type="text/javascript">
+jumpto('overview')
+
+// var head_name ;
+// var node_count ;
+// var node_name_1 = "node-01?";
+// var node_name_2 = "node-02?";
+// var node_name_3 = "node-03?";
+// var node_name_4 = "node-04?";initvars()var lccinfo_file = "/tmp/lccinfo";var lccary_file = "/tmp/lccrep_ary";eval(txtop(lccinfo_file));eval(txtop(lccary_file));setInterval('eval(txtop(lccinfo_file))', 500);setInterval('eval(txtop(lccary_file))', 500);// dspvar()// setInterval('uevf(lccinfo_file)', 500);
+// setInterval('uevf(lccary_file)', 500);// setInterval(eval(txtop(lccary_file)), 500)// setInterval(wtjs(lccary_file), 500);// function refvar() {// 	$.ajax({// 		async: false,// 		success: wtjs()// 	})// }// // setInterval(refvar, 1000);
+// lpwtjs()
 // readvar(lccinfo_file)
 // readvar(lccary_file)
-function jumpto(anchor){
-    window.location.href = "#"+anchor;
-}
-jumpto('overview')
 </script>
 </head>
 
@@ -55,16 +53,15 @@ jumpto('overview')
 
 				</script>
 				<p>Head name:
-				<script type="text/javascript">					setInterval(document.writeln(head_name), 500);				</script>
+				<script type="text/javascript">					document.writeln(head_name);				</script>
 				</p>
 				<p>Node count:
 				<script type="text/javascript">					setInterval(document.writeln(node_count), 500);				</script>
-				</p>				<pre><output id="result0"></output></pre>
-				<p><output id="lcc_load"></output></p><!-- 				<p><output id="show_load"></output></p> -->
+				</p>				<pre><output id="lcc_load"></output></pre>
+<!-- 				<p><output id="show_load"></output></p> -->
 				<script>
-				function txtid() {					$.ajax({						dataType: "text",						success : function (data) {							$("#result0").load(lccary_file);							}					});					// console.log(txtid(rdtxt,writeid))				}
-				setInterval(txtid, 500);
-				// document.write(txtop("/css/default.css"));
+				// setInterval(wpurdf,500);
+				setInterval('urdf("/tmp/lccrep_ary","lcc_load")',500)				// document.write(txtop("/css/default.css"));
 				// scpid("/js/source.js","lcc_load");	// console.log(lcc_load);	// console.log(lcc_imgon);	// console.log(lcc_ulsc)
 				// document.write(lcc_load);
 				// document.write(lcc_imgon);
@@ -84,11 +81,9 @@ jumpto('overview')
 					<button onclick="scpid()">开始工作</button>
 					<button onclick="stopWorker()">停止工作</button>
 					<script>
-						
 						scpid("/js/demo_workers.js","result");
 
-						setInterval(document.write(window.innerHeight),500);
-
+						setInterval(document.write(window.innerHeight),500);						
 					</script>
 				</div>
 			</div>
@@ -96,28 +91,14 @@ jumpto('overview')
 	</div>
 
 	<div class="plant" id="node_overview" style="display:flex;justify-content:space-around;height:38%">
-		<div class="node-flex" style="flex:1">
-			<div class="plant">
-				<script>
-					document.writeln(node_name_1)
-				</script>
-			</div>
-			<div class="plant">
-				<p>Info: <output id="result1"></output></p>
-			</div>
+		<div class="node-flex" style="flex:1;">
+			<span id="id_node_name_1_"></span>
+			<br / >			<div class="plant">
+				<p>Info: <output id="id_node_name_1"></output></p>
+							</div>
 
-			<script>
-				function txtid() {
-				var filePath = "/tmp/secrt.sitrep."+node_name_1;
-				$.ajax({
-				dataType: "text",
-				success : function (data) {
-						$("#result1").load(filePath);
-						}
-				});
-				}
-
-				setInterval(txtid, 500);
+			<script>				var crtnb = 1;				var crtnode = "node_name_"+crtnb				var actual_name = lcc_load[crtnb][0] ;				// console.log(crtnode);				// console.log(actual_name);
+				var urdfPath = "/tmp/secrt.sitrep." + actual_name;				document.getElementById("id_"+crtnode+"_").innerHTML = actual_name ;				setInterval('urdf(urdfPath,"id_"+crtnode)',500);
 			</script>
 		</div>
 
