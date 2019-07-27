@@ -41,7 +41,8 @@ setInterval('eval(txtop(lccary_file))', 500);
 
 // dspvar();
 
-
+var start_node_count = node_count;
+autoreload();
 
 // function refvar() {
 // 	$.ajax({
@@ -83,7 +84,7 @@ setInterval('eval(txtop(lccary_file))', 500);
 				</p>
 				<p>Node count:
 				<script type="text/javascript">
-					setInterval(document.writeln(node_count), 500);
+					setInterval(document.writeln(start_node_count), 500);
 				</script>
 				</p>
 				<pre><output id="show_load"></output></pre>
@@ -126,7 +127,6 @@ setInterval('eval(txtop(lccary_file))', 500);
 	</div>
 
 	<div class="plant" id="node_overview" style="display:flex;justify-content:space-around;height:38%">
-
 			<script>
 				setInterval('wtallid()',500);
 			</script>

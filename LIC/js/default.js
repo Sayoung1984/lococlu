@@ -18,7 +18,6 @@ for (var i=1; i<100; i++)
 	};
 }
 
-
 function dspvar() {
 	{
 	console.log(head_name);
@@ -41,6 +40,19 @@ function dspvar() {
 	};
 	setTimeout(dspvar,500);
 }
+
+
+function autoreload() {
+	{
+		// console.log(start_node_count);
+		// console.log(node_count);
+		if (start_node_count !== node_count) {
+			window.location.reload(true); 
+		}
+	};
+	setTimeout(autoreload,500);
+}
+
 
 // const wtcrtid = async function () {
 // 	for (var i=1; i<8; i++) {
