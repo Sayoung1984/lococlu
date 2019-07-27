@@ -18,15 +18,39 @@
 
 
 <script type="text/javascript">
-jumpto('overview')
+jumpto('overview');
 
 // var head_name ;
 // var node_count ;
 // var node_name_1 = "node-01?";
 // var node_name_2 = "node-02?";
 // var node_name_3 = "node-03?";
-// var node_name_4 = "node-04?";initvars()var lccinfo_file = "/tmp/lccinfo";var lccary_file = "/tmp/lccrep_ary";eval(txtop(lccinfo_file));eval(txtop(lccary_file));setInterval('eval(txtop(lccinfo_file))', 500);setInterval('eval(txtop(lccary_file))', 500);// dspvar()// setInterval('uevf(lccinfo_file)', 500);
-// setInterval('uevf(lccary_file)', 500);// setInterval(eval(txtop(lccary_file)), 500)// setInterval(wtjs(lccary_file), 500);// function refvar() {// 	$.ajax({// 		async: false,// 		success: wtjs()// 	})// }// // setInterval(refvar, 1000);
+// var node_name_4 = "node-04?";
+
+initvars();
+var lccinfo_file = "/tmp/lccinfo";
+var lccary_file = "/tmp/lccrep_ary";
+eval(txtop(lccinfo_file));
+eval(txtop(lccary_file));
+setInterval('eval(txtop(lccinfo_file))', 500);
+setInterval('eval(txtop(lccary_file))', 500);
+// setInterval(wtjs, 500);
+
+// setInterval('uevf(lccinfo_file)', 500);	//How to send var out?
+// setInterval('uevf(lccary_file)', 500);	//How to send var out?
+
+// dspvar();
+
+
+
+// function refvar() {
+// 	$.ajax({
+// 		async: false,
+// 		success: wtjs()
+// 	})
+// }
+// 
+// setInterval(refvar, 1000);
 // lpwtjs()
 // readvar(lccinfo_file)
 // readvar(lccary_file)
@@ -53,16 +77,26 @@ jumpto('overview')
 
 				</script>
 				<p>Head name:
-				<script type="text/javascript">					document.writeln(head_name);				</script>
+				<script type="text/javascript">
+					document.writeln(head_name);
+				</script>
 				</p>
 				<p>Node count:
-				<script type="text/javascript">					setInterval(document.writeln(node_count), 500);				</script>
-				</p>				<pre><output id="lcc_load"></output></pre>
-<!-- 				<p><output id="show_load"></output></p> -->
+				<script type="text/javascript">
+					setInterval(document.writeln(node_count), 500);
+				</script>
+				</p>
+				<pre><output id="show_load"></output></pre>
+
 				<script>
 				// setInterval(wpurdf,500);
-				setInterval('urdf("/tmp/lccrep_ary","lcc_load")',500)				// document.write(txtop("/css/default.css"));
-				// scpid("/js/source.js","lcc_load");	// console.log(lcc_load);	// console.log(lcc_imgon);	// console.log(lcc_ulsc)
+				setInterval('urdf("/tmp/lccrep_ary","show_load")',500);
+				// document.write(txtop("/css/default.css"));
+
+				// scpid("/js/source.js","lcc_load");
+	// console.log(lcc_load);
+	// console.log(lcc_imgon);
+	// console.log(lcc_ulsc)
 				// document.write(lcc_load);
 				// document.write(lcc_imgon);
 				// document.write(lcc_ulsc);
@@ -83,7 +117,8 @@ jumpto('overview')
 					<script>
 						scpid("/js/demo_workers.js","result");
 
-						setInterval(document.write(window.innerHeight),500);						
+						setInterval(document.write(window.innerHeight),500);
+						
 					</script>
 				</div>
 			</div>
@@ -92,13 +127,29 @@ jumpto('overview')
 
 	<div class="plant" id="node_overview" style="display:flex;justify-content:space-around;height:38%">
 		<div class="node-flex" style="flex:1;">
-			<span id="id_node_name_1_"></span>
-			<br / >			<div class="plant">
+			<div class="plant">
+				<h3 id="id_node_name_1_0"></h3>
+				<p>Load_C: <output id="id_node_name_1_1"></output></p>
+				<p>Perf_R: <output id="id_node_name_1_2"></output></p>
+				<p>CPU: <output id="id_node_name_1_3"></output></p>
+				<p>IO : <output id="id_node_name_1_4"></output></p>
+				<p>USER: <output id="id_node_name_1_5"></output></p>
+				<p>AR : <output id="id_node_name_1_6"></output></p>
+				<p>tmsp: <output id="id_node_name_1_7"></output></p>
 				<p>Info: <output id="id_node_name_1"></output></p>
-							</div>
+			</div>
 
-			<script>				var crtnb = 1;				var crtnode = "node_name_"+crtnb				var actual_name = lcc_load[crtnb][0] ;				// console.log(crtnode);				// console.log(actual_name);
-				var urdfPath = "/tmp/secrt.sitrep." + actual_name;				document.getElementById("id_"+crtnode+"_").innerHTML = actual_name ;				setInterval('urdf(urdfPath,"id_"+crtnode)',500);
+			<script>
+				
+				var crtnb = 1;
+				var crtnode = "node_name_"+crtnb
+				var actual_name = lcc_load[crtnb][0] ;
+				// console.log(crtnode);
+				// console.log(actual_name);
+				var urdfPath = "/tmp/secrt.sitrep." + actual_name;
+				document.getElementById("id_"+crtnode+"_0").innerHTML = actual_name;
+				setInterval('wtcrtid()',500);
+				setInterval('urdf(urdfPath,"id_"+crtnode)',500);
 			</script>
 		</div>
 

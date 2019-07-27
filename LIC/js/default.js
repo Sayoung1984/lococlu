@@ -1,10 +1,95 @@
 function displayDate(){
 	document.getElementById("demo").innerHTML=Date();
 }
-function jumpto(anchor){
+
+function jumpto(anchor){
     window.location.href = "#"+anchor;
 }
-function initvars() {var head_name ;var node_count ;var lcc_load ;var lcc_imgon ;var lcc_ulsc ;for (var i=1; i<100; i++)	{ 		window["node_name_" + i] = undefined;	};}function urdf(file,optid) {	var xmlHttp = null;	// var xmlHttp = new XMLHttpRequest();	if (window.ActiveXObject) {		// IE6, IE5 浏览器执行代码		xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");	} else if (window.XMLHttpRequest) {		// IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码		xmlHttp = new XMLHttpRequest();	}	if (xmlHttp != null) {		xmlHttp.open("get", file, true);		xmlHttp.send();		xmlHttp.onreadystatechange = doResult; //设置回调函数                 	}	function doResult() {		if (xmlHttp.readyState == 4) { //4表示执行完成			if (xmlHttp.status == 200) { //200表示执行成功				document.getElementById(optid).innerHTML = xmlHttp.responseText;			}		}	}	// setTimeout("urdf()",1000);}function uevf(file) {	var xmlHttp = null;	// var xmlHttp = new XMLHttpRequest();	if (window.ActiveXObject) {		// IE6, IE5 浏览器执行代码		xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");	} else if (window.XMLHttpRequest) {		// IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码		xmlHttp = new XMLHttpRequest();	}	if (xmlHttp != null) {		xmlHttp.open("get", file, true);		xmlHttp.send();		xmlHttp.onreadystatechange = doResult; //设置回调函数                 	}	function doResult() {		if (xmlHttp.readyState == 4) { //4表示执行完成			if (xmlHttp.status == 200) { //200表示执行成功				async :false,				eval(xmlHttp.responseText);			}		}	}	// setTimeout("urdf()",1000);}
+
+function initvars() {
+var head_name ;
+var node_count ;
+var lcc_load ;
+var lcc_imgon ;
+var lcc_ulsc ;
+for (var i=1; i<100; i++)
+	{ 
+		window["node_name_" + i] = undefined;
+	};
+}
+
+// const wtcrtid = async function () {
+// 	for (var i=1; i<8; i++) {
+// 		document.getElementById("id_"+crtnode+"_"+i).innerHTML = lcc_load[crtnb][i];
+// 		console.log(lcc_load);
+// 	};
+// }
+
+function wtcrtid() {
+	for (var i=1; i<8; i++) {
+		document.getElementById("id_"+crtnode+"_"+i).innerHTML = lcc_load[crtnb][i];
+		// console.log(lcc_load);
+	};
+
+}
+
+function urdf(file,optid) {
+	var xmlHttp = null;
+	// var xmlHttp = new XMLHttpRequest();
+	if (window.ActiveXObject) {
+		// IE6, IE5 浏览器执行代码
+		xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+	} else if (window.XMLHttpRequest) {
+		// IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+		xmlHttp = new XMLHttpRequest();
+	}
+	if (xmlHttp != null) {
+		xmlHttp.open("get", file, true);
+		xmlHttp.send();
+		xmlHttp.onreadystatechange = doResult; //设置回调函数                 
+	}
+	function doResult() {
+		if (xmlHttp.readyState == 4) { //4表示执行完成
+			if (xmlHttp.status == 200) { //200表示执行成功
+				document.getElementById(optid).innerHTML = xmlHttp.responseText;
+			}
+		}
+	}
+	// setTimeout("urdf()",1000);
+}
+
+function uevf(file) {
+	var xmlHttp_var = null;
+	// var xmlHttp = new XMLHttpRequest();
+	if (window.ActiveXObject) {
+		// IE6, IE5 浏览器执行代码
+		xmlHttp_var = new ActiveXObject("Microsoft.XMLHTTP");
+	} else if (window.XMLHttpRequest) {
+		// IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+		xmlHttp_var = new XMLHttpRequest();
+	}
+	if (xmlHttp_var != null) {
+		xmlHttp_var.open("get", file, true);
+		xmlHttp_var.send();
+		xmlHttp_var.onreadystatechange = doResult; //设置回调函数                 
+	}
+	function doResult() {
+		if (xmlHttp_var.readyState == 4) { //4表示执行完成
+			if (xmlHttp_var.status == 200) { //200表示执行成功
+				// async :false,
+				eval(xmlHttp_var.responseText);
+				console.log(xmlHttp_var.responseText);
+				// console.log(node_count);
+				// console.log(lcc_load);
+				// console.log(lcc_imgon);
+				// console.log(lcc_ulsc);
+			}
+		}
+	}
+	// setTimeout("urdf()",1000);
+}
+
+
 function txtop(name) {
 	let xhr = new XMLHttpRequest(),
 		okStatus = document.location.protocol === "file:" ? 0 : 200;
@@ -13,8 +98,10 @@ function txtop(name) {
 	xhr.send(null);
 	return xhr.status === okStatus ? xhr.responseText : null;
 }
-function scpid(jscp,writeid) {
-	var w;	if(typeof(Worker) !== "undefined") {
+
+function scpid(jscp,writeid) {
+	var w;
+	if(typeof(Worker) !== "undefined") {
 		if(typeof(w) == "undefined") {
 			w = new Worker(jscp);
 		}
@@ -24,7 +111,97 @@ function txtop(name) {
 	} else {
 		document.getElementById(writeid).innerHTML = "抱歉，你的浏览器不支持 Web Workers...";
 	}
-}function arrayToJson(o) {	    var r = [];    if (typeof o == "string") return "\"" + o.replace(/([\'\"\\])/g, "\\$1").replace(/(\n)/g, "\\n").replace(/(\r)/g, "\\r").replace(/(\t)/g, "\\t") + "\"";    if (typeof o == "object") {      if (!o.sort) {        for (var i in o)        r.push(i + ":" + arrayToJson(o[i]));        if (!!document.all && !/^\n?function\s*toString\s*\{\n?\s*\[native code\]\n?\s*\}\n?\s*$/.test(o.toString)) {        r.push("toString:" + o.toString.toString());        }        r = "{" + r.join() + "}";      } else {        for (var i = 0; i < o.length; i++) {        r.push(arrayToJson(o[i]));        }        r = "[" + r.join() + "]";      }      return r;    }    return o.toString();  }function rttary(matrix) {  const rows = matrix.length, cols = matrix[0].length;  const grid = [];  for (let j = 0; j < cols; j++) {    grid[j] = Array(rows);  }  for (let i = 0; i < rows; i++) {    for (let j = 0; j < cols; j++) {      grid[j][i] = matrix[i][j];    }  }  return grid;}function wtjs() {		var lccinfo_file = "/tmp/lccinfo";		var lccary_file = "/tmp/lccrep_ary";		eval(txtop(lccinfo_file));		eval(txtop(lccary_file));		// var lcc_load = rttary(lcc_load);		// var lcc_imgon = rttary(lcc_imgon);		// var lcc_ulsc = rttary(lcc_ulsc);		arrayToJson(lcc_load);		arrayToJson(lcc_imgon);		arrayToJson(lcc_ulsc);		// console.log(lcc_load);		// console.log(lcc_imgon);		// console.log(lcc_ulsc);}// function lpwtjs() {// 		var lccinfo_file = "/tmp/lccinfo";// 		var lccary_file = "/tmp/lccrep_ary";// 		eval(txtop(lccinfo_file));// 		eval(txtop(lccary_file));// 		// var lcc_load = rttary(lcc_load);// 		// var lcc_imgon = rttary(lcc_imgon);// 		// var lcc_ulsc = rttary(lcc_ulsc);// 		arrayToJson(lcc_load);// 		arrayToJson(lcc_imgon);// 		arrayToJson(lcc_ulsc);// 		console.log(head_name);// 		console.log(node_count);// 		console.log(lcc_load);// 		console.log(lcc_imgon);// 		console.log(lcc_ulsc);// 		setTimeout("lpwtjs()",1000);// }function dspvar() {	console.log(head_name);	console.log(node_count);	console.log(lcc_load);	console.log(lcc_imgon);	console.log(lcc_ulsc);	setTimeout("dspvar()",500);}
+}
+
+function wtjs() {
+	// var lccinfo_file = "/tmp/lccinfo";
+	// var lccary_file = "/tmp/lccrep_ary";
+	eval(txtop(lccinfo_file));
+	eval(txtop(lccary_file));
+	// var lcc_load = rttary(lcc_load);
+	// var lcc_imgon = rttary(lcc_imgon);
+	// var lcc_ulsc = rttary(lcc_ulsc);
+	// arrayToJson(lcc_load);
+	// arrayToJson(lcc_imgon);
+	// arrayToJson(lcc_ulsc);
+	// console.log(head_name);
+	// console.log(lcc_load);
+	// console.log(lcc_imgon);
+	// console.log(lcc_ulsc);
+}
+
+function arrayToJson(o) {
+	
+    var r = [];
+    if (typeof o == "string") return "\"" + o.replace(/([\'\"\\])/g, "\\$1").replace(/(\n)/g, "\\n").replace(/(\r)/g, "\\r").replace(/(\t)/g, "\\t") + "\"";
+    if (typeof o == "object") {
+      if (!o.sort) {
+        for (var i in o)
+        r.push(i + ":" + arrayToJson(o[i]));
+        if (!!document.all && !/^\n?function\s*toString\s*\{\n?\s*\[native code\]\n?\s*\}\n?\s*$/.test(o.toString)) {
+        r.push("toString:" + o.toString.toString());
+        }
+        r = "{" + r.join() + "}";
+      } else {
+        for (var i = 0; i < o.length; i++) {
+        r.push(arrayToJson(o[i]));
+        }
+        r = "[" + r.join() + "]";
+      }
+      return r;
+    }
+    return o.toString();
+  }
+
+// function rttary(matrix) {
+//   const rows = matrix.length, cols = matrix[0].length;
+//   const grid = [];
+//   for (let j = 0; j < cols; j++) {
+//     grid[j] = Array(rows);
+//   }
+//   for (let i = 0; i < rows; i++) {
+//     for (let j = 0; j < cols; j++) {
+//       grid[j][i] = matrix[i][j];
+//     }
+//   }
+//   return grid;
+// }
+
+
+
+
+
+
+
+// function lpwtjs() {
+// 		var lccinfo_file = "/tmp/lccinfo";
+// 		var lccary_file = "/tmp/lccrep_ary";
+// 		eval(txtop(lccinfo_file));
+// 		eval(txtop(lccary_file));
+// 		// var lcc_load = rttary(lcc_load);
+// 		// var lcc_imgon = rttary(lcc_imgon);
+// 		// var lcc_ulsc = rttary(lcc_ulsc);
+// 		arrayToJson(lcc_load);
+// 		arrayToJson(lcc_imgon);
+// 		arrayToJson(lcc_ulsc);
+// 		console.log(head_name);
+// 		console.log(node_count);
+// 		console.log(lcc_load);
+// 		console.log(lcc_imgon);
+// 		console.log(lcc_ulsc);
+// 		setTimeout("lpwtjs()",1000);
+// }
+
+function dspvar() {
+	{
+	console.log(head_name);
+	console.log(node_count);
+	console.log(lcc_load);
+	console.log(lcc_imgon);
+	console.log(lcc_ulsc);
+	};
+	setTimeout(dspvar,500);
+}
 
 // window.onload=function () {
 //         var Odiv=document.createElement("div");             //创建一个div
