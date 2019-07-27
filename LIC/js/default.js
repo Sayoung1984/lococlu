@@ -18,6 +18,30 @@ for (var i=1; i<100; i++)
 	};
 }
 
+
+function dspvar() {
+	{
+	console.log(head_name);
+	console.log(node_count);
+	console.log(node_name_1);
+	console.log(node_name_2);
+	console.log(node_name_3);
+	console.log(node_name_4);
+	console.log(node_name_5);
+	console.log(node_name_6);
+	console.log(node_name_7);
+	console.log(node_name_8);
+	console.log(node_name_9);
+	console.log(node_name_10);
+	console.log(node_name_11);
+	console.log(node_name_12);
+	console.log(lcc_load);
+	console.log(lcc_imgon);
+	console.log(lcc_ulsc);
+	};
+	setTimeout(dspvar,500);
+}
+
 // const wtcrtid = async function () {
 // 	for (var i=1; i<8; i++) {
 // 		document.getElementById("id_"+crtnode+"_"+i).innerHTML = lcc_load[crtnb][i];
@@ -27,10 +51,20 @@ for (var i=1; i<100; i++)
 
 function wtcrtid() {
 	for (var i=1; i<8; i++) {
-		document.getElementById("id_"+crtnode+"_"+i).innerHTML = lcc_load[crtnb][i];
-		// console.log(lcc_load);
+		document.getElementById("id_node_name_"+crtnb+"_"+i).innerHTML = lcc_load[crtnb][i];
+		console.log(lcc_load[crtnb][0]);
 	};
 
+}
+
+function wtallid() {
+	for (var j=1; j<=node_count; j++) {
+		var initnb = j
+		for (var i=1; i<8; i++) {
+			document.getElementById("id_node_name_"+initnb+"_"+i).innerHTML = lcc_load[initnb][i];
+			// console.log(lcc_load[initnb][0]);
+		};
+	}
 }
 
 function urdf(file,optid) {
@@ -52,6 +86,7 @@ function urdf(file,optid) {
 		if (xmlHttp.readyState == 4) { //4表示执行完成
 			if (xmlHttp.status == 200) { //200表示执行成功
 				document.getElementById(optid).innerHTML = xmlHttp.responseText;
+				// console.log(xmlHttp.responseText);
 			}
 		}
 	}
@@ -192,16 +227,6 @@ function arrayToJson(o) {
 // 		setTimeout("lpwtjs()",1000);
 // }
 
-function dspvar() {
-	{
-	console.log(head_name);
-	console.log(node_count);
-	console.log(lcc_load);
-	console.log(lcc_imgon);
-	console.log(lcc_ulsc);
-	};
-	setTimeout(dspvar,500);
-}
 
 // window.onload=function () {
 //         var Odiv=document.createElement("div");             //创建一个div
