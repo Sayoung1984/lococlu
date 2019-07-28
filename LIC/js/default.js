@@ -54,20 +54,13 @@ function autoreload() {
 }
 
 
-// const wtcrtid = async function () {
+// function wtcrtid() {
 // 	for (var i=1; i<8; i++) {
-// 		document.getElementById("id_"+crtnode+"_"+i).innerHTML = lcc_load[crtnb][i];
-// 		console.log(lcc_load);
+// 		document.getElementById("id_node_name_"+crtnb+"_"+i).innerHTML = lcc_load[crtnb][i];
+// 		console.log(lcc_load[crtnb][0]);
 // 	};
+
 // }
-
-function wtcrtid() {
-	for (var i=1; i<8; i++) {
-		document.getElementById("id_node_name_"+crtnb+"_"+i).innerHTML = lcc_load[crtnb][i];
-		console.log(lcc_load[crtnb][0]);
-	};
-
-}
 
 function wtallid() {
 	for (var j=1; j<=node_count; j++) {
@@ -160,22 +153,6 @@ function scpid(jscp,writeid) {
 	}
 }
 
-function wtjs() {
-	// var lccinfo_file = "/tmp/lccinfo";
-	// var lccary_file = "/tmp/lccrep_ary";
-	eval(txtop(lccinfo_file));
-	eval(txtop(lccary_file));
-	// var lcc_load = rttary(lcc_load);
-	// var lcc_imgon = rttary(lcc_imgon);
-	// var lcc_ulsc = rttary(lcc_ulsc);
-	// arrayToJson(lcc_load);
-	// arrayToJson(lcc_imgon);
-	// arrayToJson(lcc_ulsc);
-	// console.log(head_name);
-	// console.log(lcc_load);
-	// console.log(lcc_imgon);
-	// console.log(lcc_ulsc);
-}
 
 function arrayToJson(o) {
 	
@@ -200,44 +177,6 @@ function arrayToJson(o) {
     return o.toString();
   }
 
-// function rttary(matrix) {
-//   const rows = matrix.length, cols = matrix[0].length;
-//   const grid = [];
-//   for (let j = 0; j < cols; j++) {
-//     grid[j] = Array(rows);
-//   }
-//   for (let i = 0; i < rows; i++) {
-//     for (let j = 0; j < cols; j++) {
-//       grid[j][i] = matrix[i][j];
-//     }
-//   }
-//   return grid;
-// }
-
-
-
-
-
-
-
-// function lpwtjs() {
-// 		var lccinfo_file = "/tmp/lccinfo";
-// 		var lccary_file = "/tmp/lccrep_ary";
-// 		eval(txtop(lccinfo_file));
-// 		eval(txtop(lccary_file));
-// 		// var lcc_load = rttary(lcc_load);
-// 		// var lcc_imgon = rttary(lcc_imgon);
-// 		// var lcc_ulsc = rttary(lcc_ulsc);
-// 		arrayToJson(lcc_load);
-// 		arrayToJson(lcc_imgon);
-// 		arrayToJson(lcc_ulsc);
-// 		console.log(head_name);
-// 		console.log(node_count);
-// 		console.log(lcc_load);
-// 		console.log(lcc_imgon);
-// 		console.log(lcc_ulsc);
-// 		setTimeout("lpwtjs()",1000);
-// }
 
 
 // window.onload=function () {
