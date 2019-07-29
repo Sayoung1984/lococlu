@@ -72,6 +72,29 @@ function wtallid() {
 	}
 }
 
+
+
+
+function draw_nodes() {
+	// $("div.node-flex").remove();
+	// console.log($("div.node-flex"));
+
+	// var elements = document.getElementsByClassName("node-flex");
+	// console.log(elements);
+	// while(elements.length > 0){
+	// 	console.log(elements[0]);
+	// 	elements[0].parentNode.removeChild(elements[0]);
+	// };
+
+	// var tgt = document.getElementById("node_overview");
+	// var childs = tgt.childNodes;
+	// console.log(childs);
+	// for(var i = 0; i < childs.length; i++) { 
+	// 	console.log(childs[i].nodeName);
+	// 	tgt.removeChild(childs[i]);
+	// }
+}
+
 function urdf(file,optid) {
 	var xmlHttp = null;
 	// var xmlHttp = new XMLHttpRequest();
@@ -128,7 +151,6 @@ function uevf(file) {
 	}
 	// setTimeout("urdf()",1000);
 }
-
 
 function txtop(name) {
 	let xhr = new XMLHttpRequest(),

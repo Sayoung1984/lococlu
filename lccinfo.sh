@@ -70,7 +70,7 @@ payload_lccinfo()
 }
 
 # Main function loop
-step=0.2
+step=0.33
 while true
 do
 	payload_lccinfo
