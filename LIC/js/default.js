@@ -47,10 +47,12 @@ function autoreload() {
 		// console.log(start_node_count);
 		// console.log(node_count);
 		if (start_node_count !== node_count) {
-			window.location.reload(true); 
+			draw_nodes();
+		} else if ( node_count === 0 ){
+			window.location.reload(true);
 		}
 	};
-	setTimeout(autoreload,500);
+	setTimeout(autoreload,5000);
 }
 
 
@@ -65,34 +67,93 @@ function autoreload() {
 function wtallid() {
 	for (var j=1; j<=node_count; j++) {
 		var initnb = j
-		for (var i=1; i<8; i++) {
+		for (var i=0; i<8; i++) {
 			document.getElementById("id_node_name_"+initnb+"_"+i).innerHTML = lcc_load[initnb][i];
 			// console.log(lcc_load[initnb][0]);
+			// document.getElementById("id_node_name_"+i+"_0").innerHTML = lcc_load[i][0];
 		};
 	}
 }
 
 
+function drop_child(tgt) {
+	while (tgt.hasChildNodes()) {
+		tgt.removeChild(tgt.lastChild);
+	};
+};
 
+function node_ovscp(crtnb) {
+	// var crtnb;
+	var crtnode = "node_name_"+crtnb
+	var actual_name = lcc_load[crtnb][0] ;
+	console.log(crtnode);
+	console.log(actual_name);
+	var urdfPath = "/tmp/secrt.sitrep." + actual_name;
+	console.log(urdfPath);
+	document.getElementById("id_"+crtnode+"_0").innerHTML = actual_name;
+}
 
 function draw_nodes() {
-	// $("div.node-flex").remove();
-	// console.log($("div.node-flex"));
+	var tgt = document.getElementById("node_overview");
+	drop_child(tgt);
+	for ( i = 1; i<= node_count; i++) {
+		console.log ("node_name_"+i);
+		var actual_name = lcc_load[i][0];
+		console.log(actual_name);
+		var urdfPath = "/tmp/secrt.sitrep." + actual_name;
+		console.log(urdfPath);
+		// console.log (tgt);
+		// node_ovscp(i);
+		var lb = document.createElement("BR");
+		
+		var Odiv=document.createElement("div");
+		Odiv.id="node_ov_sub_"+i;
+		Odiv.className="node-flex";
+		var content = document.createTextNode(actual_name);
+		Odiv.appendChild(content);
+		var Idiv=document.createElement("div");
+		Idiv.className="plant"
+		Odiv.appendChild(Idiv);
+		var Ih = document.createElement("H3");
+		Ih.id = "id_node_name_"+i+"_0";
+		Odiv.appendChild(Ih);
+		for ( j = 1; j <8; j++) {
+			var Ipj = document.createElement("P");
+			Ipj.id = "id_node_name_"+i+"_"+j;
+			Ipj.appendChild(lb);
+			Odiv.appendChild(Ipj);
+			
+			};
+			var Ipp1 = document.createElement("P");
+			
+		
+		
 
-	// var elements = document.getElementsByClassName("node-flex");
-	// console.log(elements);
-	// while(elements.length > 0){
-	// 	console.log(elements[0]);
-	// 	elements[0].parentNode.removeChild(elements[0]);
+
+
+		// var tP1 = document.createTextNode('div test text');
+		// P1.appendChild(tP1);
+		
+		tgt.appendChild(Odiv);
+		
+		// window.onload=function () {
+		// 	var Odiv=document.createElement("div");             //创建一个div
+		// 	var Ospan=document.createElement("span");          //创建一个span
+		// 	Odiv.style.cssText="flex:1;";    //创建div的css样式
+		// 	Odiv.id="node_ov_sub_"+i;                            //创建div的id为box
+		// 	Odiv.className="node-flex";                    //div的class为Box
+		// 	Odiv.appendChild(Ospan);            //在div内创建一个span
+		// 	document.body.appendChild(Odiv);
+		// };
+		// window.onload = function() {
+		// 	var checker = i;
+		// 	console.log("checker="+checker);
+		// };
+	};
+	// setTimeout(draw_nodes,5000);
+	// if ( checker !== node_count+1) {
+	// 	draw_nodes();
 	// };
-
-	// var tgt = document.getElementById("node_overview");
-	// var childs = tgt.childNodes;
-	// console.log(childs);
-	// for(var i = 0; i < childs.length; i++) { 
-	// 	console.log(childs[i].nodeName);
-	// 	tgt.removeChild(childs[i]);
-	// }
 }
 
 function urdf(file,optid) {

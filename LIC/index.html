@@ -5,7 +5,7 @@
 <head>
 <title>LCC Intel Center</title>
 <meta charset="utf-8" />
-<meta http-equiv="Cache-Control" content="no-store" />
+<meta http-equiv="Cache-Control" content="no-cache" />
 <link rel="stylesheet" type="text/css" href="/css/default.css">
 <script type="text/javascript" src="/js/jquery.min.js"></script>
 <script type="text/javascript" src="/js/default.js"></script>
@@ -43,6 +43,9 @@ setInterval('eval(txtop(lccary_file))', 500);
 
 var start_node_count = node_count;
 autoreload();
+
+setInterval('wtallid()',500);
+
 </script>
 </head>
 
@@ -114,10 +117,6 @@ autoreload();
 	</div>
 
 	<div class="plant" id="node_overview" style="display:flex;justify-content:space-around;height:38%">
-			<script>
-				setInterval('wtallid()',500);
-				draw_nodes();
-			</script>
 		<div class="node-flex" style="flex:1;">
 			<div class="plant">
 				<h3 id="id_node_name_1_0"></h3>
@@ -203,6 +202,9 @@ autoreload();
 	</div>
 
 	</div>
+	<script>
+		draw_nodes();
+	</script>
 </div>
 
 <div class="plant" >
