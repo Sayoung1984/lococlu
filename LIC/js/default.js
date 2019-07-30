@@ -67,7 +67,7 @@ function autoreload() {
 function wtallid() {
 	for (var j=1; j<=node_count; j++) {
 		var initnb = j
-		for (var i=0; i<8; i++) {
+		for (var i=0; i<=8; i++) {
 			document.getElementById("id_node_name_"+initnb+"_"+i).innerHTML = lcc_load[initnb][i];
 			// console.log(lcc_load[initnb][0]);
 			// document.getElementById("id_node_name_"+i+"_0").innerHTML = lcc_load[i][0];
@@ -109,22 +109,95 @@ function draw_nodes() {
 		var Odiv=document.createElement("div");
 		Odiv.id="node_ov_sub_"+i;
 		Odiv.className="node-flex";
-		var content = document.createTextNode(actual_name);
-		Odiv.appendChild(content);
+		// var content = document.createTextNode(actual_name);
+		// Odiv.appendChild(content);
 		var Idiv=document.createElement("div");
 		Idiv.className="plant"
 		Odiv.appendChild(Idiv);
 		var Ih = document.createElement("H3");
 		Ih.id = "id_node_name_"+i+"_0";
-		Odiv.appendChild(Ih);
-		for ( j = 1; j <8; j++) {
-			var Ipj = document.createElement("P");
-			Ipj.id = "id_node_name_"+i+"_"+j;
-			Ipj.appendChild(lb);
-			Odiv.appendChild(Ipj);
-			
+		Idiv.appendChild(Ih);
+
+		// var IP_1t = document.createTextNode("Load count: ");
+		// var IP_2t = document.createTextNode("Perf_Realtime: ");
+		// var IP_3t = document.createTextNode("CPU usage : ");
+		// var IP_4t = document.createTextNode("IO usage : ");
+		// var IP_5t = document.createTextNode("USER count: ");
+		// var IP_6t = document.createTextNode("AR : ");
+		// var IP_7t = document.createTextNode("Time stamp: ");
+		// var IP_8t = document.createTextNode("LCC Lag: ");
+
+		var info_obj = {
+			1 : "Load count: ",
+			2 : "Perf_Realtime: ",
+			3 : "CPU usage : ",
+			4 : "IO usage : ",
+			5 : "USER count: ",
+			6 : "AR : ",
+			7 : "Time stamp: ",
+			8 : "LCC Lag: "
+		};
+
+		
+		for ( k = 1; k <= 8; k++) {
+			{
+			var IP_k = document.createElement("P");
+			var IP_kt = document.createTextNode(info_obj[k]);
+			// console.log(info_obj[k]);
+			// console.log(typeof IP_kt);
+			// console.log(IP_kt);
+			var IP_ko = document.createElement("OUTPUT");
+			IP_ko.id = "id_node_name_"+i+"_"+k;
+			// console.log(line);
+			// console.log(line_o);
+			// console.log(typeof IP_kt);
+			IP_k.appendChild(IP_kt);
+			IP_k.appendChild(IP_ko);
+			// console.log(IP_[k]o.id);
 			};
-			var Ipp1 = document.createElement("P");
+			Idiv.appendChild(IP_k);
+		};
+
+
+
+
+		// for ( k = 1; k <= 8; k++) {
+		// 	var line = "IP_"+k;
+		// 	console.log(line);
+		// 	var line = document.createElement("P");
+			
+		// 	line_t = "IP_"+k+"t".valueOf()
+		// 	console.log(line_t);
+		// 	line.appendChild(IP_[k]t);
+		// 	// console.log(IP_k);
+		// 	// var IPOk = document.createElement("OUTPUT");
+		// 	// IPOk.id = "id_node_name_"+i+"_"+k;
+		// 	// IPk.appendChild(IPOk);
+		// 	// console.log(IPk);
+			
+		// };
+
+		// var IP_1 = document.createElement("P");
+		// IP_1.id = "IP_1_"+i;
+		// console.log(IP_1.id)
+		// IP_1.appendChild(IP_1t);
+		// var Iop1 = document.createElement("OUTPUT");
+		// Iop1.id = "Iop1_"+i
+		// IP_1.appendChild(Iop1);
+
+		// Idiv.appendChild(IP_1);
+		
+
+
+		// for ( j = 1; j <8; j++) {
+		// 	var Ipj = document.createElement("P");
+		// 	Ipj.id = "id_node_name_"+i+"_"+j;
+		// 	Ipj.appendChild(lb);
+		// 	Idiv.appendChild(Ipj);
+			
+		// 	};
+
+
 			
 		
 		
@@ -325,7 +398,7 @@ function arrayToJson(o) {
 //        .hide{display:none;}
 //     </style>
 //
-//     <script type="text/javascript">
+//     <scrIPT type="text/javascrIPT">
 //     // JS实现选项卡切换
 //     window.onload = function(){
 //     var myTab = document.getElementById("tab");    //整个div
@@ -345,7 +418,7 @@ function arrayToJson(o) {
 //         }
 //       }
 //     }
-//     </script>
+//     </scrIPT>
 //
 // </head>
 // <body>
