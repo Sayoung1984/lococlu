@@ -42,18 +42,21 @@ function dspvar() {
 }
 
 
-function autoreload() {
-	{
-		// console.log(start_node_count);
-		// console.log(node_count);
-		if (start_node_count !== node_count) {
-			draw_nodes();
-		} else if ( node_count === 0 ){
-			window.location.reload(true);
-		}
-	};
-	setTimeout(autoreload,5000);
-}
+// function autoreload() {
+// 	{
+// 		// console.log(start_node_count);
+// 		// console.log(node_count);
+// 		if ( node_count !== start_node_count ) {
+// 			// draw_nodes();
+// 			console.log("ND refreshed! \nsnc="+start_node_count+"\n nc="+node_count);
+// 		} else if ( node_count === 0 ){
+// 			window.location.reload(true);
+// 		}
+// 	};
+// 	setTimeout(autoreload,500);
+// 	// console.log(" nc = "+node_count);
+// 	// console.log("snc = "+start_node_count);
+// }
 
 
 // function wtcrtid() {
@@ -97,11 +100,11 @@ function draw_nodes() {
 	var tgt = document.getElementById("node_overview");
 	drop_child(tgt);
 	for ( i = 1; i<= node_count; i++) {
-		console.log ("node_name_"+i);
+		// console.log ("node_name_"+i);
 		var actual_name = lcc_load[i][0];
-		console.log(actual_name);
+		// console.log(actual_name);
 		var urdfPath = "/tmp/secrt.sitrep." + actual_name;
-		console.log(urdfPath);
+		// console.log(urdfPath);
 		// console.log (tgt);
 		// node_ovscp(i);
 		var lb = document.createElement("BR");
@@ -117,22 +120,12 @@ function draw_nodes() {
 		var Ih = document.createElement("H3");
 		Ih.id = "id_node_name_"+i+"_0";
 		Idiv.appendChild(Ih);
-
-		// var IP_1t = document.createTextNode("Load count: ");
-		// var IP_2t = document.createTextNode("Perf_Realtime: ");
-		// var IP_3t = document.createTextNode("CPU usage : ");
-		// var IP_4t = document.createTextNode("IO usage : ");
-		// var IP_5t = document.createTextNode("USER count: ");
-		// var IP_6t = document.createTextNode("AR : ");
-		// var IP_7t = document.createTextNode("Time stamp: ");
-		// var IP_8t = document.createTextNode("LCC Lag: ");
-
 		var info_obj = {
-			1 : "Load count: ",
-			2 : "Perf_Realtime: ",
-			3 : "CPU usage : ",
-			4 : "IO usage : ",
-			5 : "USER count: ",
+			1 : "Load Rate: ",
+			2 : "Perf Score: ",
+			3 : "CPU % : ",
+			4 : "\ IO % : ",
+			5 : "USER : ",
 			6 : "AR : ",
 			7 : "Time stamp: ",
 			8 : "LCC Lag: "
@@ -157,76 +150,29 @@ function draw_nodes() {
 			};
 			Idiv.appendChild(IP_k);
 		};
-
-
-
-
-		// for ( k = 1; k <= 8; k++) {
-		// 	var line = "IP_"+k;
-		// 	console.log(line);
-		// 	var line = document.createElement("P");
-			
-		// 	line_t = "IP_"+k+"t".valueOf()
-		// 	console.log(line_t);
-		// 	line.appendChild(IP_[k]t);
-		// 	// console.log(IP_k);
-		// 	// var IPOk = document.createElement("OUTPUT");
-		// 	// IPOk.id = "id_node_name_"+i+"_"+k;
-		// 	// IPk.appendChild(IPOk);
-		// 	// console.log(IPk);
-			
-		// };
-
-		// var IP_1 = document.createElement("P");
-		// IP_1.id = "IP_1_"+i;
-		// console.log(IP_1.id)
-		// IP_1.appendChild(IP_1t);
-		// var Iop1 = document.createElement("OUTPUT");
-		// Iop1.id = "Iop1_"+i
-		// IP_1.appendChild(Iop1);
-
-		// Idiv.appendChild(IP_1);
-		
-
-
-		// for ( j = 1; j <8; j++) {
-		// 	var Ipj = document.createElement("P");
-		// 	Ipj.id = "id_node_name_"+i+"_"+j;
-		// 	Ipj.appendChild(lb);
-		// 	Idiv.appendChild(Ipj);
-			
-		// 	};
-
-
-			
-		
-		
-
-
-
-		// var tP1 = document.createTextNode('div test text');
-		// P1.appendChild(tP1);
-		
 		tgt.appendChild(Odiv);
 		
-		// window.onload=function () {
-		// 	var Odiv=document.createElement("div");             //创建一个div
-		// 	var Ospan=document.createElement("span");          //创建一个span
-		// 	Odiv.style.cssText="flex:1;";    //创建div的css样式
-		// 	Odiv.id="node_ov_sub_"+i;                            //创建div的id为box
-		// 	Odiv.className="node-flex";                    //div的class为Box
-		// 	Odiv.appendChild(Ospan);            //在div内创建一个span
-		// 	document.body.appendChild(Odiv);
-		// };
 		// window.onload = function() {
-		// 	var checker = i;
-		// 	console.log("checker="+checker);
+		// 	var checker = i-1;
+		// 	console.log(checker);
 		// };
+		// var checker = i;
+		// console.log(checker);
 	};
-	// setTimeout(draw_nodes,5000);
-	// if ( checker !== node_count+1) {
-	// 	draw_nodes();
-	// };
+	function auto_redraw() {
+		var checker = i - 1;
+		console.log("checker   = " + checker);
+		console.log("node_count= " + node_count);
+		if ( checker !== node_count ) {
+			// setTimeout('console.log("!!! REDRAW TRIGGERED !!!")', 3000);
+			console.log("!!! REDRAW TRIGGERED !!!");
+			draw_nodes();
+		} else if (checker === node_count) {
+			console.log("~ Cool, do nothing ~");
+		};
+	setTimeout(auto_redraw, 500);
+	};
+	// auto_redraw();
 }
 
 function urdf(file,optid) {
@@ -274,14 +220,16 @@ function uevf(file) {
 		if (xmlHttp_var.readyState == 4) { //4表示执行完成
 			if (xmlHttp_var.status == 200) { //200表示执行成功
 				// async :false,
-				eval(xmlHttp_var.responseText);
-				console.log(xmlHttp_var.responseText);
+				var readout = xmlHttp_var.responseText;
+				// eval(xmlHttp_var.responseText);
 				// console.log(node_count);
 				// console.log(lcc_load);
 				// console.log(lcc_imgon);
 				// console.log(lcc_ulsc);
-			}
-		}
+			};
+		};
+		console.log(typeof readout);
+		// console.log(readout);
 	}
 	// setTimeout("urdf()",1000);
 }
@@ -292,6 +240,19 @@ function txtop(name) {
 	xhr.open('GET', name, false);
 	xhr.overrideMimeType("text/html;charset=utf-8");//默认为utf-8
 	xhr.send(null);
+	console.log(typeof xhr.responseText);
+	console.log(xhr.responseText);
+	return xhr.status === okStatus ? xhr.responseText : null;
+}
+
+function txteval(name) {
+	let xhr = new XMLHttpRequest(),
+		okStatus = document.location.protocol === "file:" ? 0 : 200;
+	xhr.open('GET', name, false);
+	xhr.overrideMimeType("text/html;charset=utf-8"); //默认为utf-8
+	xhr.send(null);
+	console.log(typeof xhr.responseText);
+	console.log(xhr.responseText);
 	return xhr.status === okStatus ? xhr.responseText : null;
 }
 
