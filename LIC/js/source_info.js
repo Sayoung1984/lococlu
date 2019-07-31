@@ -12,6 +12,4 @@ function txt2op(name) {
 }
 
 var lccinfo_file = "/tmp/lccinfo";
-var lccary_file = "/tmp/lccrep_ary";
-setInterval('txt2op(lccary_file)', 500);
-setTimeout('txt2op(lccinfo_file)', 500);
+setInterval('txt2op(lccinfo_file)', 500);

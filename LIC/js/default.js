@@ -12,7 +12,7 @@ var node_count = undefined;
 var lcc_load = undefined;
 var lcc_imgon = undefined;
 var lcc_ulsc = undefined;
-for (var i=1; i<100; i++)
+for (var i=1; i<1000; i++)
 	{ 
 		window["node_name_" + i] = undefined;
 	};
@@ -25,6 +25,7 @@ function dspvar() {
 		for (i = 1; i <= node_count; i++) {
 			eval('console.log\(node_name_' + i + '\)');
 		};
+		// console.log(readdate);
 		console.log(lcc_load);
 		console.log(lcc_imgon);
 		console.log(lcc_ulsc);
@@ -33,21 +34,21 @@ function dspvar() {
 }
 
 
-// function autoreload() {
-// 	{
-// 		// console.log(start_node_count);
-// 		// console.log(node_count);
-// 		if ( node_count !== start_node_count ) {
-// 			// draw_nodes();
-// 			console.log("ND refreshed! \nsnc="+start_node_count+"\n nc="+node_count);
-// 		} else if ( node_count === 0 ){
-// 			window.location.reload(true);
-// 		}
-// 	};
-// 	setTimeout(autoreload,500);
-// 	// console.log(" nc = "+node_count);
-// 	// console.log("snc = "+start_node_count);
-// }
+function autoreload() {
+	{
+		// console.log(start_node_count);
+		// console.log(node_count);
+		if ( node_count !== start_node_count ) {
+			// draw_nodes();
+			console.log("ND refreshed! \nsnc="+start_node_count+"\n nc="+node_count);
+		} else if ( node_count === 0 ){
+			window.location.reload(true);
+		}
+	};
+	setTimeout(autoreload,500);
+	// console.log(" nc = "+node_count);
+	// console.log("snc = "+start_node_count);
+}
 
 
 // function wtcrtid() {
@@ -62,6 +63,7 @@ function wtallid() {
 	document.getElementById("id_head_name").innerHTML = head_name;
 	// document.getElementById("id_start_node_count").innerHTML = start_node_count;
 	document.getElementById("id_node_count").innerHTML = node_count;
+	// document.getElementById("show_load").innerHTML = lcc_load;
 	for (var j=1; j<=node_count; j++) {
 		var initnb = j
 		for (var i=0; i<=8; i++) {
@@ -155,18 +157,18 @@ function draw_nodes() {
 	};
 	function auto_redraw() {
 		var checker = i - 1;
-		console.log("checker   = " + checker);
-		console.log("node_count= " + node_count);
+		// console.log("checker   = " + checker);
+		// console.log("node_count= " + node_count);
 		if ( checker !== node_count ) {
 			// setTimeout('console.log("!!! REDRAW TRIGGERED !!!")', 3000);
 			console.log("!!! REDRAW TRIGGERED !!!");
 			draw_nodes();
 		} else if (checker === node_count) {
-			console.log("~ Cool, do nothing ~");
+			// console.log("~ Cool, do nothing ~");
 		};
 	setTimeout(auto_redraw, 500);
 	};
-	// auto_redraw();
+	auto_redraw();
 }
 
 function urdf(file,optid) {

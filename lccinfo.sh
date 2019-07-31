@@ -27,7 +27,7 @@ opstmp=/LCC/opstmp
 lococlu=/LCC/bin
 source /LCC/bin/lcc.conf
 
-head_name=`/bin/hostname`
+head_name=`/bin/hostname -f`
 
 payload_lccinfo()
 {

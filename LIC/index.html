@@ -9,6 +9,8 @@
 <link rel="stylesheet" type="text/css" href="/css/default.css">
 <script type="text/javascript" src="/js/jquery.min.js"></script>
 <script type="text/javascript" src="/js/default.js"></script>
+<script type="text/javascript" src="/tmp/lccinfo"></script>
+<script type="text/javascript" src="/tmp/lccrep_ary"></script>
 <!-- <script src="/js/node_modules/epoch-charting/dist/js/epoch.min.js"></script>
 <script src="/js/node_modules/d3/dist/d3.min.js"></script>
 <script src="/js/node_modules/shelljs/shell.js"></script>
@@ -28,21 +30,37 @@ jumpto('overview');
 // var node_name_4 = "node-04?";
 
 initvars();
-var lccinfo_file = "/tmp/lccinfo";
-var lccary_file = "/tmp/lccrep_ary";
-eval(txtop(lccinfo_file));
-eval(txtop(lccary_file));
+// var lccinfo_file = "/tmp/lccinfo";
+// var lccary_file = "/tmp/lccrep_ary";
+// eval(txtop(lccinfo_file));
+// eval(txtop(lccary_file));
 // setInterval('eval(txtop(lccary_file))', 500);
 // setInterval('eval(txtop(lccinfo_file))', 500);
 
-// setInterval('txteval(lccinfo_file)', 500);
-// setInterval('txteval(lccary_file)', 500);
+let Info_worker = new Worker('/js/source_info.js'); //Direct Read
+var globalInfo;
+Info_worker.addEventListener('message', function (event) {
+	globalInfo = event.data;
+	// console.log(globalAry);
+  });
+setInterval('eval(globalInfo)', 500);
+// setInterval('console.log(globalInfo)', 500);
+
+let Ary_worker = new Worker('/js/source_ary.js'); //Direct Read
+var globalAry;
+Ary_worker.addEventListener('message', function (event) {
+	globalAry = event.data;
+	// console.log(globalAry);
+  });
+setInterval('eval(globalAry)', 500);
+// setInterval('console.log(globalAry)', 500);
 
 // scpeval("/js/source.js");
+
 // dspvar();
 
-// var start_node_count = node_count;
-// autoreload();
+var start_node_count = node_count;
+autoreload();
 
 setInterval('wtallid()',500);
 
@@ -82,10 +100,12 @@ setInterval('wtallid()',500);
 					setInterval(document.writeln(start_node_count), 500);
 				</script>
 				</p> -->
+				<pre><output id="show_info"></output></pre>
 				<pre><output id="show_load"></output></pre>
 
 				<script>
-				setInterval('urdf("/tmp/lccrep_ary","show_load")',500);
+				setInterval('urdf("/tmp/lccinfo","show_info")',500); //Direct Read
+				setInterval('urdf("/tmp/lccrep_ary","show_load")',500); //Direct Read
 				// document.write(txtop("/css/default.css"));
 
 				// scpid("/js/source.js","lcc_load");
