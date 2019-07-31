@@ -7,11 +7,11 @@ function jumpto(anchor){
 }
 
 function initvars() {
-var head_name ;
-var node_count ;
-var lcc_load ;
-var lcc_imgon ;
-var lcc_ulsc ;
+var head_name = undefined;
+var node_count = undefined;
+var lcc_load = undefined;
+var lcc_imgon = undefined;
+var lcc_ulsc = undefined;
 for (var i=1; i<100; i++)
 	{ 
 		window["node_name_" + i] = undefined;
@@ -20,25 +20,16 @@ for (var i=1; i<100; i++)
 
 function dspvar() {
 	{
-	console.log(head_name);
-	console.log(node_count);
-	console.log(node_name_1);
-	console.log(node_name_2);
-	console.log(node_name_3);
-	console.log(node_name_4);
-	console.log(node_name_5);
-	console.log(node_name_6);
-	console.log(node_name_7);
-	console.log(node_name_8);
-	console.log(node_name_9);
-	console.log(node_name_10);
-	console.log(node_name_11);
-	console.log(node_name_12);
-	console.log(lcc_load);
-	console.log(lcc_imgon);
-	console.log(lcc_ulsc);
+		console.log(head_name);
+		console.log(node_count);
+		for (i = 1; i <= node_count; i++) {
+			eval('console.log\(node_name_' + i + '\)');
+		};
+		console.log(lcc_load);
+		console.log(lcc_imgon);
+		console.log(lcc_ulsc);
 	};
-	setTimeout(dspvar,500);
+	setTimeout(dspvar, 500);
 }
 
 
@@ -68,6 +59,9 @@ function dspvar() {
 // }
 
 function wtallid() {
+	document.getElementById("id_head_name").innerHTML = head_name;
+	// document.getElementById("id_start_node_count").innerHTML = start_node_count;
+	document.getElementById("id_node_count").innerHTML = node_count;
 	for (var j=1; j<=node_count; j++) {
 		var initnb = j
 		for (var i=0; i<=8; i++) {
@@ -238,10 +232,10 @@ function txtop(name) {
 	let xhr = new XMLHttpRequest(),
 		okStatus = document.location.protocol === "file:" ? 0 : 200;
 	xhr.open('GET', name, false);
-	xhr.overrideMimeType("text/html;charset=utf-8");//默认为utf-8
+	xhr.overrideMimeType("text/html; charset=utf-8");//默认为utf-8
 	xhr.send(null);
-	console.log(typeof xhr.responseText);
-	console.log(xhr.responseText);
+	// console.log(typeof xhr.responseText);
+	// console.log(xhr.responseText);
 	return xhr.status === okStatus ? xhr.responseText : null;
 }
 
@@ -268,6 +262,15 @@ function scpid(jscp,writeid) {
 	} else {
 		document.getElementById(writeid).innerHTML = "抱歉，你的浏览器不支持 Web Workers...";
 	}
+}
+
+function scpeval(jscp) {
+	var w = new Worker(jscp);;
+	w.onmessage = function (event) {
+		console.log(event.data);
+		result.textContent = event.data;
+		eval(event.data);
+	};
 }
 
 

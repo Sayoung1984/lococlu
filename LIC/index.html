@@ -32,15 +32,13 @@ var lccinfo_file = "/tmp/lccinfo";
 var lccary_file = "/tmp/lccrep_ary";
 eval(txtop(lccinfo_file));
 eval(txtop(lccary_file));
-setInterval('eval(txtop(lccary_file))', 500);
-setInterval('eval(txtop(lccinfo_file))', 500);
+// setInterval('eval(txtop(lccary_file))', 500);
+// setInterval('eval(txtop(lccinfo_file))', 500);
+
 // setInterval('txteval(lccinfo_file)', 500);
 // setInterval('txteval(lccary_file)', 500);
 
-
-// setInterval('uevf(lccinfo_file)', 500);	//How to send var out?
-// setInterval('uevf(lccary_file)', 500);	//How to send var out?
-
+// scpeval("/js/source.js");
 // dspvar();
 
 // var start_node_count = node_count;
@@ -63,16 +61,16 @@ setInterval('wtallid()',500);
 <div class="plant" id="overview" style="height:100vh;border-color:red">
 	<a href="#overview"></a>
 	<div class="plant" id="head_overview" style="height:62%;" >
-			<div class="plant" style="width:38%;height:100%;float:left;" >
+			<div class="plant" style="width:62%;height:100%;float:left;" >
 				<h2>Cluster overview</h2>
 				<p>Head name: <output id="id_head_name"></output></p>
 				<!-- <p>Start node count: <output id="id_start_node_count"></output></p> -->
 				<p>Node count: <output id="id_node_count"></output></p>
 				<script>
 					// var var_str = txtop("/tmp/lccinfo");
-					document.getElementById("id_head_name").innerHTML = head_name;
-					// document.getElementById("id_start_node_count").innerHTML = start_node_count;
-					document.getElementById("id_node_count").innerHTML = node_count;
+					// document.getElementById("id_head_name").innerHTML = head_name;
+					// // document.getElementById("id_start_node_count").innerHTML = start_node_count;
+					// document.getElementById("id_node_count").innerHTML = node_count;
 				</script>
 				<!-- <p>Head name:
 				<script type="text/javascript">
@@ -87,7 +85,6 @@ setInterval('wtallid()',500);
 				<pre><output id="show_load"></output></pre>
 
 				<script>
-				// setInterval(wpurdf,500);
 				setInterval('urdf("/tmp/lccrep_ary","show_load")',500);
 				// document.write(txtop("/css/default.css"));
 
@@ -114,7 +111,6 @@ setInterval('wtallid()',500);
 					<button onclick="stopWorker()">停止工作</button>
 					<script>
 						scpid("/js/demo_workers.js","result");
-
 						setInterval(document.write(window.innerHeight),500);
 						
 					</script>
@@ -144,7 +140,7 @@ setInterval('wtallid()',500);
 				var actual_name = lcc_load[crtnb][0] ;
 				// console.log(crtnode);
 				// console.log(actual_name);
-				var urdfPath = "/tmp/secrt.sitrep." + actual_name;
+				// var urdfPath = "/tmp/secrt.sitrep." + actual_name;
 				document.getElementById("id_node_name_"+crtnb+"_0").innerHTML = actual_name;
 				// setInterval('wtcrtid()',500);
 				// setInterval('urdf(urdfPath,"id_node_name_"+crtnb)',500);
@@ -171,7 +167,7 @@ setInterval('wtallid()',500);
 				var actual_name = lcc_load[crtnb][0] ;
 				// console.log(crtnode);
 				// console.log(actual_name);
-				var urdfPath = "/tmp/secrt.sitrep." + actual_name;
+				// var urdfPath = "/tmp/secrt.sitrep." + actual_name;
 				document.getElementById("id_"+crtnode+"_0").innerHTML = actual_name;
 				// setInterval('wtcrtid()',500);
 				// setInterval('urdf(urdfPath,"id_"+crtnode)',500);
