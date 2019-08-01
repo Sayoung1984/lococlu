@@ -27,7 +27,39 @@ opstmp=/LCC/opstmp
 lococlu=/LCC/bin
 source /LCC/bin/lcc.conf
 
-head_name=`/bin/hostname -f`
+head_name=`/bin/hostname`
+
+# General Operation Executor v3, run command in tickets with checkline as root, and with lag check
+geoexec()
+{
+	# Checkpath for geoexec
+	HTKT=`/bin/ls $opstmp/secrt.geoexec.*.$HOSTNAME 2>/dev/null`
+	# echo "$HTKT" > /tmp/DBG_geoexec.log #DBG_geoexec
+	if [ -n "$HTKT" ]
+	then
+		for TgtTicket in `/bin/echo "$HTKT"`
+		do
+			# echo "$TgtTicket" >> /tmp/DBG_geoexec.log #DBG_geoexec
+			LTN=`/bin/echo $TgtTicket | /bin/sed 's/^.*.geoexec/lcctkt/g'`
+			# echo "$LTN" >> /tmp/DBG_geoexec.log #DBG_geoexec
+			extm=`/bin/date +%y%m%d-%H%M%S`
+			TktTail=`/usr/bin/tail -n 1 $TgtTicket`
+			TktTail2=`/usr/bin/tail -n 2 $TgtTicket | /usr/bin/head -n 1`
+			if [ "$endline $HOSTNAME" == "$TktTail" -a "$endline $HOSTNAME" != "$TktTail2" ]
+			then
+				# echo -e "#DBG\n TktTail=$TktTail\n TktTail2=$TktTail2" >> $HTKT #DBG_geoexec
+				/bin/mv $TgtTicket /var/log/$LTN.$extm.sh
+				/bin/chmod a+x /var/log/$LTN.$extm.sh
+				/var/log/$LTN.$extm.sh
+				/bin/mv /var/log/$LTN.$extm.sh /var/log/done.$LTN.$extm.sh
+				# cp /var/log/done.$extm.sh $opstmp/../dbgtmp #DBG_geoexec
+			else
+				/bin/mv $TgtTicket /var/log/dropped.$LTN.$extm.sh
+			fi
+		done
+	fi
+	# /bin/echo -e "export TmX_1=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_geoexec
+}
 
 payload_lccinfo()
 {
@@ -73,7 +105,8 @@ payload_lccinfo()
 step=0.23
 while true
 do
-	payload_lccinfo
+	payload_lccinfo &
+	geoexec &
 	/bin/sleep $step
 done
 exit 0

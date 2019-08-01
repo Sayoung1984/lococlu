@@ -4,7 +4,7 @@
  {
      i=i+1;
      postMessage(i);
-     setTimeout("timedCount()",500);
+     setTimeout("timedCount()",1000);
  }
  timedCount();
  

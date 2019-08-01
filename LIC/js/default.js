@@ -66,6 +66,8 @@ function wtallid() {
 	// document.getElementById("id_start_node_count").innerHTML = start_node_count;
 	document.getElementById("id_node_count").innerHTML = node_count;
 	// document.getElementById("show_load").innerHTML = lcc_load;
+	document.getElementById("inner_height").innerHTML = window.innerHeight;
+	console.log(window.innerHeight);
 	for (var j=1; j<=node_count; j++) {
 		var initnb = j
 		for (var i=0; i<=8; i++) {
@@ -185,7 +187,10 @@ function draw_node_dtl(node_id) {
 	var Odiv = document.createElement("div");
 	Odiv.id = "node_dtl_sub_" + node_id;
 	Odiv.className = "plant";
-
+	var Oh = document.createElement("H2");
+	var Oh_t = document.createTextNode("Node detail");
+	Oh.appendChild(Oh_t);
+	Odiv.appendChild(Oh);
 	var tgt_node_name = document.createTextNode(lcc_load[node_id][0]);
 	// console.log(tgt_node_name);
 	Odiv.appendChild(tgt_node_name);
