@@ -29,7 +29,7 @@ jumpto('overview');
 // var node_name_3 = "node-03?";
 // var node_name_4 = "node-04?";
 
-initvars();
+// initvars();
 // var lccinfo_file = "/tmp/lccinfo";
 // var lccary_file = "/tmp/lccrep_ary";
 // eval(txtop(lccinfo_file));
@@ -57,6 +57,8 @@ setInterval('eval(globalAry)', 500);
 
 // scpeval("/js/source.js");
 
+
+var tgtnode_nbr = 1;
 // dspvar();
 
 var start_node_count = node_count;
@@ -225,16 +227,18 @@ setInterval('wtallid()',500);
 	</div>
 
 	</div>
-	<script>
-		draw_nodes();
-	</script>
+	<script></script>
 </div>
 
-<div class="plant" >
+<div class="plant" id="node_detail" >
 	<h2>NX Node Detail</h2>
 	<p>NX Node Detail</p>
+	
 </div>
-
+<script>
+	draw_nodes_ovw();
+	draw_node_dtl(tgtnode_nbr);
+</script>
 
 </body>
 

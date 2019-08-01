@@ -12,6 +12,7 @@ var node_count = undefined;
 var lcc_load = undefined;
 var lcc_imgon = undefined;
 var lcc_ulsc = undefined;
+var tgtnode_nbr = 1;
 for (var i=1; i<1000; i++)
 	{ 
 		window["node_name_" + i] = undefined;
@@ -29,6 +30,7 @@ function dspvar() {
 		console.log(lcc_load);
 		console.log(lcc_imgon);
 		console.log(lcc_ulsc);
+		console.log(tgtnode_nbr);
 	};
 	setTimeout(dspvar, 500);
 }
@@ -39,7 +41,7 @@ function autoreload() {
 		// console.log(start_node_count);
 		// console.log(node_count);
 		if ( node_count !== start_node_count ) {
-			// draw_nodes();
+			// draw_nodes_ovw();
 			console.log("ND refreshed! \nsnc="+start_node_count+"\n nc="+node_count);
 		} else if ( node_count === 0 ){
 			window.location.reload(true);
@@ -81,38 +83,40 @@ function drop_child(tgt) {
 	};
 };
 
-function node_ovscp(crtnb) {
-	// var crtnb;
-	var crtnode = "node_name_"+crtnb
-	var actual_name = lcc_load[crtnb][0] ;
-	console.log(crtnode);
-	console.log(actual_name);
-	var urdfPath = "/tmp/secrt.sitrep." + actual_name;
-	console.log(urdfPath);
-	document.getElementById("id_"+crtnode+"_0").innerHTML = actual_name;
-}
 
-function draw_nodes() {
+function draw_nodes_ovw() {
 	var tgt = document.getElementById("node_overview");
 	drop_child(tgt);
 	for ( i = 1; i<= node_count; i++) {
 		// console.log ("node_name_"+i);
-		var actual_name = lcc_load[i][0];
+		// var actual_name = lcc_load[i][0];
 		// console.log(actual_name);
-		var urdfPath = "/tmp/secrt.sitrep." + actual_name;
+		// var urdfPath = "/tmp/secrt.sitrep." + actual_name;
 		// console.log(urdfPath);
 		// console.log (tgt);
-		// node_ovscp(i);
-		var lb = document.createElement("BR");
+		// node_ovwscp(i);
+		// var lb = document.createElement("BR");
 		
 		var Odiv=document.createElement("div");
-		Odiv.id="node_ov_sub_"+i;
+		Odiv.id="node_ovw_sub_"+i;
 		Odiv.className="node-flex";
+		// Odiv.onmouseover = function () {
+		// 	var node_nbr = i;
+		// 	console.log("draw_node_dtl triggered!");
+		// 	console.log(node_nbr);
+		// };
+		Odiv.onmouseover = (function (i) {
+			return function () {
+				// console.log("draw_node_dtl triggered!");
+				// console.log(i);
+				draw_node_dtl(i);
+			}
+		})(i);
 		// var content = document.createTextNode(actual_name);
 		// Odiv.appendChild(content);
 		var Idiv=document.createElement("div");
 		Idiv.className="plant"
-		Odiv.appendChild(Idiv);
+		
 		var Ih = document.createElement("H3");
 		Ih.id = "id_node_name_"+i+"_0";
 		Idiv.appendChild(Ih);
@@ -130,12 +134,12 @@ function draw_nodes() {
 		
 		for ( k = 1; k <= 8; k++) {
 			{
-			var IP_k = document.createElement("P");
-			var IP_kt = document.createTextNode(info_obj[k]);
-			// console.log(info_obj[k]);
-			// console.log(typeof IP_kt);
-			// console.log(IP_kt);
-			var IP_ko = document.createElement("OUTPUT");
+				var IP_k = document.createElement("P");
+				var IP_kt = document.createTextNode(info_obj[k]);
+				// console.log(info_obj[k]);
+				// console.log(typeof IP_kt);
+				// console.log(IP_kt);
+				var IP_ko = document.createElement("OUTPUT");
 			IP_ko.id = "id_node_name_"+i+"_"+k;
 			// console.log(line);
 			// console.log(line_o);
@@ -145,6 +149,7 @@ function draw_nodes() {
 			// console.log(IP_[k]o.id);
 			};
 			Idiv.appendChild(IP_k);
+			Odiv.appendChild(Idiv);
 		};
 		tgt.appendChild(Odiv);
 		
@@ -162,14 +167,33 @@ function draw_nodes() {
 		if ( checker !== node_count ) {
 			// setTimeout('console.log("!!! REDRAW TRIGGERED !!!")', 3000);
 			console.log("!!! REDRAW TRIGGERED !!!");
-			draw_nodes();
+			draw_nodes_ovw();
 		} else if (checker === node_count) {
 			// console.log("~ Cool, do nothing ~");
 		};
 	setTimeout(auto_redraw, 500);
 	};
 	auto_redraw();
+
+
 }
+
+function draw_node_dtl(node_id) {
+	// console.log(node_id);
+	var tgt_div = document.getElementById("node_detail");
+	drop_child(tgt_div);
+	var Odiv = document.createElement("div");
+	Odiv.id = "node_dtl_sub_" + node_id;
+	Odiv.className = "plant";
+
+	var tgt_node_name = document.createTextNode(lcc_load[node_id][0]);
+	// console.log(tgt_node_name);
+	Odiv.appendChild(tgt_node_name);
+
+
+	tgt_div.appendChild(Odiv);
+}
+
 
 function urdf(file,optid) {
 	var xmlHttp = null;
@@ -197,38 +221,38 @@ function urdf(file,optid) {
 	// setTimeout("urdf()",1000);
 }
 
-function uevf(file) {
-	var xmlHttp_var = null;
-	// var xmlHttp = new XMLHttpRequest();
-	if (window.ActiveXObject) {
-		// IE6, IE5 浏览器执行代码
-		xmlHttp_var = new ActiveXObject("Microsoft.XMLHTTP");
-	} else if (window.XMLHttpRequest) {
-		// IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
-		xmlHttp_var = new XMLHttpRequest();
-	}
-	if (xmlHttp_var != null) {
-		xmlHttp_var.open("get", file, true);
-		xmlHttp_var.send();
-		xmlHttp_var.onreadystatechange = doResult; //设置回调函数                 
-	}
-	function doResult() {
-		if (xmlHttp_var.readyState == 4) { //4表示执行完成
-			if (xmlHttp_var.status == 200) { //200表示执行成功
-				// async :false,
-				var readout = xmlHttp_var.responseText;
-				// eval(xmlHttp_var.responseText);
-				// console.log(node_count);
-				// console.log(lcc_load);
-				// console.log(lcc_imgon);
-				// console.log(lcc_ulsc);
-			};
-		};
-		console.log(typeof readout);
-		// console.log(readout);
-	}
-	// setTimeout("urdf()",1000);
-}
+// function uevf(file) {
+// 	var xmlHttp_var = null;
+// 	// var xmlHttp = new XMLHttpRequest();
+// 	if (window.ActiveXObject) {
+// 		// IE6, IE5 浏览器执行代码
+// 		xmlHttp_var = new ActiveXObject("Microsoft.XMLHTTP");
+// 	} else if (window.XMLHttpRequest) {
+// 		// IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+// 		xmlHttp_var = new XMLHttpRequest();
+// 	}
+// 	if (xmlHttp_var != null) {
+// 		xmlHttp_var.open("get", file, true);
+// 		xmlHttp_var.send();
+// 		xmlHttp_var.onreadystatechange = doResult; //设置回调函数                 
+// 	}
+// 	function doResult() {
+// 		if (xmlHttp_var.readyState == 4) { //4表示执行完成
+// 			if (xmlHttp_var.status == 200) { //200表示执行成功
+// 				// async :false,
+// 				var readout = xmlHttp_var.responseText;
+// 				// eval(xmlHttp_var.responseText);
+// 				// console.log(node_count);
+// 				// console.log(lcc_load);
+// 				// console.log(lcc_imgon);
+// 				// console.log(lcc_ulsc);
+// 			};
+// 		};
+// 		console.log(typeof readout);
+// 		// console.log(readout);
+// 	}
+// 	// setTimeout("urdf()",1000);
+// }
 
 function txtop(name) {
 	let xhr = new XMLHttpRequest(),
@@ -241,16 +265,16 @@ function txtop(name) {
 	return xhr.status === okStatus ? xhr.responseText : null;
 }
 
-function txteval(name) {
-	let xhr = new XMLHttpRequest(),
-		okStatus = document.location.protocol === "file:" ? 0 : 200;
-	xhr.open('GET', name, false);
-	xhr.overrideMimeType("text/html;charset=utf-8"); //默认为utf-8
-	xhr.send(null);
-	console.log(typeof xhr.responseText);
-	console.log(xhr.responseText);
-	return xhr.status === okStatus ? xhr.responseText : null;
-}
+// function txteval(name) {
+// 	let xhr = new XMLHttpRequest(),
+// 		okStatus = document.location.protocol === "file:" ? 0 : 200;
+// 	xhr.open('GET', name, false);
+// 	xhr.overrideMimeType("text/html;charset=utf-8"); //默认为utf-8
+// 	xhr.send(null);
+// 	console.log(typeof xhr.responseText);
+// 	console.log(xhr.responseText);
+// 	return xhr.status === okStatus ? xhr.responseText : null;
+// }
 
 function scpid(jscp,writeid) {
 	var w;
@@ -266,40 +290,49 @@ function scpid(jscp,writeid) {
 	}
 }
 
-function scpeval(jscp) {
-	var w = new Worker(jscp);;
-	w.onmessage = function (event) {
-		console.log(event.data);
-		result.textContent = event.data;
-		eval(event.data);
-	};
-}
+// function scpeval(jscp) {
+// 	var w = new Worker(jscp);;
+// 	w.onmessage = function (event) {
+// 		console.log(event.data);
+// 		result.textContent = event.data;
+// 		eval(event.data);
+// 	};
+// }
 
 
-function arrayToJson(o) {
+// function arrayToJson(o) {
 	
-    var r = [];
-    if (typeof o == "string") return "\"" + o.replace(/([\'\"\\])/g, "\\$1").replace(/(\n)/g, "\\n").replace(/(\r)/g, "\\r").replace(/(\t)/g, "\\t") + "\"";
-    if (typeof o == "object") {
-      if (!o.sort) {
-        for (var i in o)
-        r.push(i + ":" + arrayToJson(o[i]));
-        if (!!document.all && !/^\n?function\s*toString\s*\{\n?\s*\[native code\]\n?\s*\}\n?\s*$/.test(o.toString)) {
-        r.push("toString:" + o.toString.toString());
-        }
-        r = "{" + r.join() + "}";
-      } else {
-        for (var i = 0; i < o.length; i++) {
-        r.push(arrayToJson(o[i]));
-        }
-        r = "[" + r.join() + "]";
-      }
-      return r;
-    }
-    return o.toString();
-  }
+//     var r = [];
+//     if (typeof o == "string") return "\"" + o.replace(/([\'\"\\])/g, "\\$1").replace(/(\n)/g, "\\n").replace(/(\r)/g, "\\r").replace(/(\t)/g, "\\t") + "\"";
+//     if (typeof o == "object") {
+//       if (!o.sort) {
+//         for (var i in o)
+//         r.push(i + ":" + arrayToJson(o[i]));
+//         if (!!document.all && !/^\n?function\s*toString\s*\{\n?\s*\[native code\]\n?\s*\}\n?\s*$/.test(o.toString)) {
+//         r.push("toString:" + o.toString.toString());
+//         }
+//         r = "{" + r.join() + "}";
+//       } else {
+//         for (var i = 0; i < o.length; i++) {
+//         r.push(arrayToJson(o[i]));
+//         }
+//         r = "[" + r.join() + "]";
+//       }
+//       return r;
+//     }
+//     return o.toString();
+//   }
 
-
+// function node_ovwscp(crtnb) {
+// 	// var crtnb;
+// 	var crtnode = "node_name_"+crtnb
+// 	var actual_name = lcc_load[crtnb][0] ;
+// 	console.log(crtnode);
+// 	console.log(actual_name);
+// 	var urdfPath = "/tmp/secrt.sitrep." + actual_name;
+// 	console.log(urdfPath);
+// 	document.getElementById("id_"+crtnode+"_0").innerHTML = actual_name;
+// }
 
 // window.onload=function () {
 //         var Odiv=document.createElement("div");             //创建一个div
