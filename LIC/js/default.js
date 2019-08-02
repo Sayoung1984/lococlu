@@ -67,7 +67,8 @@ function wtallid() {
 	document.getElementById("id_node_count").innerHTML = node_count;
 	// document.getElementById("show_load").innerHTML = lcc_load;
 	document.getElementById("inner_height").innerHTML = window.innerHeight;
-	console.log(window.innerHeight);
+	document.getElementById("inner_width").innerHTML = window.innerWidth;
+	// console.log(window.innerHeight);
 	for (var j=1; j<=node_count; j++) {
 		var initnb = j
 		for (var i=0; i<=8; i++) {
@@ -119,7 +120,7 @@ function draw_nodes_ovw() {
 		var Idiv=document.createElement("div");
 		Idiv.className="plant"
 		
-		var Ih = document.createElement("H3");
+		var Ih = document.createElement("B");
 		Ih.id = "id_node_name_"+i+"_0";
 		Idiv.appendChild(Ih);
 		var info_obj = {
