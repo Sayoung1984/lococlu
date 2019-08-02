@@ -140,7 +140,12 @@ calcmain()
 	uptm=`/bin/cat /proc/uptime | /usr/bin/awk -F "." '{print $1}'`
 	free_opt=`/usr/bin/free`
 	ram_all=`/bin/echo "$free_opt" | /bin/grep "Mem:" | /usr/bin/awk '{print $2}'`
-	ram_used=`/bin/echo "$free_opt" | /bin/grep "cache:" | /usr/bin/awk '{print $3}'`
+	if [ "$free_version" = 3.3.9 ]
+	then
+		ram_used=`/bin/echo "$free_opt" | /bin/grep "cache:" | /usr/bin/awk '{print $3}'`
+	else
+		ram_used=`/bin/echo "$free_opt" | /bin/grep "Mem:" | /usr/bin/awk '{print $6}'`
+	fi
 	swap_all=`/bin/echo "$free_opt" | /bin/grep "Swap:" | /usr/bin/awk '{print $2}'`
 	swap_used=`/bin/echo "$free_opt" | /bin/grep "Swap:" | /usr/bin/awk '{print $3}'`
 	ram_pct=`/bin/echo -e "scale=2; 100 * $ram_used / $ram_all " | /usr/bin/bc`

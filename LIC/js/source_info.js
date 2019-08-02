@@ -11,5 +11,4 @@ function txt2op(name) {
 	xhr.send();
 }
 
-var lccinfo_file = "/tmp/lccinfo";
-setInterval('txt2op(lccinfo_file)', 500);
+setInterval('txt2op("/tmp/lccrep_info")', 500);

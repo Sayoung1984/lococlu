@@ -11,5 +11,4 @@ function txt2op(name) {
 	xhr.send();
 }
 
-var lccary_file = "/tmp/lccrep_ary";
-setInterval('txt2op(lccary_file)', 500);
+setInterval('txt2op("/tmp/lccrep_ary")', 500);

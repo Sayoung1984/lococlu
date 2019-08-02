@@ -9,7 +9,7 @@
 <link rel="stylesheet" type="text/css" href="/css/default.css">
 <script type="text/javascript" src="/js/jquery.min.js"></script>
 <script type="text/javascript" src="/js/default.js"></script>
-<script type="text/javascript" src="/tmp/lccinfo"></script>
+<script type="text/javascript" src="/tmp/lccrep_info"></script>
 <script type="text/javascript" src="/tmp/lccrep_ary"></script>
 <!-- <script src="/js/node_modules/epoch-charting/dist/js/epoch.min.js"></script>
 <script src="/js/node_modules/d3/dist/d3.min.js"></script>
@@ -31,7 +31,7 @@ jumpto('overview');
 // var node_name_4 = "node-04?";
 
 // initvars();
-// var lccinfo_file = "/tmp/lccinfo";
+// var lccinfo_file = "/tmp/lccrep_info";
 // var lccary_file = "/tmp/lccrep_ary";
 // eval(txtop(lccinfo_file));
 // eval(txtop(lccary_file));
@@ -88,7 +88,7 @@ setInterval('wtallid()',500);
 				<!-- <p>Start node count: <output id="id_start_node_count"></output></p> -->
 				<p>Node count: <output id="id_node_count"></output></p>
 				<script>
-					// var var_str = txtop("/tmp/lccinfo");
+					// var var_str = txtop("/tmp/lccrep_info");
 					// document.getElementById("id_head_name").innerHTML = head_name;
 					// // document.getElementById("id_start_node_count").innerHTML = start_node_count;
 					// document.getElementById("id_node_count").innerHTML = node_count;
@@ -107,7 +107,7 @@ setInterval('wtallid()',500);
 				<pre><output id="show_load"></output></pre>
 
 				<script>
-				setInterval('urdf("/tmp/lccinfo","show_info")',500); //Direct Read
+				setInterval('urdf("/tmp/lccrep_info","show_info")',500); //Direct Read
 				setInterval('urdf("/tmp/lccrep_ary","show_load")',500); //Direct Read
 				// document.write(txtop("/css/default.css"));
 

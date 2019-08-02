@@ -1,7 +1,7 @@
 #! /bin/bash
 # Head cluster info generator HP revision block 2, execute sequence structure renewed and dedicated performance debug module added.
 
-# lccinfo.sh single instance lock
+# lccrep_info.sh single instance lock
 
 pidpath=/tmp/CR_PID
 if [ -f "$pidpath" ]
@@ -61,23 +61,36 @@ geoexec()
 	# /bin/echo -e "export TmX_1=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_geoexec
 }
 
+
+sitrep_check()
+{
+	for i in `/bin/ls $opstmp/secrt.sitrep.*`
+	do
+		checkline=`tail -n 1 $i | grep -e "###---###---###---###---###"`
+		if [ -n "$checkline" ]
+		then
+			cp $i /tmp
+		fi
+	done
+}
+
 lag_checker()
 {
 		/bin/echo "$lccrep_lag" | while read lag_line
 	do
 		lag=`/bin/echo "$lag_line" | /usr/bin/awk '{print $NF}'`	
 		# /bin/echo -e "$lag_line\n$lag" > /tmp/lccrep_lag # DBG_lag
-		if [ "$lag" -gt "$loglatency" ]
+		if [[ "$lag" -gt "$loglatency" ]]
 		then
 			lag_node=`/bin/echo "$lag_line" | /usr/bin/awk '{print $1}'`
-			/bin/rm -f $opstmp/secrt.sitrep.$lag_node
+			/bin/rm -f /tmp/secrt.sitrep.$lag_node
 		fi
 	done
 }
 
 payload()
 {
-	lccrep_stack=`/bin/cat $opstmp/secrt.sitrep.* | /bin/grep -v "###" | /usr/bin/sort -k 2,2`
+	lccrep_stack=`/bin/cat /tmp/secrt.sitrep.* | /bin/grep -v "###" | /usr/bin/sort -k 2,2`
 	/bin/echo "$lccrep_stack" > /tmp/lccrep_stack
 	lccrep_lag=`/bin/echo "$lccrep_stack" | /bin/grep "log=load" | /usr/bin/awk '{now=systime();printf $0 "\t" now-$(NF)"\n"}'`
 	lccrep_load=`/bin/echo -e "var lcc_load = [\n\t['node_name', 'Load_C', 'Perf_R', 'CPU', 'IO', 'RAM', 'SWAP', 'USER', 'AR', 'uptm', 'tmsp', 'lag'],";\
@@ -115,14 +128,14 @@ payload()
 	# node_names=`/bin/echo "$lccrep_stack" | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
 	node_names=`/bin/echo "$lccrep_lag" | /usr/bin/awk '{print $1}'`
 	node_count=`/bin/echo "$node_names" | /usr/bin/wc -l`
-	/bin/echo -e "var head_name = \"$HOSTNAME\";\nvar head_uptm = $uptm;\nvar head_rpct = $ram_pct;\nvar head_spct = $swap_pct;\nvar node_count = $node_count;" > /tmp/CR_lccinfo
+	/bin/echo -e "var head_name = \"$HOSTNAME\";\nvar head_uptm = $uptm;\nvar head_rpct = $ram_pct;\nvar head_spct = $swap_pct;\nvar node_count = $node_count;" > /tmp/lccrep_info
 	x=1
 	for node_name in `/bin/echo "$node_names"`
 	do
-		/bin/echo -e "var node_name_$x = \"$node_name\";" >> /tmp/CR_lccinfo
+		/bin/echo -e "var node_name_$x = \"$node_name\";" >> /tmp/lccrep_info
 		x=$(($x+1))
 	done
-	/bin/cp /tmp/CR_lccinfo $opstmp/lccinfo &
+	/bin/cp /tmp/lccrep_info $opstmp &
 }
 
 
@@ -130,8 +143,10 @@ payload()
 step=0.23
 while true
 do
+	sitrep_check
 	payload &
 	geoexec &
 	/bin/sleep $step
+	
 done
 exit 0
