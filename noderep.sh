@@ -137,6 +137,16 @@ calcmain()
 	PerfIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2;  sqrt( ($IOIndex / 1.5) ^2 + $CPULoad ^2 ) " | /usr/bin/bc)`
 	LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $UserCount / $PERFScore + 100 * $ShortLoad / $PERFScore / $PHYSICORE " | /usr/bin/bc`
 
+	uptm=`/bin/cat /proc/uptime | /usr/bin/awk -F "." '{print $1}'`
+	free_opt=`/usr/bin/free`
+	ram_all=`/bin/echo "$free_opt" | /bin/grep "Mem:" | /usr/bin/awk '{print $2}'`
+	ram_used=`/bin/echo "$free_opt" | /bin/grep "cache:" | /usr/bin/awk '{print $3}'`
+	swap_all=`/bin/echo "$free_opt" | /bin/grep "Swap:" | /usr/bin/awk '{print $2}'`
+	swap_used=`/bin/echo "$free_opt" | /bin/grep "Swap:" | /usr/bin/awk '{print $3}'`
+	ram_pct=`/bin/echo -e "scale=2; 100 * $ram_used / $ram_all " | /usr/bin/bc`
+	swap_pct=`/bin/echo -e "scale=2; 100 * $swap_used / $swap_all " | /usr/bin/bc`
+
+
 	TmC_3=$[$(/bin/date +%s%N)/1000000] #DBG_calcmain	   #lagcalc basic
 
 	{
@@ -160,7 +170,7 @@ unirep()
 
 	if [ -n "$LoadIndex" -a -n "$PerfIndex" ]
 	then
-		/bin/echo -e "$HOSTNAME\tlog=load\t$LoadIndex\t$PerfIndex\tLoad_C=$LoadIndex\tPerf_R=$PerfIndex\tCPU=$CPULoad IO=$IOIndex\tUSER=$UserCount\tAR=$AR\t"`/bin/date +%s`
+		/bin/echo -e "$HOSTNAME\tlog=load\t$LoadIndex\t$PerfIndex\t$CPULoad\t$IOIndex\t$ram_pct\t$swap_pct\t$UserCount\t$AR\t$uptm\t"`/bin/date +%s`
 	fi
 
 	/bin/echo -e "$endline" $HOSTNAME
