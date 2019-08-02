@@ -71,7 +71,7 @@ function wtallid() {
 	// console.log(window.innerHeight);
 	for (var j=1; j<=node_count; j++) {
 		var initnb = j
-		for (var i=0; i<=8; i++) {
+		for (var i=0; i<=11; i++) {
 			document.getElementById("id_node_name_"+initnb+"_"+i).innerHTML = lcc_load[initnb][i];
 			// console.log(lcc_load[initnb][0]);
 			// document.getElementById("id_node_name_"+i+"_0").innerHTML = lcc_load[i][0];
@@ -127,22 +127,25 @@ function draw_nodes_ovw() {
 			1 : "Load Rate: ",
 			2 : "Perf Score: ",
 			3 : "CPU % : ",
-			4 : "\ IO % : ",
-			5 : "USER : ",
-			6 : "AR : ",
-			7 : "Time stamp: ",
-			8 : "LCC Lag: "
+			4 : "IO % : ",
+			5 : "RAM % : ",
+			6 : "SWAP% : ",
+			7 : "USER: ",
+			8 : "AR : ",
+			9 : "UP Time : ",
+			10 : "Time stamp: ",
+			11 : "LCC Lag: "
 		};
 
 		
-		for ( k = 1; k <= 8; k++) {
+		for ( k = 1; k <= 11; k++) {
 			{
-				var IP_k = document.createElement("P");
-				var IP_kt = document.createTextNode(info_obj[k]);
-				// console.log(info_obj[k]);
-				// console.log(typeof IP_kt);
-				// console.log(IP_kt);
-				var IP_ko = document.createElement("OUTPUT");
+			var IP_k = document.createElement("P");
+			var IP_kt = document.createTextNode(info_obj[k]);
+			// console.log(info_obj[k]);
+			// console.log(typeof IP_kt);
+			// console.log(IP_kt);
+			var IP_ko = document.createElement("OUTPUT");
 			IP_ko.id = "id_node_name_"+i+"_"+k;
 			// console.log(line);
 			// console.log(line_o);
