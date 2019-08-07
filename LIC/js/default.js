@@ -41,9 +41,10 @@ function autoreload() {
 		// console.log(start_node_count);
 		// console.log(node_count);
 		if ( node_count !== start_node_count ) {
-			// draw_nodes_ovw();
-			console.log("ND refreshed! \nsnc="+start_node_count+"\n nc="+node_count);
+			console.log("ND refreshed! \nsnc=" + start_node_count + "\n nc=" + node_count);
+			draw_nodes_ovw();
 		} else if ( node_count === 0 ){
+			console.log("Full screen reloaded!");
 			window.location.reload(true);
 		}
 	};

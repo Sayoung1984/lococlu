@@ -6,9 +6,9 @@ function txt2op(name) {
 	xhr.overrideMimeType("text/html; charset=utf-8"); //默认为utf-8
 	// postMessage(xhr.responseText);
 	xhr.onload = function(){
-		self.postMessage(xhr.responseText.replace(/\/u0/g, ""));
+		self.postMessage(xhr.responseText.replace(/\\u0/g, ""));
 		};
 	xhr.send();
 }
 
-setInterval('txt2op("/tmp/lccrep_ary")', 500);
+setInterval('txt2op("/tmp/lccrep_load")', 500);

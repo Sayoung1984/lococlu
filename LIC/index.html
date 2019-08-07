@@ -10,7 +10,8 @@
 <script type="text/javascript" src="/js/jquery.min.js"></script>
 <script type="text/javascript" src="/js/default.js"></script>
 <script type="text/javascript" src="/tmp/lccrep_info"></script>
-<script type="text/javascript" src="/tmp/lccrep_ary"></script>
+<script type="text/javascript" src="/tmp/lccrep_load"></script>
+<script type="text/javascript" src="/tmp/lccrep_gen"></script>
 <!-- <script src="/js/node_modules/epoch-charting/dist/js/epoch.min.js"></script>
 <script src="/js/node_modules/d3/dist/d3.min.js"></script>
 <script src="/js/node_modules/shelljs/shell.js"></script>
@@ -32,7 +33,7 @@ jumpto('overview');
 
 // initvars();
 // var lccinfo_file = "/tmp/lccrep_info";
-// var lccary_file = "/tmp/lccrep_ary";
+// var lccary_file = "/tmp/lccrep_load";
 // eval(txtop(lccinfo_file));
 // eval(txtop(lccary_file));
 // setInterval('eval(txtop(lccary_file))', 500);
@@ -55,6 +56,16 @@ Ary_worker.addEventListener('message', function (event) {
   });
 setInterval('eval(globalAry)', 500);
 // setInterval('console.log(globalAry)', 500);
+
+let Gen_worker = new Worker('/js/source_gen.js'); //Direct Read
+var globalAry;
+Ary_worker.addEventListener('message', function (event) {
+	globalAry = event.data;
+	// console.log(globalAry);
+});
+setInterval('eval(globalAry)', 500);
+// setInterval('console.log(globalAry)', 500);
+
 
 // scpeval("/js/source.js");
 
@@ -105,10 +116,12 @@ setInterval('wtallid()',500);
 				</p> -->
 				<pre><output id="show_info"></output></pre>
 				<pre><output id="show_load"></output></pre>
+				<pre><output id="show_gen"></output></pre>
 
 				<script>
 				setInterval('urdf("/tmp/lccrep_info","show_info")',500); //Direct Read
-				setInterval('urdf("/tmp/lccrep_ary","show_load")',500); //Direct Read
+				setInterval('urdf("/tmp/lccrep_load","show_load")',500); //Direct Read
+				setInterval('urdf("/tmp/lccrep_gen","show_gen")', 500); //Direct Read
 				// document.write(txtop("/css/default.css"));
 
 				// scpid("/js/source.js","lcc_load");

@@ -11,4 +11,4 @@ function txt2op(name) {
 	xhr.send();
 }
 
-setInterval('txt2op("/tmp/lccrep_info")', 500);
+setInterval('txt2op("/tmp/lccrep_gen")', 500);
