@@ -43,7 +43,7 @@ let Info_worker = new Worker('/js/source_info.js'); //Direct Read
 var globalInfo;
 Info_worker.addEventListener('message', function (event) {
 	globalInfo = event.data;
-	// console.log(globalAry);
+	// console.log(globalInfo);
   });
 setInterval('eval(globalInfo)', 500);
 // setInterval('console.log(globalInfo)', 500);
@@ -58,13 +58,13 @@ setInterval('eval(globalAry)', 500);
 // setInterval('console.log(globalAry)', 500);
 
 let Gen_worker = new Worker('/js/source_gen.js'); //Direct Read
-var globalAry;
-Ary_worker.addEventListener('message', function (event) {
-	globalAry = event.data;
-	// console.log(globalAry);
+var globalGen;
+Gen_worker.addEventListener('message', function (event) {
+	globalGen = event.data;
+	// console.log(globalGen);
 });
-setInterval('eval(globalAry)', 500);
-// setInterval('console.log(globalAry)', 500);
+setInterval('eval(globalGen)', 500);
+// setInterval('console.log(globalGen)', 500);
 
 
 // scpeval("/js/source.js");
