@@ -459,7 +459,7 @@ do
     then
 		/bin/echo -e "\nUser got into the target node.\n\n" >> $output
 		output=/dev/null
-		tee_passthrough
+		tee_passthrough 2>/dev/null
     fi
 done
 }
@@ -467,7 +467,7 @@ done
 tee_passthrough()
 {
  # ls -l /dev/fd/ >> /var/log/lcc/lcclog.$LOGNAME
- /bin/cat > printf
+ /bin/cat > /usr/bin/printf
 }
 
 main_out()
