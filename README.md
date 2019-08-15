@@ -52,6 +52,8 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.8.6
+* Added "headkill" function to kill dead LCC session in lccinfo.sh
 ## v0.8.5
 * First version of working LIC subsystem online. Place on new role "eye" node.
 ## v0.8.0a

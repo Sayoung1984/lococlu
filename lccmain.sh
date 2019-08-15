@@ -596,4 +596,4 @@ else
 fi
 }
 
-main_out | tee_out #comment tee_out out to disable lcclog
+main_out # | tee_out #comment tee_out out to disable lcclog
