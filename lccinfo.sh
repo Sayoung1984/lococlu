@@ -166,7 +166,7 @@ payload_slow()
 
 payload_static()
 {
-	lccsl=`/bin/ps -aux | /bin/grep lccmain.sh | /usr/bin/awk '{print $3 "\t" $10 "\t" $1 "\t" $2}' | /usr/bin/sort -n | /bin/grep -Ev "^0"`
+	lccsl=`/bin/ps -aux | /bin/grep lccmain.sh | /usr/bin/awk '{print $3 "\t" $10 "\t" $1 "\t" $2}' | /bin/grep -Ev "^0" | /usr/bin/sort -n`
 	# /bin/echo "$lccsl"
 	OLDIFS="$IFS"
 	IFS=$'\n'
@@ -176,14 +176,16 @@ payload_static()
 		lccs_cpu=`/bin/echo "$lccs" | /usr/bin/awk -F "." '{print $1}'`
 		# /bin/echo "$lccs_cpu"
 
-		if [[ "$lccs_cpu" -ge 20 ]]
+		if [[ "$lccs_cpu" -ge 25 ]]
 		then
 			lccs_time=`/bin/echo "$lccs" | /usr/bin/awk -F "\t|:" '{print $2}'`
 			# /bin/echo "$lccs_time"
 			# /bin/echo "$lccs"
-			if [[ "$lccs_time" -gt 60 ]]
+			if [[ "$lccs_time" -ge 10 ]]
 			then
 				lccs2k=`/bin/echo "$lccs" | /usr/bin/awk -F "\t|:" '{print $NF}'`
+				lccs_user=`/bin/echo "$lccs" | /usr/bin/awk -F "\t|:" '{print $3}'`
+				echo -e "\n`/bin/date +%Y-%m%d-%H%M-%S`\t User= $lccs_user\n$lccs\n">/var/log/lcc/kill_log.`/bin/date +%y%m%d-%H%M%S`.$lccs_user
 				# /bin/echo $lccs2k
 				/bin/kill -9 $lccs2k &
 			fi

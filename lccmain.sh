@@ -472,6 +472,9 @@ tee_passthrough()
 
 main_out()
 {
+
+echo -e "\n`/bin/date +%Y-%m%d-%H%M-%S`\t User= $LOGNAME\n">/var/log/lcc/lcclog.`/bin/date +%y%m%d-%H%M%S`.$LOGNAME
+
 # Main0 User launch lock
 # /bin/echo -e "#DBG_Main0_in lockpath=$opstmp/launchlock.$LOGNAME"
 lockpath=$opstmp/launchlock.$LOGNAME
