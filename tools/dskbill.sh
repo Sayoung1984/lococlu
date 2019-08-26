@@ -1,4 +1,19 @@
 #! /bin/bash
+
+pidpath=/tmp/DB_PID
+if [ -f "$pidpath" ]
+then
+	for ktgt in `/bin/ps -aux | /bin/grep -vE "$$|grep" | /bin/grep dskbill.sh | /usr/bin/awk '{print $2}'`
+	do
+	{
+		kill -9 $ktgt 2>/dev/null
+	}&
+	done
+	# kill -9 `/bin/cat $pidpath` > /dev/null 2>&1
+	/bin/rm -f $pidpath
+fi
+echo $$ >$pidpath
+
 basepath=$(cd `dirname $0`; pwd)
 #Get manager name from user name, $C_HTP to $C_MGR
 getmgr()
@@ -8,7 +23,7 @@ getmgr()
 
 userlist()
 {
-    /bin/ls -slh /images/vol* | grep -v "\.\." | /bin/grep .img | /usr/bin/awk -F "[ .]" '{print $(NF-1)}' | /usr/bin/sort -u
+    /bin/ls -slh /images/vol*/*.img | grep -v "\.\." | /usr/bin/awk -F "[/.]" '{print $(NF-1)}' | /usr/bin/sort -u
 }
 
 userdskchk()
@@ -31,11 +46,17 @@ mainfunc()
         while [ ! -n "$chkhtp" ] ; do
             getmgr
             # /bin/echo DBG_main1a C_HTP=$C_HTP C_MGR=$C_MGR
-            OPLINE="$C_MGR <---- $OPLINE"
-            # /bin/echo DBG_main1b OPLINE=$OPLINE
-            C_HTP=$C_MGR
-            chkhtp=`/bin/grep $C_HTP $basepath/mgrlist`
-            # /bin/echo DBG_main1c C_HTP=$C_HTP C_MGR=$C_MGR chkhtp=$chkhtp
+            if [ -n "$C_MGR" ]
+            then
+                OPLINE="$C_MGR <---- $OPLINE"
+                # /bin/echo DBG_main1b OPLINE=$OPLINE
+                C_HTP=$C_MGR
+                chkhtp=`/bin/grep $C_HTP $basepath/mgrlist`
+                # /bin/echo DBG_main1c C_HTP=$C_HTP C_MGR=$C_MGR chkhtp=$chkhtp
+            else
+                leaver_img=`/bin/ls -sl /images/vol*/*.img | grep -v "\.\." | /bin/grep /$C_HTP.img | /usr/bin/awk '{print $NF}'`
+                /bin/mv "$leaver_img" "$leaver_img.leaver"
+            fi
         done
         /bin/echo -e "$UDS\t$UDU\t$OPLINE$C_USER"
     done | /usr/bin/sort -k3
