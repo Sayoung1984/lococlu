@@ -100,6 +100,7 @@ lag_checker()
 	done
 }
 
+# Payload fast ring, format sitrep into JS array, updates load and gen info in asynchronous way
 payload_fast()
 {
 	lccrep_stack=`/bin/cat /tmp/secrt.sitrep.* | /bin/grep -v "###" | /usr/bin/sort -k 2,2`
@@ -130,6 +131,7 @@ payload_fast()
 
 }
 
+#Payload slow ring, 1/10 speed of fast ring, update head ram/swap/uptime and node names.
 payload_slow()
 {
 	uptm=`/bin/cat /proc/uptime | /usr/bin/awk -F "." '{print $1}'`
@@ -164,6 +166,7 @@ payload_slow()
 	/bin/cp /tmp/lccrep_info $opstmp &
 }
 
+# Payload static ring, only run once per instance, check and kill unexpectedly disconnected user sessions.
 payload_static()
 {
 	lccsl=`/bin/ps -aux | /bin/grep lccmain.sh | /usr/bin/awk '{print $3 "\t" $10 "\t" $1 "\t" $2}' | /bin/grep -Ev "^0" | /usr/bin/sort -n`

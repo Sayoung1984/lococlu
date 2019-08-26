@@ -28,19 +28,19 @@ userlist()
 
 userdskchk()
 {
-	UDS=`/bin/ls -sl /images/vol* | grep -v "\.\." | /bin/grep " "$C_USER.img | /usr/bin/awk '{x=x+$6} END {printf "%.0f\n",x/1024/1024/1024}'`
-    UDU=`/bin/ls -sl /images/vol* | grep -v "\.\." | /bin/grep " "$C_USER.img | /usr/bin/awk '{x=x+$1} END {printf "%.0f\n",x/1024/1024}'`
+	UDS=`/bin/ls -sl /images/vol* | grep -v "\.\." | /bin/grep " "$C_HTP.img | /usr/bin/awk '{x=x+$6} END {printf "%.0f\n",x/1024/1024/1024}'`
+    UDU=`/bin/ls -sl /images/vol* | grep -v "\.\." | /bin/grep " "$C_HTP.img | /usr/bin/awk '{x=x+$1} END {printf "%.0f\n",x/1024/1024}'`
 }
 
 mainfunc()
 {
     /bin/echo -e "\nQuota\tUsed\tUser info"
     for C_HTP in `userlist`; do
+        {
         OPLINE=""
         C_MGR=""
-        C_USER=$C_HTP
         userdskchk
-        # /bin/echo DBG_main0a C_USER=$C_USER C_HTP=$C_HTP C_MGR=$C_MGR
+        # /bin/echo DBG_main0a C_HTP=$C_HTP C_MGR=$C_MGR
         chkhtp=`/bin/grep $C_HTP $basepath/mgrlist`
         # /bin/echo DBG_main0c chkhtp=$chkhtp
         while [ ! -n "$chkhtp" ] ; do
@@ -54,11 +54,22 @@ mainfunc()
                 chkhtp=`/bin/grep $C_HTP $basepath/mgrlist`
                 # /bin/echo DBG_main1c C_HTP=$C_HTP C_MGR=$C_MGR chkhtp=$chkhtp
             else
-                leaver_img=`/bin/ls -sl /images/vol*/*.img | grep -v "\.\." | /bin/grep /$C_HTP.img | /usr/bin/awk '{print $NF}'`
-                /bin/mv "$leaver_img" "$leaver_img.leaver"
+                sleep 1
+                getmgr
+                if [ ! -n "$C_MGR" ]
+                then
+                    leaver_img=`/bin/ls -sl /images/vol*/*.img | grep -v "\.\." | /bin/grep /$C_HTP.img | /usr/bin/awk '{print $NF}'`
+                    /bin/mv "$leaver_img" "$leaver_img.leaver"
+                else
+                    OPLINE="$C_MGR <---- $OPLINE"
+                    # /bin/echo DBG_main1b OPLINE=$OPLINE
+                    C_HTP=$C_MGR
+                    chkhtp=`/bin/grep $C_HTP $basepath/mgrlist`
+                fi
             fi
         done
-        /bin/echo -e "$UDS\t$UDU\t$OPLINE$C_USER"
+        /bin/echo -e "$UDS\t$UDU\t$OPLINE$C_HTP"
+        } &
     done | /usr/bin/sort -k3
     STAT_MAIN=done
 }
