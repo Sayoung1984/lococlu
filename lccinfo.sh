@@ -179,7 +179,7 @@ payload_static()
 		lccs_cpu=`/bin/echo "$lccs" | /usr/bin/awk -F "." '{print $1}'`
 		# /bin/echo "$lccs_cpu"
 
-		if [[ "$lccs_cpu" -ge 25 ]]
+		if [[ "$lccs_cpu" -ge 15 ]]
 		then
 			lccs_time=`/bin/echo "$lccs" | /usr/bin/awk -F "\t|:" '{print $2}'`
 			# /bin/echo "$lccs_time"

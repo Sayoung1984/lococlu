@@ -28,8 +28,8 @@ userlist()
 
 userdskchk()
 {
-	UDS=`/bin/ls -sl /images/vol* | grep -v "\.\." | /bin/grep " "$C_HTP.img | /usr/bin/awk '{x=x+$6} END {printf "%.0f\n",x/1024/1024/1024}'`
-    UDU=`/bin/ls -sl /images/vol* | grep -v "\.\." | /bin/grep " "$C_HTP.img | /usr/bin/awk '{x=x+$1} END {printf "%.0f\n",x/1024/1024}'`
+	UDS=`/bin/ls -sl /images/vol* | grep -v "\.\." | /bin/grep " "$C_USER.img | /usr/bin/awk '{x=x+$6} END {printf "%.0f\n",x/1024/1024/1024}'`
+    UDU=`/bin/ls -sl /images/vol* | grep -v "\.\." | /bin/grep " "$C_USER.img | /usr/bin/awk '{x=x+$1} END {printf "%.0f\n",x/1024/1024}'`
 }
 
 mainfunc()
@@ -39,6 +39,7 @@ mainfunc()
         {
         OPLINE=""
         C_MGR=""
+        C_USER="$C_HTP"
         userdskchk
         # /bin/echo DBG_main0a C_HTP=$C_HTP C_MGR=$C_MGR
         chkhtp=`/bin/grep $C_HTP $basepath/mgrlist`
@@ -58,7 +59,7 @@ mainfunc()
                 getmgr
                 if [ ! -n "$C_MGR" ]
                 then
-                    leaver_img=`/bin/ls -sl /images/vol*/*.img | grep -v "\.\." | /bin/grep /$C_HTP.img | /usr/bin/awk '{print $NF}'`
+                    leaver_img=`/bin/ls -sl /images/vol*/*.img | grep -v "\.\." | /bin/grep /$C_USER.img | /usr/bin/awk '{print $NF}'`
                     /bin/mv "$leaver_img" "$leaver_img.leaver"
                 else
                     OPLINE="$C_MGR <---- $OPLINE"
@@ -68,7 +69,7 @@ mainfunc()
                 fi
             fi
         done
-        /bin/echo -e "$UDS\t$UDU\t$OPLINE$C_HTP"
+        /bin/echo -e "$UDS\t$UDU\t$OPLINE$C_USER"
         } &
     done | /usr/bin/sort -k3
     STAT_MAIN=done
