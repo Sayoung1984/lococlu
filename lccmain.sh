@@ -437,7 +437,7 @@ secpatch()
 	fi
 }
 
-# tee_out series functions for lccmain user logging
+# tee_out series functions for lccmain user logging, DEBUG ONLY
 tee_out()
 {
 	/usr/bin/tee >(tee_filter)

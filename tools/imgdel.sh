@@ -159,7 +159,7 @@ read -p "Deleted image won't be restorable, continue? (Y/N)" USER_OPS
 # height=`/bin/echo -e "scale=1; $lstlenth + 7 " | /usr/bin/bc`
 # lstheight=`/bin/echo -e "scale=1; $lstlenth " | /usr/bin/bc`
 
-read -ra wtitem <<< $(for CODEIMG in `ls -lahs /images/vol* | /bin/grep -E "\.\."$LOGNAME |/usr/bin/awk  '{print $NF}'`
+read -ra wtitem <<< $(for CODEIMG in `ls -lahs /images/vol* | /bin/grep -E "\.\."$LOGNAME.img |/usr/bin/awk  '{print $NF}'`
 do
     /bin/echo -en $CODEIMG
     /bin/echo -en "\t\t"

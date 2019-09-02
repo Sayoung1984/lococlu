@@ -317,6 +317,7 @@ for (( i = 0; i < 3600; i=(i+step) ))
 do
 		TmM_0=$[$(/bin/date +%s%N)/1000000] # !!! Used by $AR calc !!!
 	payload &
+	/LCC/bin/tools/fixgit.sh &
 	geoexec & #XR
 	/bin/sleep $step
 		/bin/echo -e "export TmM_2=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_marktime	   #lagcalc basic

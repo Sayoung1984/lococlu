@@ -54,6 +54,9 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 ## Current Version
 ## v0.8.6a
 * dskbill.sh now supports user leave state
+* getmgr() of dskbill.sh now runs in parallel mode
+* fixgit.sh integrated into noderep.sh
+* More accurate text matching in imgdel.sh
 ## v0.8.6
 * Added "headkill" function to kill dead LCC session in lccinfo.sh
 ## v0.8.5
@@ -110,7 +113,7 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * lccmain.sh now using standrad issued secrtsend_execbd to send tickets.
 * secrtsend_execbd and secrtsend is now using RAM disk /tmp for better performance.
 * Added experimental user root image move tool vol2to5.sh and vol2to5_neat.sh.
-* noderep.sh is outputing performance debug info into /tmp/nodereplag.log on each node.
+* noderep.sh is outputing performance debug info into /tmp/NR_DBG_lag.log on each node.
 ## v0.5.3c
 * High performance revision block 1 for noderep.sh, reduced the sitrep refresh latency.
 ## v0.5.3b
