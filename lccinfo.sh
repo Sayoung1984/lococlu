@@ -136,18 +136,16 @@ payload_slow()
 {
 	uptm=`/bin/cat /proc/uptime | /usr/bin/awk -F "." '{print $1}'`
 	free_opt=`/usr/bin/free`
-	# echo -e "$free_opt"
 	ram_all=`/bin/echo "$free_opt" | /bin/grep "Mem:" | /usr/bin/awk '{print $2}'`
-	free_version=`/usr/bin/free -V | /usr/bin/awk '{print $NF}'`
-	if [ "$free_version" = 3.3.9 ]
+	free_verchk=`/bin/echo "$free_opt" | /bin/grep " available"`
+	if [ ! -n "$free_verchk" ]
 	then
 		ram_used=`/bin/echo "$free_opt" | /bin/grep "cache:" | /usr/bin/awk '{print $3}'`
 	else
-		ram_used=`/bin/echo "$free_opt" | /bin/grep "Mem:" | /usr/bin/awk '{print $6}'`
+		ram_used=`/bin/echo "$free_opt" | /bin/grep "Mem:" | /usr/bin/awk '{print ($2-$7)}'`
 	fi
-	# echo -e "$ram_all\n$ram_used"
-	swap_all=`/bin/echo -e "$free_opt" | /bin/grep "Swap:" | /usr/bin/awk '{print $2}'`
-	swap_used=`/bin/echo -e "$free_opt" | /bin/grep "Swap:" | /usr/bin/awk '{print $3}'`
+	swap_all=`/bin/echo "$free_opt" | /bin/grep "Swap:" | /usr/bin/awk '{print $2}'`
+	swap_used=`/bin/echo "$free_opt" | /bin/grep "Swap:" | /usr/bin/awk '{print $3}'`
 	ram_pct=`/bin/echo -e "scale=2; 100 * $ram_used / $ram_all " | /usr/bin/bc`
 	swap_pct=`/bin/echo -e "scale=2; 100 * $swap_used / $swap_all " | /usr/bin/bc`
 
@@ -187,7 +185,7 @@ payload_static()
 			if [[ "$lccs_time" -ge 10 ]]
 			then
 				lccs2k=`/bin/echo "$lccs" | /usr/bin/awk -F "\t|:" '{print $NF}'`
-				lccs_user=`/bin/echo "$lccs" | /usr/bin/awk -F "\t|:" '{print $3}'`
+				lccs_user=`/bin/echo "$lccs" | /usr/bin/awk -F "\t|:" '{print $4}'`
 				echo -e "\n`/bin/date +%Y-%m%d-%H%M-%S`\t User= $lccs_user\n$lccs\n">/var/log/lcc/kill_log.`/bin/date +%y%m%d-%H%M%S`.$lccs_user
 				# /bin/echo $lccs2k
 				/bin/kill -9 $lccs2k &

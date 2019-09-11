@@ -52,6 +52,9 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.8.7
+* Final compatibility verification of Ubuntu 16.04 nodes.
+* Added noderep_gray.sh for gray released
 ## v0.8.6a
 * dskbill.sh now supports user leave state
 * getmgr() of dskbill.sh now runs in parallel mode

@@ -6,7 +6,7 @@
 pidpath=/tmp/NR_PID
 if [ -f "$pidpath" ]
 then
-	for ktgt in `/bin/ps -aux | /bin/grep -vE "$$|grep" | /bin/grep noderep.sh | /usr/bin/awk '{print $2}'`
+	for ktgt in `/bin/ps -aux | /bin/grep -vE "$$|grep" | /bin/grep noderep_gray.sh | /usr/bin/awk '{print $2}'`
 	do
 	{
 		kill -9 $ktgt 2>/dev/null
