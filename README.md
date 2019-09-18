@@ -52,6 +52,10 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.8.8
+* noderep.sh now can be directly rename to noderep_gray.sh for node rolling upgrade.
+* Added nodewring.sh tool to auto-unmount offline users, for node rolling upgrade.
+* Unset GREP_OPTIONS by default in lcc.conf to avoid compatibility problem.
 ## v0.8.7
 * Final compatibility verification of Ubuntu 16.04 nodes.
 * Added noderep_gray.sh for gray released

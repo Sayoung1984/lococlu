@@ -4,9 +4,10 @@
 
 # noderep.sh single instance lock
 pidpath=/tmp/NR_PID
+selfname=`/bin/echo $0 | /usr/bin/awk -F "/" '{print $NF}'`
 if [ -f "$pidpath" ]
 then
-	for ktgt in `/bin/ps -aux | /bin/grep -vE "$$|grep" | /bin/grep noderep.sh | /usr/bin/awk '{print $2}'`
+	for ktgt in `/bin/ps -aux | /bin/grep -vE "$$|grep" | /bin/grep $selfname | /usr/bin/awk '{print $2}'`
 	do
 	{
 		kill -9 $ktgt 2>/dev/null
@@ -31,7 +32,7 @@ source /LCC/bin/lcc.conf
 HOSTNAME=`/bin/hostname`
 
 # For Ubuntu 1.04=+, filter local snap loop devices
-SNAP=`/bin/lsblk | /bin/grep "loop.* /snap/" |  /usr/bin/awk '{printf $1 "|"}' | /bin/sed 's/[|]$//g'`
+SNAP=`/bin/lsblk | /bin/grep "loop.* /snap/" | /usr/bin/awk '{printf $1 "|"}' | /bin/sed 's/[|]$//g'`
 if [ ! -n "$SNAP" ]
 then
 	SNAP="No Snap Loop Device!"
@@ -39,6 +40,9 @@ fi
 
 # Output target for unirep
 localsitrep=/tmp/draft.rt.sitrep
+
+# Auto umount offline user images
+$lococlu/tools/nodewring.sh 2>/dev/null &
 
 # Fixed parameters for CPU info
 LOGICORE=`nproc --all`
@@ -58,7 +62,7 @@ PERFScore=`/bin/echo -e "scale=1; $CPUFREQ * $PHYSICORE " | /usr/bin/bc`
 # Darwin awards for imbeciles not connecting via cluster head
 darwinawards()
 {
-for PTSK in `/usr/bin/who | /bin/grep -Ev "head|root|sactual|:0 |10.231.215.243" | /usr/bin/awk '{print $2}'`
+for PTSK in `/usr/bin/who | /bin/grep -Ev "head|root|sactual|:0 |10.231.215.243|tmux|:pts/" | /usr/bin/awk '{print $2}'`
 do
 	/usr/bin/pkill -KILL -t $PTSK
 done
