@@ -5,7 +5,7 @@
 # The noderep deamon will execute command with root permission.
 # Needs root permission to run this tool.
 
-COLUMNS=300
+export COLUMNS=512
 endline="###---###---###---###---###"
 opstmp=/LCC/opstmp
 lococlu=/LCC/bin

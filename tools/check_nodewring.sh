@@ -28,8 +28,6 @@ opstmp=/LCC/opstmp
 lococlu=/LCC/bin
 source /LCC/bin/lcc.conf
 
-/bin/lsblk | /bin/grep -v snap | /bin/grep loop #| /usr/bin/awk '{print $NF}' | /bin/grep -E "^\/" #DBG
-
 mtd_img=`/bin/lsblk | /bin/grep -v snap | /bin/grep loop | /usr/bin/awk '{print $NF}' | /bin/grep -E "^\/" | /bin/grep $MOUNTROOT | /usr/bin/sort -r`
 mtd_user=`/bin/echo -e "$mtd_img" | /bin/sed "s|$MOUNTROOT||g" | /usr/bin/awk -F "/" '{print $1}' | /usr/bin/sort -u`
 lgn_user=`/usr/bin/who | /bin/grep -vE "root|tmux|:pts/|:0 " | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
@@ -45,7 +43,7 @@ then
 	umt_img=`/bin/echo -e "$mtd_img" | /bin/grep -E $umt_user_l`
 fi
 
-echo -e "MOUNTROOT=$MOUNTROOT\n\nmtd_img=\n$mtd_img\n\nmtd_user=\n$mtd_user\n\nlgn_user=\n$lgn_user\n\nlgn_user_l=\n$lgn_user_l\n\numt_user=\n$umt_user\n\numt_user_l=\n$umt_user_l\n\numt_user_k=\n$umt_user_k\n\numt_img=\n$umt_img" #DBG
+echo -e "MOUNTROOT=$MOUNTROOT\n\nmtd_img=\n`echo -e "$mtd_img" | head -n 5`\n\nmtd_user=\n$mtd_user\n\nlgn_user=\n$lgn_user\n\nlgn_user_l=\n$lgn_user_l\n\numt_user=\n$umt_user\n\numt_user_l=\n$umt_user_l\n\numt_user_k=\n$umt_user_k\n\numt_img=\n$umt_img" #DBG
 
 
 if [ -n "$umt_user" ]
@@ -54,17 +52,17 @@ then
         for TTK in `/bin/ps -aux | /bin/grep -vE "root|nobody" | /bin/grep -E "$umt_user_k" | /bin/grep -vE "/bin/grep" | awk '{print $2}'`
 	do
 		echo "!!! /bin/kill -9 $TTK" #DBG
-		/bin/kill -9 $TTK
+		# /bin/kill -9 $TTK
 	done
 
-	/usr/sbin/service smbd restart &
-	/usr/sbin/service nmbd restart
+	# /usr/sbin/service smbd restart &
+	# /usr/sbin/service nmbd restart
 
 	/usr/bin/sleep 1
 
 	for ITU in $umt_img
 	do
 		echo "!!! umount -l $ITU &" #DBG
-		umount -l $ITU &
+		# umount -l $ITU &
 	done
 fi

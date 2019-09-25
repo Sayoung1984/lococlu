@@ -1,4 +1,5 @@
 #! /bin/bash
+export COLUMNS=512
 OSV=`/usr/bin/lsb_release -r | /usr/bin/awk '{print $2}'`
 # echo "OSV=$OSV" #DBG
 if [[ "$OSV" = 14.04 ]]

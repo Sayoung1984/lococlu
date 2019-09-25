@@ -52,6 +52,10 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.8.8b
+* Minor bug fixes.
+## v0.8.8a
+* Added check_nodewring.sh as dry-run version of nodewring.sh, for debugging.
 ## v0.8.8
 * noderep.sh now can be directly rename to noderep_gray.sh for node rolling upgrade.
 * Added nodewring.sh tool to auto-unmount offline users, for node rolling upgrade.

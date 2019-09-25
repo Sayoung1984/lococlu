@@ -42,7 +42,7 @@ fi
 localsitrep=/tmp/draft.rt.sitrep
 
 # Auto umount offline user images
-$lococlu/tools/nodewring.sh 2>/dev/null &
+# $lococlu/tools/nodewring.sh 2>/dev/null &
 
 # Fixed parameters for CPU info
 LOGICORE=`nproc --all`
@@ -317,13 +317,13 @@ payload()
 # Main function loop
 step=1 #Execution time interval, MUST UNDER 3600!!!
 darwinawards &
+$lococlu/tools/fixgit.sh &
 /bin/echo -n > /tmp/NR_DBG_lag.log &  #DBG_lagcalc
 # /bin/echo -n > $opstmp/DBG_unirep.$HOSTNAME #DBG_unirep
 for (( i = 0; i < 3600; i=(i+step) ))
 do
 		TmM_0=$[$(/bin/date +%s%N)/1000000] # !!! Used by $AR calc !!!
 	payload &
-	$lococlu/tools/fixgit.sh &
 	geoexec & #XR
 	/bin/sleep $step
 		/bin/echo -e "export TmM_2=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_marktime	   #lagcalc basic

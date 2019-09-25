@@ -3,7 +3,7 @@
 # Or run with -u parameter like:
 # /LCC/bin/tools/imgdel.sh -i "$TgtHitList"
 
-COLUMNS=512
+export COLUMNS=512
 endline="###---###---###---###---###"
 opstmp=/LCC/opstmp
 lococlu=/LCC/bin

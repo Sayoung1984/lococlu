@@ -4,7 +4,7 @@
 # 2. Or for users to self umount all loop images and kill all ssh sessions on every node.
 # Suggested by Even, request gethered from users.
 
-COLUMNS=512
+export COLUMNS=512
 endline="###---###---###---###---###"
 loglatency=3
 opstmp=/LCC/opstmp

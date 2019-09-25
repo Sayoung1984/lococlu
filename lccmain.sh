@@ -1,7 +1,7 @@
 #! /bin/bash
 # LCC main function, works only when users dialing in.
 
-COLUMNS=512
+export COLUMNS=512
 endline="###---###---###---###---###"
 loglatency=3
 opstmp=/LCC/opstmp

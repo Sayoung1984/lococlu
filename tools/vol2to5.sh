@@ -1,6 +1,6 @@
 #! /bin/bash
 
-COLUMNS=512
+export COLUMNS=512
 endline="###---###---###---###---###"
 loglatency=3
 opstmp=/LCC/opstmp
