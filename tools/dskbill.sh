@@ -1,5 +1,7 @@
 #! /bin/bash
 
+source /etc/environment
+
 pidpath=/tmp/DB_PID
 if [ -f "$pidpath" ]
 then

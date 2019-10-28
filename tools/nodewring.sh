@@ -28,7 +28,7 @@ opstmp=/LCC/opstmp
 lococlu=/LCC/bin
 source /LCC/bin/lcc.conf
 
-/bin/lsblk | /bin/grep -v snap | /bin/grep loop #| /usr/bin/awk '{print $NF}' | /bin/grep -E "^\/" #DBG
+# /bin/lsblk | /bin/grep -v snap | /bin/grep loop #| /usr/bin/awk '{print $NF}' | /bin/grep -E "^\/" #DBG
 
 mtd_img=`/bin/lsblk | /bin/grep -v snap | /bin/grep loop | /usr/bin/awk '{print $NF}' | /bin/grep -E "^\/" | /bin/grep $MOUNTROOT | /usr/bin/sort -r`
 mtd_user=`/bin/echo -e "$mtd_img" | /bin/sed "s|$MOUNTROOT||g" | /usr/bin/awk -F "/" '{print $1}' | /usr/bin/sort -u`

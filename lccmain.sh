@@ -48,6 +48,39 @@ then
 	exec /bin/bash
 fi
 
+# /usr/bin/ssh-keygen -R 10.231.215.226 #node-sh-d2
+# /usr/bin/ssh-keygen -R 10.231.215.235 #node-sh-d3
+# /usr/bin/ssh-keygen -R 10.231.215.181 #node-sh-01
+# /usr/bin/ssh-keygen -R 10.231.215.182 #node-sh-02
+# /usr/bin/ssh-keygen -R 10.231.215.183 #node-sh-03
+# /usr/bin/ssh-keygen -R 10.231.213.3 #node-sh-05
+# /usr/bin/ssh-keygen -R 10.231.213.4 #node-sh-06
+# /usr/bin/ssh-keygen -R 10.231.213.5 #node-sh-07
+# /usr/bin/ssh-keygen -R 10.231.213.32 #node-sh-08
+# /usr/bin/ssh-keygen -R 10.231.213.33 #node-sh-09
+
+export npk="node-sh-01,10.231.215.181 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBL3sHwlGozt9C/5/CbGzYORBmNMLF+Wzd0BsHgLTVpi+GIeUwPkhABXz+56lpjO/nw4qXhParf8wqH4guXleIAE=
+node-sh-02,10.231.215.182 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBCe87HRPqB0/CMTBmFvFuYvVATQ0oHSNJLXH8LzJ8Py6bVFJr9PaytfpiwJsyYIM4tCS96F6kL0DMuIShl4QB6M=
+node-sh-03,10.231.215.183 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFn+RBU11rhuq9F6gA6Pttu52EglASfi8oyRudSD7A7+1UvN7oVNVntYICBalF+son4u0HLOYy4zzOtYrwjDUuc=
+node-sh-04,10.231.212.182 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOtufS90OS06n02IBMF/LkZ2+r+EqmtwZwqb5lbKkqgvkFAy6nZhF3N0opfyRvVr4llUnGZo87rwEQ1dCaGTUis=
+node-sh-05,10.231.213.3 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOAPyRlqL4CLEt/AJMx4/thYHR73FRHc7LldCjpqd9WuN6PUnRZ9K1s8QKGvD7HBDZ4GlLyOdEm0EPG6C+tI6wA=
+node-sh-06,10.231.213.4 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFNxH9ez+a3GOz64zBMzaq82enoX9aQOZI71IfsDA41NZNhWekwi0hL2HAKNNR3SwLI+KMmRzZfV1VJ3sBm5oRU=
+node-sh-07,10.231.213.5 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBDSfAu+m5viW2HLO38keXL4YwoDEXccAI4jdR5OU68fOBR8xR7FH3P37a6Fk+t+qyzYwT9QI+Owur1AK0Ud6vmQ=
+node-sh-08,10.231.213.32 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBJdqH1F6FAmxbv52qcWW4I6YyWtVcxxqFl7FG41U19yqdCduw7IVtu01JDoT9ZltiT/1kyX84jzcyar8zoDKWVA=
+node-sh-09,10.231.213.33 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEjU+gK+Pj2QXBYpDIWY2JIRD8geWeFMsuXSmPxA2JNEPrQm+sqR48cYsEo+RCozBj7wpMV2Z3a/i9Tci/AW02E=
+node-sh-d2,10.231.215.226 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMHMU/m/SyfanBeJt/SP4vmyjzHuHVBkAmbUYFrQ+522K5wfBx+Syc8k/SdUiWKWe9vJO64zBtkyvVKkod82WvM=
+node-sh-d3,10.231.215.235 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBIBBdEKixI18cq74TOf3kfpF7Thzhz5FDnFT+rsBEXfZiexKMLqnj+pa0vCyfsBE84ipj+OZXw6IW8xmVfBVQ0o="
+for chk in `/bin/echo -e "$npk" | /usr/bin/awk -F "[, ]" '{print $2}'`
+do
+	kchp=`/bin/echo -e "$npk" | /bin/grep "$chk " | /usr/bin/awk '{print $3}'`
+	kchl=`/bin/cat ~/.ssh/known_hosts | /bin/grep "$chk "`
+	kchr=`/bin/cat ~/.ssh/known_hosts | /bin/grep "$chk " | /bin/grep "$kchp"`
+	if [ -n "$kchl" -a ! -n "$kchr" ]
+	then
+		/usr/bin/ssh-keygen -R $chk
+	fi
+done
+
 
 # Secure Realtime Text Copy v4, execbd variant with target node $execnode signature in tickets' name and checklines
 # Added $LOGNAME check to avoid user ops conflict

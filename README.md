@@ -52,6 +52,8 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.8.8c
+* Minor bug fixes after Ubuntu 16.04 node upgrade.
 ## v0.8.8b
 * Minor bug fixes.
 ## v0.8.8a

@@ -18,7 +18,7 @@ then
 fi
 echo $$ >$pidpath
 
-/usr/bin/renice -n -4 -p $$
+/usr/bin/renice -n -8 -p $$
 
 COLUMNS=512
 endline="###---###---###---###---###"
@@ -139,7 +139,8 @@ calcmain()
 	IOIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 0 + 100 * ( $IO_DTock - $IO_DTick ) / ( $IO_TTock - $IO_TTick ) / 1 " | /usr/bin/bc)`
 	# CalcPerf
 	PerfIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2;  sqrt( ($IOIndex / 1.5) ^2 + $CPULoad ^2 ) " | /usr/bin/bc)`
-	LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $UserCount / $PERFScore + 100 * $ShortLoad / $PERFScore / $PHYSICORE " | /usr/bin/bc`
+	# LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $UserCount / $PERFScore + 100 * $ShortLoad / $PERFScore / $PHYSICORE " | /usr/bin/bc`
+	LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 10 + 100 * $UserCount / $PERFScore + 100 * $ShortLoad / $PERFScore " | /usr/bin/bc`
 
 	uptm=`/bin/cat /proc/uptime | /usr/bin/awk -F "." '{print $1}'`
 	free_opt=`/usr/bin/free`
@@ -175,7 +176,7 @@ calcmain()
 unirep()
 {
 	MarkT=`/bin/date +%s`
-	/bin/mount | /bin/grep "\.img " |  /usr/bin/awk '{print $1"\t"$3}' | /usr/bin/sort -k 2 | /bin/sed "s/^/$HOSTNAME\tlog=imgon\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
+	/bin/mount | /bin/grep "\.img " | /usr/bin/awk '{print $1"\t"$3}' | /usr/bin/sort -k 2 | /bin/sed "s/^/$HOSTNAME\tlog=imgon\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
 	/usr/bin/who | /bin/grep -v -vE "root|unknown" | /usr/bin/awk -F "[()]" '{print $1"\t"$2}' | /usr/bin/awk '{print $3"_"$4"\t"$1"\t\t"$5}' | /usr/bin/awk -F ".ap.|:S" '{print $1}' | /usr/bin/sort -k 2 -u | /bin/sed "s/^/$HOSTNAME\tlog=ulsc\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
 
 	if [ -n "$LoadIndex" -a -n "$PerfIndex" ]
@@ -203,7 +204,7 @@ secrtsend_sitrep()
 		then
 			FREPNAME=`/bin/echo $REPLX | /bin/sed 's/^\/tmp\//sec/g'`
 			# /bin/echo -e "export TmS_2c=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
-			/bin/cp $REPLX $opstmp/.$FREPNAME
+			/bin/mv $REPLX $opstmp/.$FREPNAME
 			/bin/mv $opstmp/.$FREPNAME $opstmp/$FREPNAME
 			# /bin/echo -e "export TmS_2d=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_secrtsend_sitrep
 			# /bin/chmod 666 $opstmp/$FREPNAME
@@ -317,7 +318,7 @@ payload()
 # Main function loop
 step=1 #Execution time interval, MUST UNDER 3600!!!
 darwinawards &
-$lococlu/tools/fixgit.sh &
+$lococlu/tools/fixgit.sh > /var/log/fixgit.log &
 /bin/echo -n > /tmp/NR_DBG_lag.log &  #DBG_lagcalc
 # /bin/echo -n > $opstmp/DBG_unirep.$HOSTNAME #DBG_unirep
 for (( i = 0; i < 3600; i=(i+step) ))

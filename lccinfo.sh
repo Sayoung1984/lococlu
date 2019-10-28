@@ -197,10 +197,10 @@ payload_static()
 
 # Main function loop
 payload_static &
-step=0.1
+step=0.2
 while true
 do
-	for (( g = 0; g < 10; g=$((g+1)) ))
+	for (( g = 0; g < 5; g=$((g+1)) ))
 	do
 		sitrep_2tmp
 		payload_fast &
