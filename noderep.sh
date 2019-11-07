@@ -18,7 +18,7 @@ then
 fi
 echo $$ >$pidpath
 
-/usr/bin/renice -n -8 -p $$
+/usr/bin/renice -n -18 -p $$
 
 COLUMNS=512
 endline="###---###---###---###---###"
@@ -31,7 +31,7 @@ source /LCC/bin/lcc.conf
 
 HOSTNAME=`/bin/hostname`
 
-# For Ubuntu 1.04=+, filter local snap loop devices
+# For Ubuntu 16.04=+, filter local snap loop devices
 SNAP=`/bin/lsblk | /bin/grep "loop.* /snap/" | /usr/bin/awk '{printf $1 "|"}' | /bin/sed 's/[|]$//g'`
 if [ ! -n "$SNAP" ]
 then
@@ -59,6 +59,19 @@ fi
 
 PERFScore=`/bin/echo -e "scale=1; $CPUFREQ * $PHYSICORE " | /usr/bin/bc`
 
+free_opt=`/usr/bin/free`
+ram_all=`/bin/echo "$free_opt" | /bin/grep "Mem:" | /usr/bin/awk '{print $2}'`
+ram_used=`/bin/echo "$free_opt" | /bin/grep "buffers/cache:" | /usr/bin/awk '{print $3}'`
+if [ ! -n "$ram_used" ]
+then
+	ram_used=`/bin/echo "$free_opt" | /bin/grep "Mem:" | /usr/bin/awk '{print ($2-$7)}'`
+fi
+swap_all=`/bin/echo "$free_opt" | /bin/grep "Swap:" | /usr/bin/awk '{print $2}'`
+swap_used=`/bin/echo "$free_opt" | /bin/grep "Swap:" | /usr/bin/awk '{print $3}'`
+ram_pct=`/bin/echo -e "scale=2; 100 * $ram_used / $ram_all " | /usr/bin/bc`
+swap_pct=`/bin/echo -e "scale=2; 100 * $swap_used / $swap_all " | /usr/bin/bc`
+
+
 # Darwin awards for imbeciles not connecting via cluster head
 darwinawards()
 {
@@ -66,6 +79,23 @@ for PTSK in `/usr/bin/who | /bin/grep -Ev "head|root|sactual|:0 |10.231.215.243|
 do
 	/usr/bin/pkill -KILL -t $PTSK
 done
+}
+
+userlimit()
+{
+	OLD_IFS="$IFS"
+IFS=$'\n'
+for i in `/bin/ps -axeo uid,user,pid,ni | /usr/bin/sort -n`
+do
+	i_uid=`echo $i | awk '{print $1}'`
+	i_pid=`echo $i | awk '{print $3}'`
+	i_ni=`echo $i | awk '{print $4}'`
+	if [[ "$i_uid" -gt 65534 && "$i_ni" -ne 4 ]]
+	then
+		/usr/bin/renice -n 4 $i_pid
+	fi
+done
+IFS="$OLD_IFS"
 }
 
 # Tick signal generator, generate ( $CPU_LineTickEx $IO_DTickEx $IO_TTickEx )
@@ -90,8 +120,11 @@ cpuiotock()
 	# CPU_IdleTock=`/bin/echo -e "$CPU_LineTock" | /usr/bin/awk '{print $4}'`
 	# /bin/echo -e "export CPU_SumTock=$CPU_SumTock\nexport CPU_IdleTock=$CPU_IdleTock" >> /tmp/NR_LastRep
 	# }&
+}
 
-
+loopmount()
+{
+	/bin/mount | /bin/grep "\.img " | /usr/bin/awk '{print $1"\t"$3}' | /usr/bin/sort -k 2 | /bin/sed "s/^/$HOSTNAME\tlog=imgon\t&/g"
 }
 
 calcmain()
@@ -116,14 +149,14 @@ calcmain()
 	# /bin/cat /tmp/NR_LastRep > /tmp/NR_LastRep2
 	eval $(/usr/bin/sort /tmp/NR_LastRep)
 	# CKUserCount=`/bin/grep " UserCount=" /tmp/NR_LastRep | /usr/bin/awk -F "=" '{print $2}'`
-	# TmC_1=$[$(/bin/date +%s%N)/1000000] #DBG_calcmain
+	TmC_1=$[$(/bin/date +%s%N)/1000000] #DBG_calcmain
 	#
 	# TimeTable=`/bin/cat /tmp/NR_LastRep | /bin/grep "export Tm" | /usr/bin/sort -r`
 	#
 	/bin/echo -e "export TmM_S=$TmM_0" > /tmp/NR_LastRep #!!! The start of NR_LastRep loop !!!
 	# /bin/echo -e "# DBG Got CKUserCount=$CKUserCount" >> /tmp/NR_LastRep & #DBG_allrange
 
-	# TmC_2=$[$(/bin/date +%s%N)/1000000] #DBG_calcmain
+	TmC_2=$[$(/bin/date +%s%N)/1000000] #DBG_calcmain
 
 	AR=$(($TmM_0 - $TmM_S - 1000)) #DBG_allrange
 	# /bin/echo -e "export AR=$AR" >> /tmp/NR_LastRep & #DBG_allrange
@@ -143,20 +176,14 @@ calcmain()
 	LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 10 + 100 * $UserCount / $PERFScore + 100 * $ShortLoad / $PERFScore " | /usr/bin/bc`
 
 	uptm=`/bin/cat /proc/uptime | /usr/bin/awk -F "." '{print $1}'`
-	free_opt=`/usr/bin/free`
-	ram_all=`/bin/echo "$free_opt" | /bin/grep "Mem:" | /usr/bin/awk '{print $2}'`
-	free_verchk=`/bin/echo "$free_opt" | /bin/grep " available"`
-	if [ ! -n "$free_verchk" ]
-	then
-		ram_used=`/bin/echo "$free_opt" | /bin/grep "cache:" | /usr/bin/awk '{print $3}'`
-	else
-		ram_used=`/bin/echo "$free_opt" | /bin/grep "Mem:" | /usr/bin/awk '{print ($2-$7)}'`
-	fi
-	swap_all=`/bin/echo "$free_opt" | /bin/grep "Swap:" | /usr/bin/awk '{print $2}'`
-	swap_used=`/bin/echo "$free_opt" | /bin/grep "Swap:" | /usr/bin/awk '{print $3}'`
-	ram_pct=`/bin/echo -e "scale=2; 100 * $ram_used / $ram_all " | /usr/bin/bc`
-	swap_pct=`/bin/echo -e "scale=2; 100 * $swap_used / $swap_all " | /usr/bin/bc`
 
+	# free_verchk=`/bin/echo "$free_opt" | /bin/grep " available"`
+	# if [ ! -n "$free_verchk" ]
+	# then
+	# 	ram_used=`/bin/echo "$free_opt" | /bin/grep "buffers/cache:" | /usr/bin/awk '{print $3}'`
+	# else
+	# 	ram_used=`/bin/echo "$free_opt" | /bin/grep "Mem:" | /usr/bin/awk '{print ($2-$7)}'`
+	# fi
 
 	TmC_3=$[$(/bin/date +%s%N)/1000000] #DBG_calcmain	   #lagcalc basic
 
@@ -176,15 +203,24 @@ calcmain()
 unirep()
 {
 	MarkT=`/bin/date +%s`
-	/bin/mount | /bin/grep "\.img " | /usr/bin/awk '{print $1"\t"$3}' | /usr/bin/sort -k 2 | /bin/sed "s/^/$HOSTNAME\tlog=imgon\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
+	# declare -A loop_mount
+	# declare -A loop_image
+	# loop_mount_raw=`/bin/echo -n "loop_mount=(";/bin/grep /dev/loop /proc/mounts | /usr/bin/awk '{printf "["$1"]=\""$2"\" "}';/bin/echo ")"`
+	# eval $(/bin/echo $loop_mount_raw)
+	# loop_image_raw=`/bin/echo -n "loop_image=(";/bin/cat /tmp/NR_loop | /usr/bin/awk '{printf "["$1"]=\""$2"\" "}';/bin/echo ")"`
+	# eval $(/bin/echo $loop_image_raw)
+	# for key in $(echo ${!loop_mount[*]}); do echo -e "${loop_image[$key]}\t${loop_mount[$key]}"; done | /usr/bin/sort -k 2 | /bin/sed "s/^/$HOSTNAME\tlog=imgon\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
+	# /bin/mount | /bin/grep "\.img " | /usr/bin/awk '{print $1"\t"$3}' | /usr/bin/sort -k 2 | /bin/sed "s/^/$HOSTNAME\tlog=imgon\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
+	/bin/cat /tmp/NR_LastMount | /bin/sed "s/$/&\t$MarkT/g"
 	/usr/bin/who | /bin/grep -v -vE "root|unknown" | /usr/bin/awk -F "[()]" '{print $1"\t"$2}' | /usr/bin/awk '{print $3"_"$4"\t"$1"\t\t"$5}' | /usr/bin/awk -F ".ap.|:S" '{print $1}' | /usr/bin/sort -k 2 -u | /bin/sed "s/^/$HOSTNAME\tlog=ulsc\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
 
 	if [ -n "$LoadIndex" -a -n "$PerfIndex" ]
 	then
-		/bin/echo -e "$HOSTNAME\tlog=load\t$LoadIndex\t$PerfIndex\t$CPULoad\t$IOIndex\t$ram_pct\t$swap_pct\t$UserCount\t$AR\t$uptm\t"`/bin/date +%s`
+		/bin/echo -e "$HOSTNAME\tlog=load\t$LoadIndex\t$PerfIndex\t$CPULoad\t$IOIndex\t$ram_pct\t$swap_pct\t$UserCount\t$AR\t$uptm\t$MarkT"
 	fi
 
 	/bin/echo -e "$endline" $HOSTNAME
+	loopmount > /tmp/NR_LastMount &
 }
 
 # Secure Realtime Text Copy v3, check text integrity, then push real time text to NFS at this last step, with endline and lag check
@@ -271,9 +307,9 @@ lagcalc()
 	# G3=$(($TmS_0 - $TmG_2)) #DBG_genrep
 	GR=$(($TmS_0 - $TmG_0)) #DBG_genrep
 	# /bin/echo -e "# DBG GR=$GR\t G1=$G1\t G2=$G2\t G3=$G3" >> /tmp/NR_LastRep & #DBG_genrep
-	# C1=$(($TmC_1 - $TmC_0)) #DBG_calcmain
-	# C2=$(($TmC_2 - $TmC_1)) #DBG_calcmain
-	# C3=$(($TmC_3 - $TmC_2)) #DBG_calcmain
+	C1=$(($TmC_1 - $TmC_0)) #DBG_calcmain
+	C2=$(($TmC_2 - $TmC_1)) #DBG_calcmain
+	C3=$(($TmC_3 - $TmC_2)) #DBG_calcmain
 	CR=$(($TmC_3 - $TmC_0)) #DBG_calcmain
 	# /bin/echo -e "# DBG CR=$CR\t C1=$C1\t C2=$C2\t C3=$C3\t C4=$C4" >> /tmp/NR_LastRep & #DBG_lagcalc
 	# S1=$(($TmS_1 - $TmS_0)) #DBG_secrtsend_sitrep
@@ -292,7 +328,7 @@ lagcalc()
 	# /bin/echo -e "# DBG XR=$XR\tER=$ER\tAR=$AR" >> /tmp/NR_LastRep & #DBG_lagcalc
 	TmL_1=`/bin/echo $[$(/bin/date +%s%N)/1000000]`
 	LR=$(($TmL_1 - $TmL_0))
-	/bin/echo -e "$HOSTNAME\t MR=$MR\t= $M1+$M2\t CR=$CR\t GR=$GR\t SR=$SR\t S2=$S2\t LR=$LR\tRR=$RR\tAR=$AR\tCPU=$CPULoad IO=$IOIndex\t"`/bin/date +%s` >> /tmp/NR_DBG_lag.log
+	/bin/echo -e "$HOSTNAME\t MR=$MR\t=$M1+$M2\t CR=$CR\t=$C1+$C2+$C3 GR=$GR\t SR=$SR\t S2=$S2\t LR=$LR\tRR=$RR\tAR=$AR\tCPU=$CPULoad IO=$IOIndex\t"`/bin/date +%s` >> /tmp/NR_DBG_lag.log
 	# /bin/echo -e "export LR=$LR" >> /tmp/NR_LastRep & #DBG_lagcalc
 	# /bin/echo -e "# DBG TmL_1=$TmL_1\n# DBG TmL_0=$TmL_0" >> /tmp/NR_LastRep & #DBG_lagcalc
 	/bin/echo -e "export TmR_1=$[$(/bin/date +%s%N)/1000000]" >> /tmp/NR_LastRep & #DBG_reallenth	   #lagcalc basic
@@ -318,8 +354,9 @@ payload()
 # Main function loop
 step=1 #Execution time interval, MUST UNDER 3600!!!
 darwinawards &
-$lococlu/tools/fixgit.sh > /var/log/fixgit.log &
+# $lococlu/tools/fixgit.sh > /var/log/fixgit.log &
 /bin/echo -n > /tmp/NR_DBG_lag.log &  #DBG_lagcalc
+userlimit &
 # /bin/echo -n > $opstmp/DBG_unirep.$HOSTNAME #DBG_unirep
 for (( i = 0; i < 3600; i=(i+step) ))
 do

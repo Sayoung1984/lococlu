@@ -260,6 +260,7 @@ mountcmd()
 		then
 			/bin/mkdir -p $MTP 2>/dev/null
 		fi
+		/sbin/tune2fs -U random $IMG
 		/bin/mount -o loop $IMG $MTP 2>/dev/null
 		/bin/sleep 0.2
 		/bin/chown $MUID:$MGID $MTP

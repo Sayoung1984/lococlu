@@ -52,6 +52,16 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.8.8f
+* Offload RAM/Swap report of noderep.sh into slow ring.
+* New userlimit(), renice user threads into 4 to protect noderep.sh
+* More decent loopmount() for noderep.sh
+* Random UUID each time before loop mount in lccmain.sh
+
+## v0.8.8e
+* Mark high latency nodes (lag >= 2s) red on watchnodes.sh, also added a node sitrep counter at pipeline front.
+## v0.8.8d
+* Offload the mount check to outer fork, GR time of noderep.sh been shorten under heavy load
 ## v0.8.8c
 * Minor bug fixes after Ubuntu 16.04 node upgrade.
 ## v0.8.8b
