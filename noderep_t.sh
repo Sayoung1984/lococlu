@@ -15,6 +15,7 @@ then
 	done
 	# kill -9 `/bin/cat $pidpath` > /dev/null 2>&1
 	/bin/rm -f $pidpath
+	/bin/cp /tmp/.NR_LastMount /tmp/NR_LastMount
 fi
 echo $$ >$pidpath
 
@@ -85,7 +86,7 @@ userlimit()
 {
 OLD_IFS="$IFS"
 IFS=$'\n'
-tgtnice=5
+tgtnice=7
 for i in `/bin/ps -axeo uid,user,pid,ni | /usr/bin/sort -n`
 do
 	i_uid=`echo $i | awk '{print $1}'`
@@ -129,6 +130,24 @@ loopmount()
 	/bin/echo -e "$endline" $HOSTNAME
 }
 
+cal_core()
+{
+	# CalcCPU
+	CPU_SumTock=`/bin/echo -e "$CPU_LineTock" | /usr/bin/tr " " "+" | /usr/bin/bc`
+	CPU_IdleTock=`/bin/echo -e "$CPU_LineTock" | /usr/bin/awk '{print $4}'`
+	# CPULoad=$((100*($CPU_SumTock-$CPU_SumTick-$CPU_IdleTock+$CPU_IdleTick)/($CPU_SumTock-$CPU_SumTick)))
+	CPULoad=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 100 * ( $CPU_SumTock - $CPU_SumTick - $CPU_IdleTock + $CPU_IdleTick ) / ( $CPU_SumTock - $CPU_SumTick ) / 1 " | /usr/bin/bc)`
+	# CalcIO
+	# IOIndex=$((100*$IO_DTock/($IO_TTock-$IO_TTick)-100*$IO_DTick/($IO_TTock-$IO_TTick)))
+	IOIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 0 + 100 * ( $IO_DTock - $IO_DTick ) / ( $IO_TTock - $IO_TTick ) / 1 " | /usr/bin/bc)`
+	# CalcPerf
+	PerfIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2;  sqrt( ($IOIndex / 1.5) ^2 + $CPULoad ^2 ) " | /usr/bin/bc)`
+	# LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $UserCount / $PERFScore + 100 * $ShortLoad / $PERFScore / $PHYSICORE " | /usr/bin/bc`
+	LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 10 + 100 * $UserCount / $PERFScore + 100 * $ShortLoad / $PERFScore " | /usr/bin/bc`
+	/bin/echo -e "export CPULoad=$CPULoad\nexport IOIndex=$IOIndex\nexport PerfIndex=$PerfIndex\nexport LoadIndex=$LoadIndex\n$endline" > /tmp/NR_LastLoad
+}
+
+
 calcmain()
 {
 	TmC_0=$[$(/bin/date +%s%N)/1000000] #DBG_calcmain	   #lagcalc basic
@@ -150,6 +169,7 @@ calcmain()
 	#
 	# /bin/cat /tmp/NR_LastRep > /tmp/NR_LastRep2
 	eval $(/usr/bin/sort /tmp/NR_LastRep)
+	eval $(/usr/bin/sort /tmp/NR_LastLoad)
 	# CKUserCount=`/bin/grep " UserCount=" /tmp/NR_LastRep | /usr/bin/awk -F "=" '{print $2}'`
 	TmC_1=$[$(/bin/date +%s%N)/1000000] #DBG_calcmain
 	#
@@ -164,18 +184,19 @@ calcmain()
 	# /bin/echo -e "export AR=$AR" >> /tmp/NR_LastRep & #DBG_allrange
 
 	RR=$(($TmR_1 - $TmM_S))  #DBG_reallenth	   #lagcalc basic
-	# CalcCPU
-	CPU_SumTock=`/bin/echo -e "$CPU_LineTock" | /usr/bin/tr " " "+" | /usr/bin/bc`
-	CPU_IdleTock=`/bin/echo -e "$CPU_LineTock" | /usr/bin/awk '{print $4}'`
-	# CPULoad=$((100*($CPU_SumTock-$CPU_SumTick-$CPU_IdleTock+$CPU_IdleTick)/($CPU_SumTock-$CPU_SumTick)))
-	CPULoad=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 100 * ( $CPU_SumTock - $CPU_SumTick - $CPU_IdleTock + $CPU_IdleTick ) / ( $CPU_SumTock - $CPU_SumTick ) / 1 " | /usr/bin/bc)`
-	# CalcIO
-	# IOIndex=$((100*$IO_DTock/($IO_TTock-$IO_TTick)-100*$IO_DTick/($IO_TTock-$IO_TTick)))
-	IOIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 0 + 100 * ( $IO_DTock - $IO_DTick ) / ( $IO_TTock - $IO_TTick ) / 1 " | /usr/bin/bc)`
-	# CalcPerf
-	PerfIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2;  sqrt( ($IOIndex / 1.5) ^2 + $CPULoad ^2 ) " | /usr/bin/bc)`
-	# LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $UserCount / $PERFScore + 100 * $ShortLoad / $PERFScore / $PHYSICORE " | /usr/bin/bc`
-	LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 10 + 100 * $UserCount / $PERFScore + 100 * $ShortLoad / $PERFScore " | /usr/bin/bc`
+	# # CalcCPU
+	# CPU_SumTock=`/bin/echo -e "$CPU_LineTock" | /usr/bin/tr " " "+" | /usr/bin/bc`
+	# CPU_IdleTock=`/bin/echo -e "$CPU_LineTock" | /usr/bin/awk '{print $4}'`
+	# # CPULoad=$((100*($CPU_SumTock-$CPU_SumTick-$CPU_IdleTock+$CPU_IdleTick)/($CPU_SumTock-$CPU_SumTick)))
+	# CPULoad=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 100 * ( $CPU_SumTock - $CPU_SumTick - $CPU_IdleTock + $CPU_IdleTick ) / ( $CPU_SumTock - $CPU_SumTick ) / 1 " | /usr/bin/bc)`
+	# # CalcIO
+	# # IOIndex=$((100*$IO_DTock/($IO_TTock-$IO_TTick)-100*$IO_DTick/($IO_TTock-$IO_TTick)))
+	# IOIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2; 0 + 100 * ( $IO_DTock - $IO_DTick ) / ( $IO_TTock - $IO_TTick ) / 1 " | /usr/bin/bc)`
+	# # CalcPerf
+	# PerfIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2;  sqrt( ($IOIndex / 1.5) ^2 + $CPULoad ^2 ) " | /usr/bin/bc)`
+	# # LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $UserCount / $PERFScore + 100 * $ShortLoad / $PERFScore / $PHYSICORE " | /usr/bin/bc`
+	# LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 10 + 100 * $UserCount / $PERFScore + 100 * $ShortLoad / $PERFScore " | /usr/bin/bc`
+	cal_core &
 	uptm=`/bin/cat /proc/uptime | /usr/bin/awk -F "." '{print $1}'`
 
 	# free_verchk=`/bin/echo "$free_opt" | /bin/grep " available"`

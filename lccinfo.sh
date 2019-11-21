@@ -28,7 +28,7 @@ lococlu=/LCC/bin
 source /LCC/bin/lcc.conf
 
 HOSTNAME=`/bin/hostname`
-
+node_count=`/bin/ls $opstmp/secrt.sitrep.* | /usr/bin/wc -l`
 # General Operation Executor v3, run command in tickets with checkline as root, and with lag check
 geoexec()
 {
@@ -111,7 +111,10 @@ payload_fast()
 				| /bin/sed 's/$/],/g; s/[ ][ ]*/\t/g; s/\t/, /g; s/log=load, //g' \
 				| /bin/sed 's/^/\t[/g; $s/,$//g' ; /bin/echo "];"`
 	/bin/echo -e "$lccrep_load\n//\n" > /tmp/lccrep_load
-	/bin/cp /tmp/lccrep_load $opstmp &
+	if [ "$(/bin/echo "$lccrep_lag" | /usr/bin/wc -l)" == "$node_count" ]
+	then
+		/bin/cp /tmp/lccrep_load $opstmp &
+	fi
 	gen_sitrep_diff=`/usr/bin/diff <(/bin/echo "$sitrep_gen") /tmp/CR_sitrep_gen -n`
 	if [ -n "$gen_sitrep_diff" ]
 	then
@@ -151,8 +154,8 @@ payload_slow()
 
 	# node_names=`/bin/echo "$lccrep_stack" | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
 	
-	node_names=`/bin/grep "log=load" /tmp/secrt.sitrep.* | /usr/bin/awk -F ":|\t" '{print $2}'`
-	node_count=`/bin/echo "$node_names" | /usr/bin/wc -l`
+	node_names=`/bin/ls /LCC/opstmp/secrt.sitrep.* | /usr/bin/awk -F "." '{print $NF}'`
+	node_count=`/bin/ls $opstmp/secrt.sitrep.* | /usr/bin/wc -l`
 	/bin/echo -e "var head_name = \"$HOSTNAME\";\nvar head_uptm = $uptm;\nvar head_rpct = $ram_pct;\nvar head_spct = $swap_pct;\nvar node_count = $node_count;" > /tmp/lccrep_info
 	x=1
 	for node_name in `/bin/echo "$node_names"`
@@ -197,10 +200,10 @@ payload_static()
 
 # Main function loop
 payload_static &
-step=0.1
+step=0.2
 while true
 do
-	for (( g = 0; g < 10; g=$((g+1)) ))
+	for (( g = 0; g < 5; g=$((g+1)) ))
 	do
 		sitrep_2tmp
 		payload_fast &

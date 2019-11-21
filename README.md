@@ -52,12 +52,15 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.8.9
+* New script secure scanner Conceptual prototype obiwan.sh, aiming auto discover & fix user mount error and image FS error. 
+* Eventually the tech and parts of standalone tool obiwan.sh will be merged into lccmain.sh / lccinfo.sh / noderep.sh
+* Node sitrep refresh logic update, if load info not updated, hold sitrep updates.
 ## v0.8.8f
 * Offload RAM/Swap report of noderep.sh into slow ring.
 * New userlimit(), renice user threads into 4 to protect noderep.sh
 * More decent loopmount() for noderep.sh
 * Random UUID each time before loop mount in lccmain.sh
-
 ## v0.8.8e
 * Mark high latency nodes (lag >= 2s) red on watchnodes.sh, also added a node sitrep counter at pipeline front.
 ## v0.8.8d

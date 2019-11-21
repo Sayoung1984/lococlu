@@ -120,7 +120,7 @@ selectfree()
 	listfree
 	# /bin/echo -e "\n#DBG_selectfree_in NodeLine_Name = $NodeLine_Name\n#DBG_selectfree_in NodeLine_tstamp = $NodeLine_tstamp\n#DBG_selectfree_in NodeLine_lag = $NodeLine_lag\n\n"
 	/bin/echo -e "Refreshing node load info..\c"
-	while [ ! -n "$NodeLine_lag" -o "$NodeLine_lag" -gt "$loglatency" ]
+	while [ ! -n "$NodeLine_lag" -o "$NodeLine_lag" -gt "$loglatency"0 ]
 	do
 		/bin/rm -f $opstmp/*.$NodeLine_Name #Drop1*
 		/bin/sleep $loglatency
@@ -260,7 +260,7 @@ mountcmd()
 		then
 			/bin/mkdir -p $MTP 2>/dev/null
 		fi
-		/sbin/tune2fs -U random $IMG
+		# /sbin/tune2fs -U random $IMG
 		/bin/mount -o loop $IMG $MTP 2>/dev/null
 		/bin/sleep 0.2
 		/bin/chown $MUID:$MGID $MTP

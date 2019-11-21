@@ -62,8 +62,8 @@ done
 delimg()
 {
 	TGTUSER=`/bin/echo -e $TgtHitList |/usr/bin/awk  -F ".img" '{print $NR}' |/usr/bin/awk  -F "." '{print $NF}'`
-	TGTNode=`/bin/cat $opstmp/secrt.sitrep.* | /bin/grep "log=imgon" | /bin/grep /$TGTUSER.img |/usr/bin/awk  '{print $1}'`
-	# /bin/echo -e "TGTUSER=$TGTUSER; TGTNode=$TGTNode; \nTgtHitList=$TgtHitList"
+	TGTNode=`/bin/cat $opstmp/secrt.sitrep.* | /bin/grep "log=imgon" | /bin/grep ..$TGTUSER.img |/usr/bin/awk '{print $1}' | /usr/bin/sort -u`
+	/bin/echo -e "TGTUSER=$TGTUSER; TGTNode=$TGTNode; \nTgtHitList=$TgtHitList"
 	if [ ! -n "$TGTNode" ]
 	then
 		TGTNode=`/bin/cat $opstmp/secrt.sitrep.* | /bin/grep "log=load" | /usr/bin/sort -r -k 11 | /usr/bin/head -n 1 |/usr/bin/awk  '{print $1}'`
@@ -118,7 +118,7 @@ done
 # The Silence mode without warning
 while [ -n "$1" ]
 do
-  case "$1" in
+    case "$1" in
     -i)
         /bin/echo "Found -i option"
         /bin/echo -e "value=$2"
@@ -129,8 +129,8 @@ do
         ;;
     *)
         ;;
-esac
-shift
+    esac
+    shift
 done
 
 
