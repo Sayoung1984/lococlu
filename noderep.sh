@@ -85,7 +85,7 @@ userlimit()
 {
 OLD_IFS="$IFS"
 IFS=$'\n'
-tgtnice=5
+tgtnice=6
 for i in `/bin/ps -axeo uid,user,pid,ni | /usr/bin/sort -n`
 do
 	i_uid=`echo $i | awk '{print $1}'`
@@ -212,7 +212,7 @@ unirep()
 	# eval $(/bin/echo $loop_image_raw)
 	# for key in $(echo ${!loop_mount[*]}); do echo -e "${loop_image[$key]}\t${loop_mount[$key]}"; done | /usr/bin/sort -k 2 | /bin/sed "s/^/$HOSTNAME\tlog=imgon\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
 	# /bin/mount | /bin/grep "\.img " | /usr/bin/awk '{print $1"\t"$3}' | /usr/bin/sort -k 2 | /bin/sed "s/^/$HOSTNAME\tlog=imgon\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
-	if [ -n "$(/bin/grep $endline /tmp/.NR_LastMount)" -a -n "$(/usr/bin/diff /tmp/.NR_LastMount /tmp/NR_LastMount)" -o ! -f "/tmp/NR_LastMount" ]
+	if [ ! -f "/tmp/NR_LastMount" -o -n "$(/bin/grep $endline /tmp/.NR_LastMount)" -a -n "$(/usr/bin/diff /tmp/.NR_LastMount /tmp/NR_LastMount)" ]
 	then
 		/bin/cp /tmp/.NR_LastMount /tmp/NR_LastMount
 	fi 

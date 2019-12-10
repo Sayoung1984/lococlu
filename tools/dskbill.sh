@@ -61,8 +61,10 @@ mainfunc()
                 getmgr
                 if [ ! -n "$C_MGR" ]
                 then
-                    leaver_img=`/bin/ls -sl /images/vol*/*.img | grep -v "\.\." | /bin/grep /$C_USER.img | /usr/bin/awk '{print $NF}'`
-                    /bin/mv "$leaver_img" "$leaver_img.leaver"
+                    leaver_img=`/bin/ls -sl /images/vol*/*.img | /usr/bin/awk '{print $NF}' | /bin/egrep "(\.\.|\/)$C_USER\.img" `
+                    for TGT_IMG in `/bin/echo "$leaver_img"`; do
+                        /bin/mv $TGT_IMG $TGT_IMG.leaver
+                    done
                 else
                     OPLINE="$C_MGR <---- $OPLINE"
                     # /bin/echo DBG_main1b OPLINE=$OPLINE

@@ -144,7 +144,8 @@ cal_core()
 	PerfIndex=`/usr/bin/printf %.$2f $(/bin/echo -e "scale=2;  sqrt( ($IOIndex / 1.5) ^2 + $CPULoad ^2 ) " | /usr/bin/bc)`
 	# LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 100 + 10 * $UserCount / $PERFScore + 100 * $ShortLoad / $PERFScore / $PHYSICORE " | /usr/bin/bc`
 	LoadIndex=`/bin/echo -e "scale=2; $IOIndex / 10 + 100 * $UserCount / $PERFScore + 100 * $ShortLoad / $PERFScore " | /usr/bin/bc`
-	/bin/echo -e "export CPULoad=$CPULoad\nexport IOIndex=$IOIndex\nexport PerfIndex=$PerfIndex\nexport LoadIndex=$LoadIndex\n$endline" > /tmp/NR_LastLoad
+	/bin/echo -e "export CPULoad=$CPULoad\nexport IOIndex=$IOIndex\nexport PerfIndex=$PerfIndex\nexport LoadIndex=$LoadIndex" > /tmp/NR_LastLoad
+	/bin/echo -e "$endline" >> /tmp/NR_LastLoad
 }
 
 
@@ -168,8 +169,12 @@ calcmain()
 	# eval `/bin/grep AR= /tmp/NR_LastRep`
 	#
 	# /bin/cat /tmp/NR_LastRep > /tmp/NR_LastRep2
-	eval $(/usr/bin/sort /tmp/NR_LastRep)
-	eval $(/usr/bin/sort /tmp/NR_LastLoad)
+	# eval $(/usr/bin/sort /tmp/NR_LastRep)
+	source /tmp/NR_LastRep
+	if [ -n "$(/usr/bin/tail -n 1 /tmp/NR_LastLoad | /bin/grep $endline )" ]
+	then
+		source /tmp/NR_LastLoad
+	fi
 	# CKUserCount=`/bin/grep " UserCount=" /tmp/NR_LastRep | /usr/bin/awk -F "=" '{print $2}'`
 	TmC_1=$[$(/bin/date +%s%N)/1000000] #DBG_calcmain
 	#

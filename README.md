@@ -52,6 +52,10 @@ This project is licensed under the GNU General Public License version 3 (GPL-3.0
 * L3 issue: Half disconnected lccmain.sh session burning head CPU.
 
 ## Current Version
+## v0.8.9a
+* More reliable system load sitrep part on noderep.sh
+* dskbill.sh now marking both root and clone images of leavers
+* obiwan.sh now having ability to list images now mounted as expected.
 ## v0.8.9
 * New script secure scanner Conceptual prototype obiwan.sh, aiming auto discover & fix user mount error and image FS error. 
 * Eventually the tech and parts of standalone tool obiwan.sh will be merged into lccmain.sh / lccinfo.sh / noderep.sh

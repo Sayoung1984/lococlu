@@ -49,9 +49,17 @@ do
 	M_SVR=`/bin/echo -e "$LOGINFO" | /bin/grep $MOUNTROOT$TGT_USER | /bin/grep $TGT_USER.img | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
 	CNT_SVR=`/bin/echo -e "$M_SVR" | /usr/bin/wc -l`
 	CNT_IMG=`/bin/echo -e "$IMGINFO" | /bin/egrep "(\.\.|\/)$TGT_USER\.img" | /usr/bin/sort | /usr/bin/wc -l`
-	CNT_MNT=`/bin/echo -e "$LOGINFO" | /bin/grep imgon | /bin/grep ..$TGT_USER.img | /usr/bin/awk '{print $3}' | /usr/bin/wc -l`
+	CNT_MNT=`/bin/echo -e "$LOGINFO" | /bin/grep imgon | /bin/grep ..$TGT_USER.img | /usr/bin/awk '{print $3}' | /usr/bin/sort | /usr/bin/wc -l`
 	if [ "$CNT_IMG" != "$CNT_MNT" -o "$CNT_SVR" != 1 ]
 	then
 		/bin/echo -e $TGT_USER"\t"$CNT_IMG"\t"$CNT_MNT"\t"$CNT_SVR"\t"$M_SVR
+		if [ "$CNT_SVR" == 1 -a "$CNT_IMG" > "$CNT_MNT" ]
+		then
+			IMG=`/bin/echo -e "$IMGINFO" | /bin/egrep "(\.\.|\/)$TGT_USER\.img" | /usr/bin/sort`
+			MNT=`/bin/echo -e "$LOGINFO" | /bin/grep imgon | /bin/grep ..$TGT_USER.img | /usr/bin/awk '{print $3}' | /usr/bin/sort`
+			/bin/echo -e "Missing image mounted on "$M_SVR
+			/usr/bin/diff <(/bin/echo -e "$IMG") <(/bin/echo -e "$MNT") | /bin/grep -e "^< " | /bin/sed 's#^< ##g'
+			/bin/echo
+		fi
 	fi
 done # | /usr/bin/sort -k 4
