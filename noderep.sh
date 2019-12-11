@@ -125,8 +125,17 @@ cpuiotock()
 
 loopmount()
 {
-	/bin/mount | /bin/grep "\.img " | /usr/bin/awk '{print $1"\t"$3}' | /usr/bin/sort -k 2 | /bin/sed "s/^/$HOSTNAME\tlog=imgon\t&/g"
-	/bin/echo -e "$endline" $HOSTNAME
+	# /bin/mount | /bin/grep "\.img " | /usr/bin/awk '{print $1"\t"$3}' | /usr/bin/sort -k 2 | /bin/sed "s/^/$HOSTNAME\tlog=imgon\t&/g"
+	# /bin/echo -e "$endline" $HOSTNAME
+	MarkTL=`/bin/date +%s`
+	/bin/mount | /bin/grep "\.img " | /usr/bin/awk '{print $1"\t"$3}' | /usr/bin/sort -k 2 | /bin/sed "s/^/$HOSTNAME\tlog=imgon\t&/g" > /tmp/.NR_LastMount.$MarkTL
+	/bin/echo -e "$endline" $HOSTNAME >> /tmp/.NR_LastMount.$MarkTL
+	if [ -n "$(/bin/grep $endline /tmp/.NR_LastMount.$MarkTL)" -a -n "$(/usr/bin/diff /tmp/.NR_LastMount.$MarkTL /tmp/NR_LastMount)" -o ! -f "/tmp/NR_LastMount" ]
+	then
+		/bin/mv /tmp/.NR_LastMount.$MarkTL /tmp/NR_LastMount
+	else
+		/bin/rm -f /tmp/.NR_LastMount.$MarkTL
+	fi
 }
 
 calcmain()
@@ -212,10 +221,10 @@ unirep()
 	# eval $(/bin/echo $loop_image_raw)
 	# for key in $(echo ${!loop_mount[*]}); do echo -e "${loop_image[$key]}\t${loop_mount[$key]}"; done | /usr/bin/sort -k 2 | /bin/sed "s/^/$HOSTNAME\tlog=imgon\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
 	# /bin/mount | /bin/grep "\.img " | /usr/bin/awk '{print $1"\t"$3}' | /usr/bin/sort -k 2 | /bin/sed "s/^/$HOSTNAME\tlog=imgon\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
-	if [ ! -f "/tmp/NR_LastMount" -o -n "$(/bin/grep $endline /tmp/.NR_LastMount)" -a -n "$(/usr/bin/diff /tmp/.NR_LastMount /tmp/NR_LastMount)" ]
-	then
-		/bin/cp /tmp/.NR_LastMount /tmp/NR_LastMount
-	fi 
+	# if [ ! -f "/tmp/NR_LastMount" -o -n "$(/bin/grep $endline /tmp/.NR_LastMount)" -a -n "$(/usr/bin/diff /tmp/.NR_LastMount /tmp/NR_LastMount)" ]
+	# then
+	# 	/bin/cp /tmp/.NR_LastMount /tmp/NR_LastMount
+	# fi 
 	/bin/grep -v $endline /tmp/NR_LastMount | /bin/sed "s/$/&\t$MarkT/g"
 	/usr/bin/who | /bin/grep -v -vE "root|unknown" | /usr/bin/awk -F "[()]" '{print $1"\t"$2}' | /usr/bin/awk '{print $3"_"$4"\t"$1"\t\t"$5}' | /usr/bin/awk -F ".ap.|:S" '{print $1}' | /usr/bin/sort -k 2 -u | /bin/sed "s/^/$HOSTNAME\tlog=ulsc\t&/g" | /bin/sed "s/$/&\t$MarkT/g"
 
@@ -225,7 +234,8 @@ unirep()
 	fi
 
 	/bin/echo -e "$endline" $HOSTNAME
-	loopmount > /tmp/.NR_LastMount &
+	# loopmount > /tmp/.NR_LastMount &
+	loopmount &
 }
 
 # Secure Realtime Text Copy v3, check text integrity, then push real time text to NFS at this last step, with endline and lag check
