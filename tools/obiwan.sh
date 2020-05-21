@@ -31,31 +31,44 @@ done
 MOUNTROOT=`/bin/echo $MOUNTROOT | /bin/sed '/\/$/!  s/^.*$/&\//'`
 
 STD_CNT_SVR=`/bin/ls $opstmp/secrt.sitrep.* | /usr/bin/wc -l`
-LOGINFO=`/bin/cat $opstmp/secrt.sitrep.*`
-LIVE_CNT_SVR=`/bin/echo -e "$LOGINFO" | /bin/grep $endline | /usr/bin/wc -l`
+# LOGINFO=`/bin/cat $opstmp/secrt.sitrep.*`
+/bin/cat $opstmp/secrt.sitrep.* > /var/tmp/LOGINFO
+# LIVE_CNT_SVR=`/bin/echo -e "$LOGINFO" | /bin/grep $endline | /usr/bin/wc -l`
+LIVE_CNT_SVR=`/bin/grep $endline /var/tmp/LOGINFO | /usr/bin/wc -l`
+# /bin/echo -e "LIVE_CNT_SVR=$LIVE_CNT_SVR"
 while [ "$STD_CNT_SVR" != "$LIVE_CNT_SVR" ]
 do
 	sleep 1
 	# echo -e "Refresh cycle!"
-	LOGINFO=`/bin/cat $opstmp/secrt.sitrep.*`
-	LIVE_CNT_SVR=`/bin/echo -e "$LOGINFO" | /bin/grep $endline | /usr/bin/wc -l`
+	# LOGINFO=`/bin/cat $opstmp/secrt.sitrep.*`
+	# LIVE_CNT_SVR=`/bin/echo -e "$LOGINFO" | /bin/grep $endline | /usr/bin/wc -l`
+	/bin/cat $opstmp/secrt.sitrep.* > /var/tmp/LOGINFO
+	LIVE_CNT_SVR=`/bin/grep $endline /var/tmp/LOGINFO | /usr/bin/wc -l`
+	# /bin/echo -e "LIVE_CNT_SVR=$LIVE_CNT_SVR"
 done
 
-IMGINFO=`/bin/ls /images/vol*/*.img`
+# IMGINFO=`/bin/ls /images/vol*/*.img`
+/bin/ls /images/vol*/*.img > /var/tmp/IMGINFO
 echo -e "User\tCNT_Img\tCNT_MNT\tCNT_SVR\tM_SVR"
-for TGT_USER in `/bin/echo -e "$LOGINFO" | /bin/grep log=imgon | /usr/bin/awk '{print $4}' | /bin/sed 's#^/local/mnt/workspace/##g' | /usr/bin/awk -F '/' '{print $1}' | /usr/bin/sort -u`
+# for TGT_USER in `/bin/echo -e "$LOGINFO" | /bin/grep log=imgon | /usr/bin/awk '{print $4}' | /bin/sed 's#^/local/mnt/workspace/##g' | /usr/bin/awk -F '/' '{print $1}' | /usr/bin/sort -u`
+for TGT_USER in `/bin/grep log=imgon /var/tmp/LOGINFO | /usr/bin/awk '{print $4}' | /bin/sed 's#^/local/mnt/workspace/##g' | /usr/bin/awk -F '/' '{print $1}' | /usr/bin/sort -u`
 do
-	M_SVR=`/bin/echo -e "$LOGINFO" | /bin/grep $MOUNTROOT$TGT_USER | /bin/grep $TGT_USER.img | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
+        # M_SVR=`/bin/echo -e "$LOGINFO" | /bin/grep $MOUNTROOT$TGT_USER | /bin/grep $TGT_USER.img | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
+        M_SVR=`/bin/grep $MOUNTROOT$TGT_USER /var/tmp/LOGINFO | /bin/grep $TGT_USER.img | /usr/bin/awk '{print $1}' | /usr/bin/sort -u`
 	CNT_SVR=`/bin/echo -e "$M_SVR" | /usr/bin/wc -l`
-	CNT_IMG=`/bin/echo -e "$IMGINFO" | /bin/egrep "(\.\.|\/)$TGT_USER\.img" | /usr/bin/sort | /usr/bin/wc -l`
-	CNT_MNT=`/bin/echo -e "$LOGINFO" | /bin/grep imgon | /bin/egrep "(\.\.|\/)$TGT_USER\.img" | /usr/bin/awk '{print $3}' | /usr/bin/sort | /usr/bin/wc -l`
+        # CNT_IMG=`/bin/echo -e "$IMGINFO" | /bin/egrep "(\.\.|\/)$TGT_USER\.img" | /usr/bin/sort | /usr/bin/wc -l`
+        CNT_IMG=`/bin/egrep "(\.\.|\/)$TGT_USER\.img" /var/tmp/IMGINFO | /usr/bin/sort | /usr/bin/wc -l`
+        # CNT_MNT=`/bin/echo -e "$LOGINFO" | /bin/grep imgon | /bin/egrep "(\.\.|\/)$TGT_USER\.img" | /usr/bin/awk '{print $3}' | /usr/bin/sort | /usr/bin/wc -l`
+        CNT_MNT=`/bin/grep imgon /var/tmp/LOGINFO | /bin/egrep "(\.\.|\/)$TGT_USER\.img" | /usr/bin/awk '{print $3}' | /usr/bin/sort | /usr/bin/wc -l`
 	if [ "$CNT_IMG" != "$CNT_MNT" -o "$CNT_SVR" != 1 ]
 	then
 		/bin/echo -e "$TGT_USER\t$CNT_IMG\t$CNT_MNT\t$CNT_SVR\t$M_SVR"
 		if [ "$CNT_SVR" == 1 -a "$CNT_IMG" -gt "$CNT_MNT" ]
 		then
-			IMG=`/bin/echo -e "$IMGINFO" | /bin/egrep "(\.\.|\/)$TGT_USER\.img" | /usr/bin/sort`
-			MNT=`/bin/echo -e "$LOGINFO" | /bin/grep imgon | /bin/grep ..$TGT_USER.img | /usr/bin/awk '{print $3}' | /usr/bin/sort`
+			# IMG=`/bin/echo -e "$IMGINFO" | /bin/egrep "(\.\.|\/)$TGT_USER\.img" | /usr/bin/sort`
+			IMG=`/bin/egrep "(\.\.|\/)$TGT_USER\.img" /var/tmp/IMGINFO | /usr/bin/sort`
+			# MNT=`/bin/echo -e "$LOGINFO" | /bin/grep imgon | /bin/grep ..$TGT_USER.img | /usr/bin/awk '{print $3}' | /usr/bin/sort`
+			MNT=`/bin/grep imgon /var/tmp/LOGINFO | /bin/grep ..$TGT_USER.img | /usr/bin/awk '{print $3}' | /usr/bin/sort`
 			/bin/echo -e "Missing image mounted on "$M_SVR
 			/usr/bin/diff <(/bin/echo -e "$IMG") <(/bin/echo -e "$MNT") | /bin/grep -e "^< " | /bin/sed 's#^< ##g'
 			/bin/echo
